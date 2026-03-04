@@ -33,6 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const timerDisplay = document.getElementById('recordingTimer');
     const audioPlaybackContainer = document.getElementById('audioPlaybackContainer');
     const audioPlayback = document.getElementById('audioPlayback');
+    let playbackNormalized = false;
 
     // CRITICAL: Constraints rigorosas para garantir áudio sem manipulação DSP
     const constraints = {
@@ -247,6 +248,34 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Exibe player e seta a URL blob local para ouvir imediato
                 audioPlayback.src = URL.createObjectURL(audioBlob);
                 audioPlaybackContainer.style.display = 'block';
+
+                // Normaliza/Amplifica O PLAYER apenas uma vez (sem alterar o blob bruto enviado ao server)
+                if (!playbackNormalized) {
+                    try {
+                        const playCtx = new (window.AudioContext || window.webkitAudioContext)();
+                        const track = playCtx.createMediaElementSource(audioPlayback);
+
+                        // Compressor e Compressor Dinâmico
+                        const compressor = playCtx.createDynamicsCompressor();
+                        compressor.threshold.value = -35;
+                        compressor.knee.value = 30;
+                        compressor.ratio.value = 10;
+                        compressor.attack.value = 0.05;
+                        compressor.release.value = 0.25;
+
+                        // Ganho brutal para áudios muito fracos
+                        const gainNode = playCtx.createGain();
+                        gainNode.gain.value = 3.5;
+
+                        track.connect(compressor);
+                        compressor.connect(gainNode);
+                        gainNode.connect(playCtx.destination);
+
+                        playbackNormalized = true;
+                    } catch (e) {
+                        console.warn("AudioContext init failed para o preview:", e);
+                    }
+                }
 
                 uploadStatus.innerHTML = '<span style="color:var(--secondary-color);"><i class="fa-solid fa-check"></i> Áudio salvo com sucesso!</span>';
                 nextBtn.style.display = 'inline-flex';
