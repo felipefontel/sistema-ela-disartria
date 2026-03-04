@@ -104,6 +104,7 @@ else:
         default=os.getenv('DATABASE_URL', f"sqlite:///{BASE_DIR / 'db.sqlite3'}"),
         conn_max_age=600,
         conn_health_checks=True,
+        ssl_require=bool(os.getenv('DATABASE_URL'))  # Exige SSL se a URL de banco for passada, comum no Vercel
     )
 
 # CORS Config
