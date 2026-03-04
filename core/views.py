@@ -321,6 +321,13 @@ def upload_audio_api(request):
             
         patient = get_object_or_404(Patient, id=patient_id)
         
+        # Excluir gravações antigas desta mesma tarefa para que ao regravar não mantenha duplicatas
+        old_recordings = PatientRecording.objects.filter(patient=patient, task_type=task_type)
+        for old_rec in old_recordings:
+            if old_rec.audio_file:
+                old_rec.audio_file.delete(save=False)
+            old_rec.delete()
+        
         recording = PatientRecording.objects.create(
             patient=patient,
             task_type=task_type,
@@ -344,6 +351,8 @@ def delete_audio_api(request):
         
         # Opcional: só o user criador ou superuser pode apagar.
         # Mas como a intenção é descartar em tempo real logo apos gravar:
+        if recording.audio_file:
+            recording.audio_file.delete(save=False)
         recording.delete()
         
         return JsonResponse({'message': 'Áudio excluído com sucesso!'})
