@@ -106,10 +106,12 @@ else:
             'PASSWORD': os.getenv('DB_PASSWORD'),
             'HOST': os.getenv('DB_HOST'),
             'PORT': os.getenv('DB_PORT', '5432'),
-            'OPTIONS': {
-                'sslmode': 'require',
-            },
         }
+        
+        # Só força SSL se não estiver no localhost, pois o Azure exige SSL de fora.
+        # Porém, às vezes do seu IP local o Azure aceita tráfego sem/outro tipo de SSL dependendo da lib Psycopg2 no Windows.
+        if 'localhost' not in ALLOWED_HOSTS and '*' not in ALLOWED_HOSTS:
+             DATABASES['default']['OPTIONS'] = {'sslmode': 'require'}
     else:
         DATABASES['default'] = dj_database_url.config(
             default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
