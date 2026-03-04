@@ -140,46 +140,43 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!canvas) return;
         drawVisual = requestAnimationFrame(visualize);
 
-        analyser.getByteTimeDomainData(dataArray);
+        analyser.getByteFrequencyData(dataArray);
 
         canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
 
-        canvasCtx.lineWidth = 4; // Um pouco mais grossa pra destacar
-
-        // Gradiente bonito
-        let gradient = canvasCtx.createLinearGradient(0, 0, canvas.width, 0);
-        gradient.addColorStop(0, '#0b6fb8');     // primary
-        gradient.addColorStop(0.5, '#1bbca0');   // secondary
-        gradient.addColorStop(1, '#0b6fb8');     // primary
-        canvasCtx.strokeStyle = gradient;
-
-        canvasCtx.beginPath();
-
-        const sliceWidth = canvas.width * 1.0 / analyser.frequencyBinCount;
+        // Largura baseada no número de frequências analisadas
+        const barWidth = (canvas.width / analyser.frequencyBinCount) * 2.5;
+        let barHeight;
         let x = 0;
+        const centerY = canvas.height / 2;
 
         for (let i = 0; i < analyser.frequencyBinCount; i++) {
-            // Amplificando a onda DEMAIS para qualquer sussuro mexer a linha
-            let v = dataArray[i] / 128.0; // centralizado no 1
+            barHeight = dataArray[i] / 2; // altura base
 
-            // Subtrai-1 pra achar a oscilação pura,
-            // Multiplica por 6.0 (super sensível!)
-            // Soma 1 de volta
-            v = ((v - 1) * 6.0) + 1;
-
-            const y = v * (canvas.height / 2);
-
-            if (i === 0) {
-                canvasCtx.moveTo(x, y);
-            } else {
-                canvasCtx.lineTo(x, y);
+            // Amplifica agressivamente para dar mais "vida" aos audios comuns
+            if (barHeight > 5) {
+                barHeight = barHeight * 2.5;
+            } else if (barHeight > 2) {
+                barHeight = barHeight * 1.5;
             }
 
-            x += sliceWidth;
-        }
+            // Impede a barra de vazar pra fora do canvas
+            if (barHeight > centerY) barHeight = centerY - 2;
 
-        canvasCtx.lineTo(canvas.width, canvas.height / 2);
-        canvasCtx.stroke();
+            // Mínimo pra criar aquela 'linha zerada' suave
+            if (barHeight < 2) barHeight = 2;
+
+            // Cores baseadas no tom e na altura da barra
+            const r = barHeight + (25 * (i / analyser.frequencyBinCount));
+            const g = 188 - (barHeight / 1.5);
+            const b = 160;
+            canvasCtx.fillStyle = `rgb(${r},${g},${b})`;
+
+            // Simetria central: metade pra cima, metade pra baixo
+            canvasCtx.fillRect(x, centerY - barHeight, barWidth, barHeight * 2);
+
+            x += barWidth + 1;
+        }
     }
 
     function startRecording(stream) {
