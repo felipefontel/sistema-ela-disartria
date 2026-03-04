@@ -2,98 +2,121 @@
 
 {% block content %}
 <div class="glass-panel">
-    <h2 style="margin-bottom: 2rem; color: var(--primary-color);">Dashboard de Atendimentos</h2>
-    
-    <div class="stats-grid">
-        <div class="stat-card glass-panel">
-            <div class="stat-icon">
-                <i class="fa-solid fa-hospital-user"></i>
-            </div>
-            <div class="stat-info">
-                <h3>{{ total_patients }}</h3>
-                <p>Pacientes Cadastrados</p>
-            </div>
-        </div>
 
-        <!-- Gráfico de Donut: Diagnósticos -->
-        <div class="stat-card glass-panel" style="flex-direction: column; align-items: center; justify-content: center; padding: 1.5rem; min-height: 200px;">
-            {% if diagnosis_data %}
-            <canvas id="diagnosisChart" style="max-height: 180px; max-width: 180px;"></canvas>
-            <p style="margin-top: 0.75rem; color: var(--text-secondary); font-size: 0.82rem; text-align: center;">Diagnósticos dos Pacientes</p>
-            {% else %}
-            <div style="text-align: center; color: var(--text-secondary);">
-                <i class="fa-solid fa-chart-pie" style="font-size: 2.5rem; opacity: 0.3; margin-bottom: 0.5rem;"></i>
-                <p style="font-size: 0.85rem;">Nenhum paciente cadastrado ainda.</p>
-            </div>
+    <!-- Cabeçalho -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+        <div>
+            <h2 style="color: var(--primary-color); margin: 0;">Pacientes Cadastrados</h2>
+            <p style="color: var(--text-secondary); margin: 0.25rem 0 0 0; font-size: 0.9rem;">{{ total_patients }} paciente{{ total_patients|pluralize }} no total</p>
+        </div>
+        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center;">
+            {% if request.user.is_superuser %}
+            <a href="{% url 'user_list' %}" class="btn-secondary" style="text-decoration: none; display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.85rem;">
+                <i class="fa-solid fa-user-shield"></i> Usuários
+            </a>
             {% endif %}
+            <a href="{% url 'patient_create' %}" class="btn-primary" style="text-decoration: none; display: inline-flex; align-items: center; gap: 0.4rem;">
+                <i class="fa-solid fa-user-plus"></i> Novo Paciente
+            </a>
         </div>
     </div>
 
-    <div class="action-buttons">
-        <a href="{% url 'patient_create' %}" class="btn-primary" style="text-align: center; text-decoration: none; display: inline-block;">
-            <i class="fa-solid fa-user-plus"></i> Novo Paciente
+    <!-- Busca -->
+    <form method="get" style="margin-bottom: 1.25rem;">
+        <div style="display: flex; gap: 0.5rem;">
+            <input type="text" name="q" value="{{ query }}"
+                   placeholder="Buscar por nome do paciente..."
+                   class="form-control"
+                   style="flex: 1; max-width: 380px;">
+            <button type="submit" class="btn-secondary" style="display: inline-flex; align-items: center; gap: 0.4rem; white-space: nowrap;">
+                <i class="fa-solid fa-magnifying-glass"></i> Buscar
+            </button>
+            {% if query %}
+            <a href="{% url 'dashboard' %}" class="btn-secondary" style="text-decoration: none; display: inline-flex; align-items: center; gap: 0.4rem;">
+                <i class="fa-solid fa-xmark"></i> Limpar
+            </a>
+            {% endif %}
+        </div>
+    </form>
+
+    <!-- Tabela -->
+    <div style="overflow-x: auto;">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Diagnóstico</th>
+                    <th>Sexo</th>
+                    <th>Cadastrado em</th>
+                    <th style="text-align: center;">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for patient in page_obj %}
+                <tr>
+                    <td style="font-weight: 500;">{{ patient.name }}</td>
+                    <td>
+                        <span style="font-size: 0.8rem; padding: 3px 8px; border-radius: 20px; background: rgba(99,179,237,0.15); color: #63b3ed;">
+                            {{ patient.get_diagnosis_display }}
+                        </span>
+                    </td>
+                    <td style="color: var(--text-secondary);">{{ patient.get_gender_display }}</td>
+                    <td style="color: var(--text-secondary); font-size: 0.85rem;">{{ patient.created_at|date:"d/m/Y" }}</td>
+                    <td style="text-align: center;">
+                        <a href="{% url 'recording_task' patient.id 1 %}"
+                           style="display: inline-flex; align-items: center; gap: 0.3rem; padding: 5px 14px; border-radius: 6px; font-size: 0.8rem; background: rgba(129,230,217,0.15); color: #81e6d9; border: 1px solid rgba(129,230,217,0.3); text-decoration: none; transition: all 0.2s;"
+                           onmouseover="this.style.background='rgba(129,230,217,0.3)'" onmouseout="this.style.background='rgba(129,230,217,0.15)'">
+                            <i class="fa-solid fa-microphone"></i> Gravar
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" style="text-align: center; padding: 3rem; color: var(--text-secondary);">
+                        {% if query %}
+                            <i class="fa-solid fa-magnifying-glass" style="font-size: 1.5rem; margin-bottom: 0.5rem; display: block; opacity: 0.4;"></i>
+                            Nenhum paciente encontrado para "<strong>{{ query }}</strong>".
+                        {% else %}
+                            <i class="fa-solid fa-users-slash" style="font-size: 1.5rem; margin-bottom: 0.5rem; display: block; opacity: 0.4;"></i>
+                            Nenhum paciente cadastrado ainda.
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Paginação -->
+    {% if page_obj.paginator.num_pages > 1 %}
+    <div style="display: flex; justify-content: center; align-items: center; gap: 0.5rem; margin-top: 1.5rem; flex-wrap: wrap;">
+        {% if page_obj.has_previous %}
+        <a href="?page=1{% if query %}&q={{ query }}{% endif %}"
+           style="padding: 6px 12px; border-radius: 6px; background: rgba(255,255,255,0.06); color: var(--text-secondary); text-decoration: none; font-size: 0.82rem; border: 1px solid rgba(255,255,255,0.1);">
+            «
         </a>
-        <a href="{% url 'patient_list' %}" class="btn-secondary" style="text-align: center; text-decoration: none; display: inline-block;">
-            <i class="fa-solid fa-users"></i> Ver Pacientes
+        <a href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}"
+           style="padding: 6px 14px; border-radius: 6px; background: rgba(255,255,255,0.06); color: var(--text-secondary); text-decoration: none; font-size: 0.82rem; border: 1px solid rgba(255,255,255,0.1);">
+            ‹ Anterior
         </a>
-        {% if request.user.is_superuser %}
-        <a href="{% url 'user_list' %}" class="btn-secondary" style="text-align: center; text-decoration: none; display: inline-block;">
-            <i class="fa-solid fa-user-shield"></i> Gerenciar Usuários
+        {% endif %}
+
+        <span style="padding: 6px 16px; border-radius: 6px; background: var(--primary-color); color: white; font-size: 0.82rem; font-weight: 600;">
+            {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
+        </span>
+
+        {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}"
+           style="padding: 6px 14px; border-radius: 6px; background: rgba(255,255,255,0.06); color: var(--text-secondary); text-decoration: none; font-size: 0.82rem; border: 1px solid rgba(255,255,255,0.1);">
+            Próxima ›
+        </a>
+        <a href="?page={{ page_obj.paginator.num_pages }}{% if query %}&q={{ query }}{% endif %}"
+           style="padding: 6px 12px; border-radius: 6px; background: rgba(255,255,255,0.06); color: var(--text-secondary); text-decoration: none; font-size: 0.82rem; border: 1px solid rgba(255,255,255,0.1);">
+            »
         </a>
         {% endif %}
     </div>
-</div>
-{% endblock %}
+    {% endif %}
 
-{% block extra_js %}
-{% if diagnosis_data %}
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-<script>
-    const ctx = document.getElementById('diagnosisChart').getContext('2d');
-    new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-            labels: {{ diagnosis_labels|safe }},
-            datasets: [{
-                data: {{ diagnosis_data|safe }},
-                backgroundColor: [
-                    'rgba(99, 179, 237, 0.85)',
-                    'rgba(129, 230, 217, 0.85)',
-                    'rgba(252, 129, 74, 0.85)',
-                    'rgba(154, 117, 234, 0.85)',
-                    'rgba(252, 197, 74, 0.85)',
-                ],
-                borderColor: 'rgba(255,255,255,0.1)',
-                borderWidth: 2,
-                hoverOffset: 8,
-            }]
-        },
-        options: {
-            responsive: true,
-            cutout: '65%',
-            plugins: {
-                legend: {
-                    position: 'bottom',
-                    labels: {
-                        color: 'rgba(255,255,255,0.7)',
-                        font: { size: 11, family: 'Inter' },
-                        padding: 12,
-                        boxWidth: 12,
-                        boxHeight: 12,
-                    }
-                },
-                tooltip: {
-                    callbacks: {
-                        label: function(ctx) {
-                            const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
-                            const pct = ((ctx.parsed / total) * 100).toFixed(1);
-                            return ` ${ctx.parsed} paciente(s) (${pct}%)`;
-                        }
-                    }
-                }
-            }
-        }
-    });
-</script>
-{% endif %}
+</div>
 {% endblock %}

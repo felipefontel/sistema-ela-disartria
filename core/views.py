@@ -32,30 +32,22 @@ def logout_view(request):
 
 @login_required
 def dashboard_view(request):
-    from django.db.models import Count
-    total_patients = Patient.objects.count()
+    from django.core.paginator import Paginator
     
-    DIAGNOSIS_LABELS = {
-        'SAUDAVEL': 'Saudável',
-        'PARKINSON': 'Doença de Parkinson',
-        'ELA': 'ELA',
-        'AVC': 'AVC',
-        'OUTRO': 'Outro',
-    }
-
-    diagnosis_qs = (
-        Patient.objects
-        .values('diagnosis')
-        .annotate(total=Count('id'))
-        .order_by('diagnosis')
-    )
-    diagnosis_labels = [DIAGNOSIS_LABELS.get(d['diagnosis'], d['diagnosis']) for d in diagnosis_qs]
-    diagnosis_data = [d['total'] for d in diagnosis_qs]
+    query = request.GET.get('q', '').strip()
+    patients_qs = Patient.objects.all().order_by('-created_at')
+    
+    if query:
+        patients_qs = patients_qs.filter(name__icontains=query)
+    
+    paginator = Paginator(patients_qs, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
     
     context = {
-        'total_patients': total_patients,
-        'diagnosis_labels': diagnosis_labels,
-        'diagnosis_data': diagnosis_data,
+        'page_obj': page_obj,
+        'query': query,
+        'total_patients': Patient.objects.count(),
     }
     return render(request, 'core/dashboard.html', context)
 
