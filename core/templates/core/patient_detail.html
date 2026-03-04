@@ -48,10 +48,7 @@
                 <i class="fa-solid fa-arrow-left" style="font-size: 0.85rem;"></i>
             </a>
             <div>
-                <div style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.2rem; display: flex; align-items: center; gap: 0.3rem;">
-                    <i class="fa-solid fa-house" style="font-size: 0.65rem;"></i> Dashboard
-                    <span style="opacity:0.4;">›</span> Ficha do Paciente
-                </div>
+                
                 <h2 style="color: var(--text-primary); margin: 0; font-size: 1.4rem; font-weight: 700;">{{ patient.name }}</h2>
             </div>
         </div>
@@ -166,10 +163,13 @@
                         <i class="fa-solid fa-wave-square" style="color: #63b3ed; flex-shrink: 0;"></i>
                         <span style="font-size: 0.8rem; color: var(--text-secondary); white-space: nowrap;">
                             {{ rec.created_at|date:"d/m/Y H:i" }}
-                            {% if rec.recorded_by %} {% endif %}
+                        </span>
+                        <span data-duration-for="audio-{{ rec.id }}"
+                              style="font-size: 0.75rem; background: rgba(99,179,237,0.12); color: #63b3ed; border: 1px solid rgba(99,179,237,0.2); border-radius: 20px; padding: 1px 8px; white-space: nowrap; display: none;">
+                            <i class="fa-regular fa-clock" style="font-size: 0.7rem;"></i> <span class="dur-value">--:--</span>
                         </span>
                     </div>
-                    <audio controls style="height: 36px; max-width: 100%;">
+                    <audio id="audio-{{ rec.id }}" controls preload="metadata" style="height: 36px; max-width: 100%;">
                         <source src="{{ rec.audio_file.url }}">
                     </audio>
                 </div>
@@ -181,4 +181,45 @@
     </div>
 
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    function fmtTime(sec) {
+        if (!isFinite(sec) || sec <= 0) return null;
+        const m = Math.floor(sec / 60);
+        const s = Math.floor(sec % 60);
+        return String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+    }
+
+    function applyDuration(audio) {
+        const badge = document.querySelector('[data-duration-for="' + audio.id + '"]');
+        if (!badge) return;
+        const t = fmtTime(audio.duration);
+        if (t) {
+            badge.querySelector('.dur-value').textContent = t;
+            badge.style.display = 'inline-flex';
+            badge.style.alignItems = 'center';
+            badge.style.gap = '4px';
+        }
+    }
+
+    document.querySelectorAll('audio[id^="audio-"]').forEach(function(audio) {
+        // Tenta imediatamente se já carregou a duração
+        if (isFinite(audio.duration) && audio.duration > 0) {
+            applyDuration(audio);
+            return;
+        }
+        // Escuta múltiplos eventos de fallback
+        ['loadedmetadata', 'loadeddata', 'canplay', 'canplaythrough'].forEach(function(evt) {
+            audio.addEventListener(evt, function() { applyDuration(audio); }, { once: true });
+        });
+        // Força o carregamento caso o navegador não tenha iniciado
+        if (audio.readyState === 0) {
+            audio.load();
+        }
+    });
+});
+</script>
 {% endblock %}
