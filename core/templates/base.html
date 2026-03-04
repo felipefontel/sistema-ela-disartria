@@ -28,11 +28,28 @@
             <img src="{% static 'core/images/APP DISARTRIA.png' %}" alt="App ELA Logo" style="height: 48px; width: auto; object-fit: contain;">
         </a>
         <div class="nav-links">
-            <span class="text-secondary"><i class="fa-solid fa-user-doctor"></i> {{ user.get_full_name|default:user.username }}</span>
-            <form method="post" action="{% url 'logout' %}" style="display:inline;">
-                {% csrf_token %}
-                <button type="submit" class="btn-secondary"><i class="fa-solid fa-right-from-bracket"></i> Sair</button>
-            </form>
+            <div class="user-dropdown" id="userDropdown">
+                <button class="avatar-btn" id="userMenuBtn" onclick="toggleUserMenu(event)">
+                    <span style="background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); color: white; display: inline-flex; align-items: center; justify-content: center; font-weight: 600; font-size: 0.9rem; padding: 0.4rem 1.2rem; border-radius: 20px;">
+                        <i class="fa-solid fa-user-doctor" style="margin-right: 0.5rem; font-size: 0.85rem;"></i>
+                        {{ user.get_full_name|default:user.username }}
+                    </span>
+                    <i class="fa-solid fa-chevron-down avatar-icon"></i>
+                </button>
+                <div class="dropdown-menu" id="userDropdownMenu">
+                    <div class="dropdown-header">
+                        <strong>{{ user.get_full_name|default:user.username }}</strong>
+                        <span class="text-secondary" style="font-size: 0.8rem;">{{ user.email|default:"Usuário do Sistema" }}</span>
+                    </div>
+                    <div style="background: rgba(0,0,0,0.05); height: 1px; width: 100%; margin: 0.2rem 0;"></div>
+                    <form method="post" action="{% url 'logout' %}" style="margin: 0; padding: 0.3rem;">
+                        {% csrf_token %}
+                        <button type="submit" class="dropdown-item text-danger" style="border-radius: 8px;">
+                            <i class="fa-solid fa-right-from-bracket"></i> Sair
+                        </button>
+                    </form>
+                </div>
+            </div>
         </div>
     </nav>
     {% endif %}
@@ -57,5 +74,19 @@
     </footer>
 
     {% block extra_js %}{% endblock %}
+
+    <script>
+        function toggleUserMenu(event) {
+            event.stopPropagation();
+            document.getElementById('userDropdown').classList.toggle('active');
+        }
+
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('userDropdown');
+            if (dropdown && !dropdown.contains(event.target)) {
+                dropdown.classList.remove('active');
+            }
+        });
+    </script>
 </body>
 </html>
