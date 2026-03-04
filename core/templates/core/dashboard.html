@@ -54,7 +54,12 @@
             <tbody>
                 {% for patient in page_obj %}
                 <tr>
-                    <td style="font-weight: 500;">{{ patient.name }}</td>
+                    <td style="font-weight: 500;">
+                        <a href="{% url 'patient_detail' patient.pk %}" style="color: var(--primary-color); text-decoration: none; transition: opacity 0.2s;"
+                           onmouseover="this.style.opacity='0.75'" onmouseout="this.style.opacity='1'">
+                            {{ patient.name }}
+                        </a>
+                    </td>
                     <td>
                         <span style="font-size: 0.8rem; padding: 3px 8px; border-radius: 20px; background: rgba(99,179,237,0.15); color: #63b3ed;">
                             {{ patient.get_diagnosis_display }}

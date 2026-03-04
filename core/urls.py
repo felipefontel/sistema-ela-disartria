@@ -9,6 +9,7 @@ urlpatterns = [
     # Pacientes
     path('patients/', views.patient_list, name='patient_list'),
     path('patients/add/', views.patient_create, name='patient_create'),
+    path('patients/<int:pk>/', views.patient_detail, name='patient_detail'),
     
     # Usuários (restrito a superusuários)
     path('users/', views.user_list, name='user_list'),

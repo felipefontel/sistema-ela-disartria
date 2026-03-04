@@ -73,6 +73,36 @@ def patient_create(request):
     return render(request, 'core/patient_form.html', {'form': form})
 
 
+@login_required
+def patient_detail(request, pk):
+    patient = get_object_or_404(Patient, pk=pk)
+    recordings = patient.recordings.all().order_by('task_type', '-created_at')
+    
+    # Agrupa gravações por tipo de tarefa
+    TASK_LABELS = {
+        'FONACAO': '1. Fonação Sustentada',
+        'DIADOCOCINESIA': '2. Diadococinesia',
+        'PALAVRAS': '3. Palavras Complexas',
+        'LEITURA': '4. Leitura Padronizada',
+        'ESPONTANEA': '5. Fala Espontânea',
+    }
+    TASK_ORDER = ['FONACAO', 'DIADOCOCINESIA', 'PALAVRAS', 'LEITURA', 'ESPONTANEA']
+    
+    recordings_by_task = {}
+    for task_id in TASK_ORDER:
+        recs = [r for r in recordings if r.task_type == task_id]
+        recordings_by_task[task_id] = {
+            'label': TASK_LABELS[task_id],
+            'step': TASK_ORDER.index(task_id) + 1,
+            'recordings': recs,
+        }
+
+    return render(request, 'core/patient_detail.html', {
+        'patient': patient,
+        'recordings_by_task': recordings_by_task,
+    })
+
+
 # ── Usuários (apenas superusuários) ──────────────────────────────────────────
 
 def _superuser_required(view_func):

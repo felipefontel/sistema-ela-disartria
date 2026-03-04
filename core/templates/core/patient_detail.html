@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="glass-panel">
+
+    <!-- Cabeçalho do Paciente -->
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+        <div>
+            <a href="{% url 'dashboard' %}" style="color: var(--text-secondary); text-decoration: none; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.4rem; margin-bottom: 0.75rem; transition: color 0.2s;"
+               onmouseover="this.style.color='var(--primary-color)'" onmouseout="this.style.color='var(--text-secondary)'">
+                <i class="fa-solid fa-arrow-left"></i> Voltar
+            </a>
+            <h2 style="color: var(--primary-color); margin: 0;">{{ patient.name }}</h2>
+            <p style="color: var(--text-secondary); margin: 0.25rem 0 0 0; font-size: 0.9rem;">Ficha completa do paciente</p>
+        </div>
+        <a href="{% url 'recording_task' patient.id 1 %}" class="btn-primary" style="text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem;">
+            <i class="fa-solid fa-microphone"></i> Nova Sessão de Gravação
+        </a>
+    </div>
+
+    <!-- Informações do Paciente -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 2.5rem;">
+        <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 1rem;">
+            <p style="color: var(--text-secondary); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; margin: 0 0 0.3rem 0;">Diagnóstico</p>
+            <p style="margin: 0; font-weight: 600; color: #63b3ed;">{{ patient.get_diagnosis_display }}</p>
+        </div>
+        <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 1rem;">
+            <p style="color: var(--text-secondary); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; margin: 0 0 0.3rem 0;">Sexo Biológico</p>
+            <p style="margin: 0; font-weight: 600;">{{ patient.get_gender_display }}</p>
+        </div>
+        <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 1rem;">
+            <p style="color: var(--text-secondary); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; margin: 0 0 0.3rem 0;">Data de Nascimento</p>
+            <p style="margin: 0; font-weight: 600;">{{ patient.birth_date|date:"d/m/Y" }}</p>
+        </div>
+        <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 1rem;">
+            <p style="color: var(--text-secondary); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; margin: 0 0 0.3rem 0;">TCLE Assinado</p>
+            <p style="margin: 0; font-weight: 600;">
+                {% if patient.consent_signed %}
+                    <span style="color: #4ade80;"><i class="fa-solid fa-circle-check"></i> Sim</span>
+                {% else %}
+                    <span style="color: #fc8181;"><i class="fa-solid fa-circle-xmark"></i> Não</span>
+                {% endif %}
+            </p>
+        </div>
+        <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 1rem;">
+            <p style="color: var(--text-secondary); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; margin: 0 0 0.3rem 0;">Cadastrado em</p>
+            <p style="margin: 0; font-weight: 600;">{{ patient.created_at|date:"d/m/Y" }}</p>
+        </div>
+        {% if patient.diagnosis_other %}
+        <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 1rem;">
+            <p style="color: var(--text-secondary); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; margin: 0 0 0.3rem 0;">Outro Diagnóstico</p>
+            <p style="margin: 0; font-weight: 600;">{{ patient.diagnosis_other }}</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Gravações por Tarefa -->
+    <h3 style="color: var(--primary-color); margin-bottom: 1.25rem; font-size: 1.1rem;">
+        <i class="fa-solid fa-microphone-lines" style="margin-right: 0.4rem;"></i> Gravações por Tarefa
+    </h3>
+
+    <div style="display: flex; flex-direction: column; gap: 1rem;">
+        {% for task_id, task in recordings_by_task.items %}
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 1.25rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: {% if task.recordings %}1rem{% else %}0{% endif %};">
+                <div style="display: flex; align-items: center; gap: 0.6rem;">
+                    {% if task.recordings %}
+                        <span style="width: 10px; height: 10px; border-radius: 50%; background: #4ade80; display: inline-block; flex-shrink: 0;"></span>
+                    {% else %}
+                        <span style="width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,0.2); display: inline-block; flex-shrink: 0;"></span>
+                    {% endif %}
+                    <span style="font-weight: 600; font-size: 0.95rem;">{{ task.label }}</span>
+                    {% if task.recordings %}
+                        <span style="font-size: 0.75rem; color: var(--text-secondary);">({{ task.recordings|length }} gravação{{ task.recordings|length|pluralize }})</span>
+                    {% else %}
+                        <span style="font-size: 0.75rem; color: var(--text-secondary);">sem gravação</span>
+                    {% endif %}
+                </div>
+                <a href="{% url 'recording_task' patient.id task.step %}"
+                   style="display: inline-flex; align-items: center; gap: 0.35rem; padding: 5px 14px; border-radius: 6px; font-size: 0.8rem; background: rgba(99,179,237,0.12); color: #63b3ed; border: 1px solid rgba(99,179,237,0.25); text-decoration: none; transition: all 0.2s; white-space: nowrap;"
+                   onmouseover="this.style.background='rgba(99,179,237,0.3)'" onmouseout="this.style.background='rgba(99,179,237,0.12)'">
+                    <i class="fa-solid fa-rotate"></i> Regravar
+                </a>
+            </div>
+
+            {% if task.recordings %}
+            <div style="display: flex; flex-direction: column; gap: 0.6rem;">
+                {% for rec in task.recordings %}
+                <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.6rem 0.75rem; background: rgba(0,0,0,0.15); border-radius: 8px; flex-wrap: wrap; gap: 0.5rem;">
+                    <div style="display: flex; align-items: center; gap: 0.75rem; flex: 1; min-width: 0;">
+                        <i class="fa-solid fa-wave-square" style="color: #63b3ed; flex-shrink: 0;"></i>
+                        <span style="font-size: 0.8rem; color: var(--text-secondary); white-space: nowrap;">
+                            {{ rec.created_at|date:"d/m/Y H:i" }}
+                            {% if rec.recorded_by %} · {{ rec.recorded_by.get_full_name|default:rec.recorded_by.username }}{% endif %}
+                        </span>
+                    </div>
+                    <audio controls style="height: 36px; max-width: 100%;">
+                        <source src="{{ rec.audio_file.url }}">
+                    </audio>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+
+</div>
+{% endblock %}
