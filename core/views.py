@@ -122,14 +122,51 @@ def patient_edit(request, pk):
         if form.is_valid():
             form.save()
             messages.success(request, 'Dados do paciente atualizados com sucesso!')
-            return redirect('patient_detail', pk=patient.pk)
+            return redirect('patient_edit', pk=patient.pk)
     else:
         form = PatientForm(instance=patient)
+
+    # Carregar gravações existentes por tarefa
+    TASK_ORDER = ['FONACAO', 'DIADOCOCINESIA', 'PALAVRAS', 'LEITURA', 'ESPONTANEA']
+    TASK_LABELS = {
+        'FONACAO': 'Fonação Sustentada',
+        'DIADOCOCINESIA': 'Diadococinesia',
+        'PALAVRAS': 'Palavras Complexas',
+        'LEITURA': 'Leitura Padronizada',
+        'ESPONTANEA': 'Fala Espontânea',
+    }
+    recordings = list(patient.recordings.order_by('created_at'))
+    recordings_by_task = {}
+    for task_id in TASK_ORDER:
+        recs = [r for r in recordings if r.task_type == task_id]
+        recordings_by_task[task_id] = {
+            'label': TASK_LABELS[task_id],
+            'recordings': recs,
+        }
+
     return render(request, 'core/patient_form.html', {
         'form': form,
         'patient': patient,
         'action': 'Editar Paciente',
+        'recordings_by_task': recordings_by_task,
     })
+
+
+@login_required
+def recording_single_view(request, patient_id, task_type):
+    """Gravar apenas uma tarefa avulsa, retornando para patient_edit ao finalizar."""
+    patient = get_object_or_404(Patient, id=patient_id)
+    TASK_MAP = {task['id']: task for task in RECORDING_TASKS}
+    if task_type not in TASK_MAP:
+        return redirect('patient_edit', pk=patient_id)
+    task_info = TASK_MAP[task_type]
+    context = {
+        'patient': patient,
+        'task': task_info,
+        'single_mode': True,  # sinaliza ao template que é regravação avulsa
+        'return_url': f'/patients/{patient_id}/edit/',
+    }
+    return render(request, 'core/recording_single.html', context)
 
 
 @login_required

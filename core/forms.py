@@ -7,7 +7,7 @@ class PatientForm(forms.ModelForm):
         model = Patient
         fields = ['name', 'birth_date', 'gender', 'diagnosis', 'diagnosis_other', 'consent_signed']
         widgets = {
-            'birth_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'birth_date': forms.DateInput(format='%Y-%m-%d', attrs={'type': 'date', 'class': 'form-control'}),
             'name': forms.TextInput(attrs={'class': 'form-control'}),
             'gender': forms.Select(attrs={'class': 'form-control'}),
             'diagnosis': forms.Select(attrs={'class': 'form-control', 'id': 'id_diagnosis'}),

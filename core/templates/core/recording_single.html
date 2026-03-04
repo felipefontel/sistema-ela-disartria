@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="glass-panel" style="max-width: 800px; margin: 0 auto;">
+
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <div>
+            <a href="{{ return_url }}" style="color: var(--text-secondary); text-decoration: none; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.4rem; margin-bottom: 0.5rem; transition: color 0.2s;"
+               onmouseover="this.style.color='var(--primary-color)'" onmouseout="this.style.color='var(--text-secondary)'">
+                <i class="fa-solid fa-arrow-left"></i> Voltar para Edição
+            </a>
+            <h2 style="color: var(--primary-color); margin: 0;">Regravar Áudio</h2>
+        </div>
+        <span style="background: rgba(237,137,54,0.15); padding: 0.5rem 1rem; border-radius: 20px; font-weight: 600; color: #ed8936; border: 1px solid rgba(237,137,54,0.3);">
+            <i class="fa-solid fa-rotate"></i> Regravação Individual
+        </span>
+    </div>
+
+    <div style="text-align: center; margin-bottom: 2rem;">
+        <p style="color: var(--text-secondary); margin-bottom: 0.5rem;">Paciente: <strong>{{ patient.name }}</strong></p>
+        <h3 style="font-size: 1.8rem; margin-bottom: 1rem;">{{ task.title }}</h3>
+
+        <div class="task-instruction">
+            <i class="fa-solid fa-circle-info" style="color: var(--secondary-color);"></i>
+            {{ task.instruction }}
+        </div>
+    </div>
+
+    <!-- Hidden config bridge for Javascript -->
+    <div id="audioConfig"
+         data-patient="{{ patient.id }}"
+         data-task="{{ task.id }}"
+         data-upload-url="{% url 'upload_audio_api' %}"
+         data-delete-url="{% url 'delete_audio_api' %}"
+         data-return-url="{{ return_url }}"
+         style="display:none;"></div>
+
+    <div class="recording-container">
+        <!-- Main Action Buttons -->
+        <button id="recordBtn" class="mic-button" title="Clique para Iniciar a Gravação">
+            <i class="fa-solid fa-microphone"></i>
+        </button>
+
+        <button id="stopBtn" class="mic-button" style="display: none; background: var(--text-secondary);" title="Parar Gravação">
+            <i class="fa-solid fa-stop"></i>
+        </button>
+
+        <div id="uploadStatus" style="margin-top: 1rem; font-weight: 600; min-height: 30px;">
+            <!-- Status messages via JS -->
+        </div>
+
+        <div id="recordingTimer" style="display: none; font-size: 1.5rem; font-family: monospace; color: #e74c3c; font-weight: 700; margin-top: 0.5rem;">
+            00:00
+        </div>
+
+        <div id="audioPlaybackContainer" style="display: none; margin-top: 1.5rem;">
+            <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.5rem;">Ouça o que você acabou de gravar:</p>
+            <audio id="audioPlayback" controls style="height: 40px; width: 100%; max-width: 350px; outline: none;"></audio>
+        </div>
+
+        <!-- Espectro de Áudio Visual -->
+        <canvas id="audioVisualizer" width="500" height="80" style="display: none; margin: 1rem auto; width: 100%; max-width: 500px; height: 80px; background: rgba(255,255,255,0.4); border-radius: 12px; border: 1px solid rgba(0,0,0,0.05);"></canvas>
+
+        <div class="recording-actions">
+            <div class="btn-left">
+                <a href="{{ return_url }}" class="btn-secondary" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.8rem 1.5rem; font-size: 1rem; font-weight: 600; min-width: 200px;">
+                    <i class="fa-solid fa-arrow-left"></i> Cancelar
+                </a>
+            </div>
+
+            <div class="btn-center">
+                <button id="discardBtn" class="btn-secondary" style="display: none; color: #e53e3e; border-color: #e53e3e; padding: 0.8rem 1.5rem; font-size: 1rem; font-weight: 600; align-items: center; justify-content: center; gap: 0.5rem; border-radius: 8px; transition: all 0.2s; min-width: 200px;" onmouseover="this.style.background='rgba(229,62,62,0.1)'" onmouseout="this.style.background='white'">
+                    <i class="fa-solid fa-trash-can"></i> Descartar e Regravar
+                </button>
+            </div>
+
+            <div class="btn-right">
+                <!-- Botão "Concluir" aparece após gravar, volta para edição -->
+                <a id="nextBtn" href="{{ return_url }}" class="btn-primary" style="display: none; background: var(--secondary-color); text-decoration: none; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.8rem 1.5rem; font-size: 1rem; font-weight: 600; min-width: 200px;">
+                    Concluir <i class="fa-solid fa-check"></i>
+                </a>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'core/js/media_recorder.js' %}"></script>
+{% endblock %}
