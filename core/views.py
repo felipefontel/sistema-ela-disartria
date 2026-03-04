@@ -35,10 +35,17 @@ def dashboard_view(request):
     from django.core.paginator import Paginator
     
     query = request.GET.get('q', '').strip()
+    diagnosis_filter = request.GET.get('diagnosis', '')
+    gender_filter = request.GET.get('gender', '')
+
     patients_qs = Patient.objects.all().order_by('-created_at')
     
     if query:
         patients_qs = patients_qs.filter(name__icontains=query)
+    if diagnosis_filter:
+        patients_qs = patients_qs.filter(diagnosis=diagnosis_filter)
+    if gender_filter:
+        patients_qs = patients_qs.filter(gender=gender_filter)
     
     paginator = Paginator(patients_qs, 10)
     page_number = request.GET.get('page')
@@ -47,7 +54,11 @@ def dashboard_view(request):
     context = {
         'page_obj': page_obj,
         'query': query,
+        'diagnosis_filter': diagnosis_filter,
+        'gender_filter': gender_filter,
         'total_patients': Patient.objects.count(),
+        'diagnosis_choices': Patient.DIAGNOSIS_CHOICES,
+        'gender_choices': Patient.GENDER_CHOICES,
     }
     return render(request, 'core/dashboard.html', context)
 

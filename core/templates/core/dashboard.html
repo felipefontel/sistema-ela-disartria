@@ -21,17 +21,32 @@
         </div>
     </div>
 
-    <!-- Busca -->
+    <!-- Busca e Filtros -->
     <form method="get" style="margin-bottom: 1.25rem;">
-        <div style="display: flex; gap: 0.5rem;">
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;">
             <input type="text" name="q" value="{{ query }}"
-                   placeholder="Buscar por nome do paciente..."
+                   placeholder="Buscar por nome..."
                    class="form-control"
-                   style="flex: 1; max-width: 380px;">
+                   style="flex: 1; min-width: 200px; max-width: 320px;">
+
+            <select name="diagnosis" class="form-control" style="min-width: 170px;">
+                <option value="">Todos os diagnósticos</option>
+                {% for value, label in diagnosis_choices %}
+                <option value="{{ value }}" {% if diagnosis_filter == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+
+            <select name="gender" class="form-control" style="min-width: 130px;">
+                <option value="">Todos os sexos</option>
+                {% for value, label in gender_choices %}
+                <option value="{{ value }}" {% if gender_filter == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+
             <button type="submit" class="btn-secondary" style="display: inline-flex; align-items: center; gap: 0.4rem; white-space: nowrap;">
-                <i class="fa-solid fa-magnifying-glass"></i> Buscar
+                <i class="fa-solid fa-filter"></i> Filtrar
             </button>
-            {% if query %}
+            {% if query or diagnosis_filter or gender_filter %}
             <a href="{% url 'dashboard' %}" class="btn-secondary" style="text-decoration: none; display: inline-flex; align-items: center; gap: 0.4rem;">
                 <i class="fa-solid fa-xmark"></i> Limpar
             </a>
