@@ -107,22 +107,40 @@ document.addEventListener('DOMContentLoaded', () => {
     function visualize() {
         if (!canvas) return;
         drawVisual = requestAnimationFrame(visualize);
-        analyser.getByteFrequencyData(dataArray);
+
+        analyser.getByteTimeDomainData(dataArray);
 
         canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
 
-        const barWidth = (canvas.width / dataArray.length) * 2.5;
-        let barHeight;
+        canvasCtx.lineWidth = 3;
+
+        // Gradiente bonito
+        let gradient = canvasCtx.createLinearGradient(0, 0, canvas.width, 0);
+        gradient.addColorStop(0, '#0b6fb8');     // primary
+        gradient.addColorStop(0.5, '#1bbca0');   // secondary
+        gradient.addColorStop(1, '#0b6fb8');     // primary
+        canvasCtx.strokeStyle = gradient;
+
+        canvasCtx.beginPath();
+
+        const sliceWidth = canvas.width * 1.0 / analyser.frequencyBinCount;
         let x = 0;
 
-        for (let i = 0; i < dataArray.length; i++) {
-            barHeight = dataArray[i] / 2;
+        for (let i = 0; i < analyser.frequencyBinCount; i++) {
+            const v = dataArray[i] / 128.0; // valor central é 128
+            const y = v * (canvas.height / 2);
 
-            canvasCtx.fillStyle = '#1bbca0';
-            canvasCtx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
+            if (i === 0) {
+                canvasCtx.moveTo(x, y);
+            } else {
+                canvasCtx.lineTo(x, y);
+            }
 
-            x += barWidth + 1;
+            x += sliceWidth;
         }
+
+        canvasCtx.lineTo(canvas.width, canvas.height / 2);
+        canvasCtx.stroke();
     }
 
     function startRecording(stream) {
@@ -134,7 +152,7 @@ document.addEventListener('DOMContentLoaded', () => {
             analyser = audioContext.createAnalyser();
             source = audioContext.createMediaStreamSource(stream);
             source.connect(analyser);
-            analyser.fftSize = 256;
+            analyser.fftSize = 2048;
             const bufferLength = analyser.frequencyBinCount;
             dataArray = new Uint8Array(bufferLength);
             canvas.style.display = 'block';

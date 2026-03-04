@@ -63,17 +63,17 @@
             <div style="flex: 1; max-width: 160px;"></div> <!-- space filler -->
             {% endif %}
 
-            <div style="display: flex; gap: 1rem; flex: 2; justify-content: flex-end; flex-wrap: wrap;">
-                <button id="discardBtn" class="btn-secondary" style="display: none; color: #e53e3e; border-color: #e53e3e;">
+            <div style="display: flex; gap: 1rem; flex: 2; justify-content: flex-end; flex-wrap: wrap; align-items: center;">
+                <button id="discardBtn" class="btn-secondary" style="display: none; color: #e53e3e; border-color: #e53e3e; padding: 0.8rem 1.5rem; font-size: 1rem; font-weight: 600; align-items: center; justify-content: center; gap: 0.5rem; border-radius: 8px; transition: all 0.2s;" onmouseover="this.style.background='rgba(229,62,62,0.1)'" onmouseout="this.style.background='white'">
                     <i class="fa-solid fa-trash-can"></i> Descartar e Regravar
                 </button>
 
                 {% if task.next_step %}
-                    <a id="nextBtn" href="{% url 'recording_task' patient.id task.next_step %}" class="btn-primary" style="display: none; width: auto; text-decoration: none;">
+                    <a id="nextBtn" href="{% url 'recording_task' patient.id task.next_step %}" class="btn-primary" style="display: none; width: auto; text-decoration: none; align-items: center; justify-content: center; gap: 0.5rem;">
                         Próxima Tarefa <i class="fa-solid fa-arrow-right"></i>
                     </a>
                 {% else %}
-                    <a id="nextBtn" href="{% url 'dashboard' %}" class="btn-primary" style="display: none; width: auto; background: var(--secondary-color); text-decoration: none;">
+                    <a id="nextBtn" href="{% url 'dashboard' %}" class="btn-primary" style="display: none; width: auto; background: var(--secondary-color); text-decoration: none; align-items: center; justify-content: center; gap: 0.5rem;">
                         Finalizar Avaliação <i class="fa-solid fa-check"></i>
                     </a>
                 {% endif %}
