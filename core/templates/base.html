@@ -49,6 +49,11 @@
         {% block content %}{% endblock %}
     </main>
 
+    <footer style="margin-top: auto; padding: 1.5rem; text-align: center; color: var(--text-secondary); font-size: 0.85rem; border-top: var(--glass-border); background: rgba(255,255,255,0.4);">
+        <p style="margin: 0;">&copy; {% now "Y" %} App ELA Médica. Todos os direitos reservados.</p>
+        <p style="margin: 0.3rem 0 0 0;">Desenvolvido por Felipe Fontenele.</p>
+    </footer>
+
     {% block extra_js %}{% endblock %}
 </body>
 </html>

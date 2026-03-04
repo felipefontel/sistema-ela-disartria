@@ -63,31 +63,34 @@
         <!-- Espectro de Áudio Visual -->
         <canvas id="audioVisualizer" width="500" height="80" style="display: none; margin: 1rem auto; width: 100%; max-width: 500px; height: 80px; background: rgba(255,255,255,0.4); border-radius: 12px; border: 1px solid rgba(0,0,0,0.05);"></canvas>
         
-        <div style="margin-top: 3rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <div style="margin-top: 3rem; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 1rem;">
             
-            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+            <div style="justify-self: start;">
                 {% if step > 1 %}
-                <a href="{% url 'recording_task' patient.id step|add:'-1' %}" class="btn-secondary" style="text-decoration: none; align-items: center; justify-content: center; gap: 0.5rem;">
-                    <i class="fa-solid fa-arrow-left"></i> Voltar Tarefa
+                <a href="{% url 'recording_task' patient.id step|add:'-1' %}" class="btn-secondary" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.8rem 1.5rem; font-size: 1rem; font-weight: 600; min-width:100px;">
+                    <i class="fa-solid fa-arrow-left"></i> Voltar
                 </a>
                 {% endif %}
+            </div>
 
-                <button id="discardBtn" class="btn-secondary" style="display: none; color: #e53e3e; border-color: #e53e3e; padding: 0.8rem 1.5rem; font-size: 1rem; font-weight: 600; align-items: center; justify-content: center; gap: 0.5rem; border-radius: 8px; transition: all 0.2s;" onmouseover="this.style.background='rgba(229,62,62,0.1)'" onmouseout="this.style.background='white'">
+            <div style="justify-self: center;">
+                <button id="discardBtn" class="btn-secondary" style="display: none; color: #e53e3e; border-color: #e53e3e; padding: 0.8rem 1.5rem; font-size: 1rem; font-weight: 600; align-items: center; justify-content: center; gap: 0.5rem; border-radius: 8px; transition: all 0.2s; min-width: 100px;" onmouseover="this.style.background='rgba(229,62,62,0.1)'" onmouseout="this.style.background='white'">
                     <i class="fa-solid fa-trash-can"></i> Descartar e Regravar
                 </button>
             </div>
 
-            <div>
+            <div style="justify-self: end;">
                 {% if task.next_step %}
-                    <a id="nextBtn" href="{% url 'recording_task' patient.id task.next_step %}" class="btn-primary" style="display: none; width: auto; text-decoration: none; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.8rem 1.5rem;">
-                        Próxima Tarefa <i class="fa-solid fa-arrow-right"></i>
+                    <a id="nextBtn" href="{% url 'recording_task' patient.id task.next_step %}" class="btn-primary" style="display: none; text-decoration: none; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.8rem 1.5rem; font-size: 1rem; font-weight: 600; min-width: 100px;">
+                        Próxima <i class="fa-solid fa-arrow-right"></i>
                     </a>
                 {% else %}
-                    <a id="nextBtn" href="{% url 'dashboard' %}" class="btn-primary" style="display: none; width: auto; background: var(--secondary-color); text-decoration: none; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.8rem 1.5rem;">
+                    <a id="nextBtn" href="{% url 'dashboard' %}" class="btn-primary" style="display: none; background: var(--secondary-color); text-decoration: none; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.8rem 1.5rem; font-size: 1rem; font-weight: 600; min-width: 250px;">
                         Finalizar Avaliação <i class="fa-solid fa-check"></i>
                     </a>
                 {% endif %}
             </div>
+        </div>
             
         </div>
     </div>

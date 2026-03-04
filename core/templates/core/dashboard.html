@@ -22,7 +22,7 @@
     </div>
 
     <!-- Busca e Filtros -->
-    <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 1rem; margin-bottom: 1.5rem;">
+    <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; margin-bottom: 1.5rem;">
         <form method="get" style="margin: 0;">
             <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: flex-end;">
                 <div style="flex: 1; min-width: 250px;">
@@ -145,7 +145,6 @@
     </div>
 
     <!-- Paginação -->
-    {% if page_obj.paginator.num_pages > 1 %}
     <div style="display: flex; justify-content: center; align-items: center; gap: 0.5rem; margin-top: 1.5rem; flex-wrap: wrap;">
         {% if page_obj.has_previous %}
         <a href="?page=1{% if query %}&q={{ query }}{% endif %}{% if diagnosis_filter %}&diagnosis={{ diagnosis_filter }}{% endif %}{% if gender_filter %}&gender={{ gender_filter }}{% endif %}"
@@ -173,7 +172,6 @@
         </a>
         {% endif %}
     </div>
-    {% endif %}
 
 </div>
 {% endblock %}

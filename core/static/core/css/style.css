@@ -139,6 +139,26 @@ body {
   border-color: rgba(11, 111, 184, 0.5);
 }
 
+/* Tabela de Pacientes (Zebra Stripes) */
+.patients-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 600px;
+}
+
+.patients-table tbody tr:nth-child(odd) {
+  background-color: #ffffff;
+}
+
+.patients-table tbody tr:nth-child(even) {
+  background-color: #f8fafc;
+  /* cinza clarinho intercalado */
+}
+
+.patients-table tbody tr:hover {
+  background-color: #f1f5f9;
+}
+
 /* Navbar */
 .navbar {
   display: flex;
