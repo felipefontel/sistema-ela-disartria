@@ -18,7 +18,7 @@
     </div>
 
     <!-- ── Formulário de dados ── -->
-    <form method="post" action="{% if patient %}{% url 'patient_edit' patient.pk %}{% else %}{% url 'patient_create' %}{% endif %}">
+    <form id="patient-form" method="post" action="{% if patient %}{% url 'patient_edit' patient.pk %}{% else %}{% url 'patient_create' %}{% endif %}">
         {% csrf_token %}
 
         <div class="form-group">
@@ -59,21 +59,11 @@
             </label>
             {{ form.consent_signed.errors }}
         </div>
-
-        <div style="display: flex; gap: 1rem; margin-top: 2rem;">
-            <a href="{% if patient %}{% url 'patient_detail' patient.pk %}{% else %}{% url 'patient_list' %}{% endif %}" class="btn-secondary" style="flex: 1; text-align: center; text-decoration: none;">
-                Cancelar
-            </a>
-            <button type="submit" class="btn-primary" style="flex: 2;">
-                {% if patient %}Salvar Alterações{% else %}Cadastrar e Iniciar Avaliação{% endif %}
-                <i class="fa-solid fa-check ml-2"></i>
-            </button>
-        </div>
     </form>
 
     <!-- ── Seção de Gravações (apenas na edição) ── -->
     {% if recordings_by_task %}
-    <div style="margin-top: 3rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 2rem;">
+    <div style="margin-top: 1rem; border-top: 1px solid rgba(255,255,255,0.1); ">
         <h3 style="color: var(--primary-color); margin-bottom: 1.25rem; font-size: 1.1rem;">
             <i class="fa-solid fa-microphone-lines" style="margin-right: 0.4rem;"></i> Gravações por Tarefa
             <span style="font-size: 0.8rem; font-weight: 400; color: var(--text-secondary); margin-left: 0.5rem;">
@@ -83,7 +73,7 @@
 
         <div style="display: flex; flex-direction: column; gap: 0.75rem;">
             {% for task_id, task in recordings_by_task.items %}
-            <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 1.1rem;">
+            <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 1.1rem 0rem 1.1rem 0rem;">
                 <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
                     <div style="display: flex; align-items: center; gap: 0.6rem;">
                         {% if task.recordings %}
@@ -133,6 +123,17 @@
         </div>
     </div>
     {% endif %}
+
+    <!-- Botões de ação finais -->
+    <div style="display: flex; gap: 1rem;  padding-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.08);">
+        <a href="{% if patient %}{% url 'patient_detail' patient.pk %}{% else %}{% url 'patient_list' %}{% endif %}" class="btn-secondary" style="flex: 1; display: flex; align-items: center; justify-content: center; text-decoration: none;">
+            Cancelar
+        </a>
+        <button type="submit" form="patient-form" class="btn-primary" style="flex: 2;">
+            {% if patient %}Salvar Alterações{% else %}Cadastrar e Iniciar Avaliação{% endif %}
+            <i class="fa-solid fa-check ml-2"></i>
+        </button>
+    </div>
 
 </div>
 {% endblock %}
