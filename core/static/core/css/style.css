@@ -259,16 +259,18 @@ body {
   padding: 1rem;
   text-align: left;
   border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  background: #ffffff;
 }
 
 .data-table th {
   font-weight: 600;
   color: var(--text-secondary);
-  background: rgba(255, 255, 255, 0.4);
+  background: #f8fafc;
+  /* Cabeçalho levemente cinza ao invés de branco para destacar */
 }
 
-.data-table tr:hover {
-  background: rgba(255, 255, 255, 0.6);
+.data-table tr:hover td {
+  background: #f1f5f9;
 }
 
 /* Audio Recording Overrides */

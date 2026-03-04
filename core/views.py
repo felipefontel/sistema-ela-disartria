@@ -47,7 +47,12 @@ def dashboard_view(request):
     if gender_filter:
         patients_qs = patients_qs.filter(gender=gender_filter)
     
-    paginator = Paginator(patients_qs, 10)
+    try:
+        per_page = int(request.GET.get('per_page', 10))
+    except ValueError:
+        per_page = 10
+
+    paginator = Paginator(patients_qs, per_page)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     
@@ -56,6 +61,7 @@ def dashboard_view(request):
         'query': query,
         'diagnosis_filter': diagnosis_filter,
         'gender_filter': gender_filter,
+        'per_page': per_page,
         'total_patients': Patient.objects.count(),
         'diagnosis_choices': Patient.DIAGNOSIS_CHOICES,
         'gender_choices': Patient.GENDER_CHOICES,

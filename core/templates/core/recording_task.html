@@ -4,11 +4,18 @@
 {% block content %}
 <div class="glass-panel" style="max-width: 800px; margin: 0 auto;">
     
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-        <h2 style="color: var(--primary-color);">Coleta de Áudio</h2>
-        <span style="background: rgba(11, 111, 184, 0.1); padding: 0.5rem 1rem; border-radius: 20px; font-weight: 600; color: var(--primary-color);">
-            Passo {{ step }} de 5
-        </span>
+    <div style="margin-bottom: 2rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <h2 style="color: var(--primary-color); margin: 0;">Coleta de Áudio</h2>
+            <span style="background: rgba(11, 111, 184, 0.1); padding: 0.5rem 1rem; border-radius: 20px; font-weight: 600; color: var(--primary-color); font-size: 0.9rem;">
+                Passo {{ step }} de 5
+            </span>
+        </div>
+        
+        <!-- Barra de Progresso -->
+        <div style="width: 100%; height: 8px; background: rgba(11, 111, 184, 0.1); border-radius: 10px; overflow: hidden;">
+            <div style="height: 100%; background: linear-gradient(90deg, var(--primary-color), var(--secondary-color)); border-radius: 10px; width: {% widthratio step 5 100 %}%; transition: width 0.4s ease;"></div>
+        </div>
     </div>
 
     <div style="text-align: center; margin-bottom: 2rem;">
@@ -63,33 +70,27 @@
         <!-- Espectro de Áudio Visual -->
         <canvas id="audioVisualizer" width="500" height="80" style="display: none; margin: 1rem auto; width: 100%; max-width: 500px; height: 80px; background: rgba(255,255,255,0.4); border-radius: 12px; border: 1px solid rgba(0,0,0,0.05);"></canvas>
         
-        <div class="recording-actions">
+        <div class="action-buttons" style="display: flex; gap: 1rem; align-items: center; justify-content: center; flex-wrap: wrap; margin-top: 2rem;">
             
-            <div class="btn-left">
-                {% if step > 1 %}
-                <a href="{% url 'recording_task' patient.id step|add:'-1' %}" class="btn-secondary" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.8rem 1.5rem; font-size: 1rem; font-weight: 600; min-width: 250px;">
-                    <i class="fa-solid fa-arrow-left"></i> Voltar Tarefa
+            {% if step > 1 %}
+            <a href="{% url 'recording_task' patient.id step|add:'-1' %}" class="btn-secondary" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.8rem 1.5rem; font-size: 0.95rem; font-weight: 600;">
+                <i class="fa-solid fa-arrow-left"></i> Voltar Tarefa
+            </a>
+            {% endif %}
+
+            <button id="discardBtn" class="btn-secondary" style="display: none; color: #e53e3e; border-color: rgba(229,62,62,0.4); background: rgba(229,62,62,0.05); padding: 0.8rem 1.5rem; font-size: 0.95rem; font-weight: 600; align-items: center; justify-content: center; gap: 0.5rem; border-radius: 8px; transition: all 0.2s;" onmouseover="this.style.background='rgba(229,62,62,0.15)'" onmouseout="this.style.background='rgba(229,62,62,0.05)'">
+                <i class="fa-solid fa-trash-can"></i> Descartar e Regravar
+            </button>
+
+            {% if task.next_step %}
+                <a id="nextBtn" href="{% url 'recording_task' patient.id task.next_step %}" class="btn-primary" style="display: none; text-decoration: none; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.8rem 1.5rem; font-size: 0.95rem; font-weight: 600;">
+                    Próxima Tarefa <i class="fa-solid fa-arrow-right"></i>
                 </a>
-                {% endif %}
-            </div>
-
-            <div class="btn-center">
-                <button id="discardBtn" class="btn-secondary" style="display: none; color: #e53e3e; border-color: #e53e3e; padding: 0.8rem 1.5rem; font-size: 1rem; font-weight: 600; align-items: center; justify-content: center; gap: 0.5rem; border-radius: 8px; transition: all 0.2s; min-width: 250px;" onmouseover="this.style.background='rgba(229,62,62,0.1)'" onmouseout="this.style.background='white'">
-                    <i class="fa-solid fa-trash-can"></i> Descartar e Regravar
-                </button>
-            </div>
-
-            <div class="btn-right">
-                {% if task.next_step %}
-                    <a id="nextBtn" href="{% url 'recording_task' patient.id task.next_step %}" class="btn-primary" style="display: none; text-decoration: none; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.8rem 1.5rem; font-size: 1rem; font-weight: 600; min-width: 250px;">
-                        Próxima Tarefa <i class="fa-solid fa-arrow-right"></i>
-                    </a>
-                {% else %}
-                    <a id="nextBtn" href="{% url 'dashboard' %}" class="btn-primary" style="display: none; background: var(--secondary-color); text-decoration: none; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.8rem 1.5rem; font-size: 1rem; font-weight: 600; min-width: 250px;">
-                        Finalizar Avaliação <i class="fa-solid fa-check"></i>
-                    </a>
-                {% endif %}
-            </div>
+            {% else %}
+                <a id="nextBtn" href="{% url 'dashboard' %}" class="btn-primary" style="display: none; background: linear-gradient(135deg, var(--secondary-color), #2b6cb0); text-decoration: none; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.8rem 1.5rem; font-size: 0.95rem; font-weight: 600;">
+                    Finalizar Avaliação <i class="fa-solid fa-check"></i>
+                </a>
+            {% endif %}
         </div>
             
         </div>
