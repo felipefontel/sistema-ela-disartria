@@ -39,7 +39,7 @@
                 <div style="flex: 1; min-width: 180px;">
                     <label style="display: block; margin-bottom: 0.3rem; color: var(--text-secondary); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">Diagnóstico</label>
                     <div style="position: relative;">
-                        <select name="diagnosis" class="form-control" style="width: 100%; height: 42px; appearance: none; padding-right: 30px;">
+                        <select name="diagnosis" class="form-control" style="width: 100%; height: 42px; line-height: 1.2; appearance: none; padding: 0.4rem 30px 0.4rem 1rem;">
                             <option value="">Todos os diagnósticos</option>
                             {% for value, label in diagnosis_choices %}
                             <option value="{{ value }}" {% if diagnosis_filter == value %}selected{% endif %}>{{ label }}</option>
@@ -52,7 +52,7 @@
                 <div style="flex: 1; min-width: 140px;">
                     <label style="display: block; margin-bottom: 0.3rem; color: var(--text-secondary); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">Sexo</label>
                     <div style="position: relative;">
-                        <select name="gender" class="form-control" style="width: 100%; height: 42px; appearance: none; padding-right: 30px;">
+                        <select name="gender" class="form-control" style="width: 100%; height: 42px; line-height: 1.2; appearance: none; padding: 0.4rem 30px 0.4rem 1rem;">
                             <option value="">Todos os sexos</option>
                             {% for value, label in gender_choices %}
                             <option value="{{ value }}" {% if gender_filter == value %}selected{% endif %}>{{ label }}</option>
@@ -130,9 +130,9 @@
                 {% empty %}
                 <tr>
                     <td colspan="5" style="text-align: center; padding: 3rem; color: var(--text-secondary);">
-                        {% if query %}
+                        {% if query or diagnosis_filter or gender_filter %}
                             <i class="fa-solid fa-magnifying-glass" style="font-size: 1.5rem; margin-bottom: 0.5rem; display: block; opacity: 0.4;"></i>
-                            Nenhum paciente encontrado para "<strong>{{ query }}</strong>".
+                            Nenhum paciente encontrado para os filtros selecionados.
                         {% else %}
                             <i class="fa-solid fa-users-slash" style="font-size: 1.5rem; margin-bottom: 0.5rem; display: block; opacity: 0.4;"></i>
                             Nenhum paciente cadastrado ainda.
@@ -148,11 +148,11 @@
     {% if page_obj.paginator.num_pages > 1 %}
     <div style="display: flex; justify-content: center; align-items: center; gap: 0.5rem; margin-top: 1.5rem; flex-wrap: wrap;">
         {% if page_obj.has_previous %}
-        <a href="?page=1{% if query %}&q={{ query }}{% endif %}"
+        <a href="?page=1{% if query %}&q={{ query }}{% endif %}{% if diagnosis_filter %}&diagnosis={{ diagnosis_filter }}{% endif %}{% if gender_filter %}&gender={{ gender_filter }}{% endif %}"
            style="padding: 6px 12px; border-radius: 6px; background: rgba(255,255,255,0.06); color: var(--text-secondary); text-decoration: none; font-size: 0.82rem; border: 1px solid rgba(255,255,255,0.1);">
             «
         </a>
-        <a href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}"
+        <a href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if diagnosis_filter %}&diagnosis={{ diagnosis_filter }}{% endif %}{% if gender_filter %}&gender={{ gender_filter }}{% endif %}"
            style="padding: 6px 14px; border-radius: 6px; background: rgba(255,255,255,0.06); color: var(--text-secondary); text-decoration: none; font-size: 0.82rem; border: 1px solid rgba(255,255,255,0.1);">
             ‹ Anterior
         </a>
@@ -163,11 +163,11 @@
         </span>
 
         {% if page_obj.has_next %}
-        <a href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}"
+        <a href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% if diagnosis_filter %}&diagnosis={{ diagnosis_filter }}{% endif %}{% if gender_filter %}&gender={{ gender_filter }}{% endif %}"
            style="padding: 6px 14px; border-radius: 6px; background: rgba(255,255,255,0.06); color: var(--text-secondary); text-decoration: none; font-size: 0.82rem; border: 1px solid rgba(255,255,255,0.1);">
             Próxima ›
         </a>
-        <a href="?page={{ page_obj.paginator.num_pages }}{% if query %}&q={{ query }}{% endif %}"
+        <a href="?page={{ page_obj.paginator.num_pages }}{% if query %}&q={{ query }}{% endif %}{% if diagnosis_filter %}&diagnosis={{ diagnosis_filter }}{% endif %}{% if gender_filter %}&gender={{ gender_filter }}{% endif %}"
            style="padding: 6px 12px; border-radius: 6px; background: rgba(255,255,255,0.06); color: var(--text-secondary); text-decoration: none; font-size: 0.82rem; border: 1px solid rgba(255,255,255,0.1);">
             »
         </a>
