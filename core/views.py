@@ -38,7 +38,10 @@ def dashboard_view(request):
     diagnosis_filter = request.GET.get('diagnosis', '')
     gender_filter = request.GET.get('gender', '')
 
-    patients_qs = Patient.objects.all().order_by('-created_at')
+    if request.user.is_superuser:
+        patients_qs = Patient.objects.all().order_by('-created_at')
+    else:
+        patients_qs = Patient.objects.filter(is_active=True).order_by('-created_at')
     
     if query:
         patients_qs = patients_qs.filter(name__icontains=query)
@@ -137,7 +140,10 @@ def patient_delete(request, pk):
     patient = get_object_or_404(Patient, pk=pk)
     if request.method == 'POST':
         name = patient.name
-        patient.delete()
+        # Soft delete: desativar o paciente em vez de deletar fisicamente
+        patient.is_active = False
+        patient.save()
+        messages.success(request, f'Paciente "{name}" foi desativado com sucesso.')
         messages.success(request, f'Paciente "{name}" excluído com sucesso!')
         return redirect('dashboard')
     return redirect('patient_detail', pk=pk)
