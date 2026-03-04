@@ -11,11 +11,11 @@
         </div>
         <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center;">
             {% if request.user.is_superuser %}
-            <a href="{% url 'user_list' %}" class="btn-secondary" style="text-decoration: none; display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.85rem;">
+            <a href="{% url 'user_list' %}" class="btn-secondary" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem; padding: 0.8rem 1.5rem; font-weight: 600;">
                 <i class="fa-solid fa-user-shield"></i> Usuários
             </a>
             {% endif %}
-            <a href="{% url 'patient_create' %}" class="btn-primary" style="text-decoration: none; display: inline-flex; align-items: center; gap: 0.4rem;">
+            <a href="{% url 'patient_create' %}" class="btn-primary" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem; padding: 0.8rem 1.5rem; font-weight: 600; width: auto;">
                 <i class="fa-solid fa-user-plus"></i> Novo Paciente
             </a>
         </div>
