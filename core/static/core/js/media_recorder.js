@@ -280,6 +280,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 uploadStatus.innerHTML = '<span style="color:var(--secondary-color);"><i class="fa-solid fa-check"></i> Áudio salvo com sucesso!</span>';
                 nextBtn.style.display = 'inline-flex';
                 discardBtn.style.display = 'inline-flex';
+
+                // Oculta o áudio de exemplo e o visualizador
+                const exampleAudio = document.getElementById('exampleAudioContainer');
+                if (exampleAudio) exampleAudio.style.display = 'none';
+                if (canvas) canvas.style.display = 'none';
             } else {
                 throw new Error('Falha no upload do servidor.');
             }
