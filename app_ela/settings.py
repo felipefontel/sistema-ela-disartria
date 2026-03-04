@@ -88,24 +88,36 @@ WSGI_APPLICATION = 'app_ela.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-DATABASES = {}
-DB_NAME = os.getenv('DB_NAME')
-if DB_NAME:
-    DATABASES['default'] = {
-        'ENGINE': os.getenv('DB_ENGINE', 'django.db.backends.postgresql'),
-        'NAME': DB_NAME,
-        'USER': os.getenv('DB_USER'),
-        'PASSWORD': os.getenv('DB_PASSWORD'),
-        'HOST': os.getenv('DB_HOST'),
-        'PORT': os.getenv('DB_PORT', '5432'),
-    }
-else:
+# Configuração para Produção (Vercel) e Local
+DATABASE_URL = os.getenv('DATABASE_URL')
+
+if DATABASE_URL:
     DATABASES['default'] = dj_database_url.config(
-        default=os.getenv('DATABASE_URL', f"sqlite:///{BASE_DIR / 'db.sqlite3'}"),
+        default=DATABASE_URL,
         conn_max_age=600,
         conn_health_checks=True,
-        ssl_require=bool(os.getenv('DATABASE_URL'))  # Exige SSL se a URL de banco for passada, comum no Vercel
+        ssl_require=True
     )
+else:
+    DB_NAME = os.getenv('DB_NAME')
+    if DB_NAME:
+        DATABASES['default'] = {
+            'ENGINE': os.getenv('DB_ENGINE', 'django.db.backends.postgresql'),
+            'NAME': DB_NAME,
+            'USER': os.getenv('DB_USER'),
+            'PASSWORD': os.getenv('DB_PASSWORD'),
+            'HOST': os.getenv('DB_HOST'),
+            'PORT': os.getenv('DB_PORT', '5432'),
+            'OPTIONS': {
+                'sslmode': 'require',
+            },
+        }
+    else:
+        DATABASES['default'] = dj_database_url.config(
+            default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
+            conn_max_age=600,
+            conn_health_checks=True,
+        )
 
 # CORS Config
 CORS_ALLOW_ALL_ORIGINS = True # Ajustar em prod
