@@ -34,7 +34,8 @@
     <div id="audioConfig" 
          data-patient="{{ patient.id }}" 
          data-task="{{ task.id }}" 
-         data-url="{% url 'upload_audio_api' %}" style="display:none;"></div>
+         data-upload-url="{% url 'upload_audio_api' %}" 
+         data-delete-url="{% url 'delete_audio_api' %}" style="display:none;"></div>
 
     <div class="recording-container">
         <!-- Main Action Buttons -->
@@ -50,24 +51,33 @@
             <!-- Status messages via JS -->
         </div>
         
-        <div style="margin-top: 2rem; display: flex; justify-content: space-between;">
+        <!-- Espectro de Áudio Visual -->
+        <canvas id="audioVisualizer" width="500" height="80" style="display: none; margin: 1rem auto; width: 100%; max-width: 500px; height: 80px; background: rgba(255,255,255,0.4); border-radius: 12px; border: 1px solid rgba(0,0,0,0.05);"></canvas>
+        
+        <div style="margin-top: 2rem; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
             {% if step > 1 %}
-            <a href="{% url 'recording_task' patient.id step|add:'-1' %}" class="btn-secondary" style="text-decoration: none;">
+            <a href="{% url 'recording_task' patient.id step|add:'-1' %}" class="btn-secondary" style="text-decoration: none; flex: 1; max-width: 160px; text-align: center;">
                 <i class="fa-solid fa-arrow-left"></i> Voltar Tarefa
             </a>
             {% else %}
-            <div></div> <!-- space filler -->
+            <div style="flex: 1; max-width: 160px;"></div> <!-- space filler -->
             {% endif %}
 
-            {% if task.next_step %}
-                <a id="nextBtn" href="{% url 'recording_task' patient.id task.next_step %}" class="btn-primary" style="display: none; width: auto; text-decoration: none;">
-                    Próxima Tarefa <i class="fa-solid fa-arrow-right"></i>
-                </a>
-            {% else %}
-                <a id="nextBtn" href="{% url 'dashboard' %}" class="btn-primary" style="display: none; width: auto; background: var(--secondary-color); text-decoration: none;">
-                    Finalizar Avaliação <i class="fa-solid fa-check"></i>
-                </a>
-            {% endif %}
+            <div style="display: flex; gap: 1rem; flex: 2; justify-content: flex-end; flex-wrap: wrap;">
+                <button id="discardBtn" class="btn-secondary" style="display: none; color: #e53e3e; border-color: #e53e3e;">
+                    <i class="fa-solid fa-trash-can"></i> Descartar e Regravar
+                </button>
+
+                {% if task.next_step %}
+                    <a id="nextBtn" href="{% url 'recording_task' patient.id task.next_step %}" class="btn-primary" style="display: none; width: auto; text-decoration: none;">
+                        Próxima Tarefa <i class="fa-solid fa-arrow-right"></i>
+                    </a>
+                {% else %}
+                    <a id="nextBtn" href="{% url 'dashboard' %}" class="btn-primary" style="display: none; width: auto; background: var(--secondary-color); text-decoration: none;">
+                        Finalizar Avaliação <i class="fa-solid fa-check"></i>
+                    </a>
+                {% endif %}
+            </div>
         </div>
     </div>
 

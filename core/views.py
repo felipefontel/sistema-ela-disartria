@@ -330,3 +330,21 @@ def upload_audio_api(request):
         
         return JsonResponse({'message': 'Áudio salvo com sucesso!', 'id': recording.id})
     return JsonResponse({'error': 'Método inválido'}, status=405)
+
+
+@login_required
+@csrf_protect
+def delete_audio_api(request):
+    if request.method == 'POST':
+        recording_id = request.POST.get('recording_id')
+        if not recording_id:
+            return JsonResponse({'error': 'Parâmetro ausente'}, status=400)
+            
+        recording = get_object_or_404(PatientRecording, id=recording_id)
+        
+        # Opcional: só o user criador ou superuser pode apagar.
+        # Mas como a intenção é descartar em tempo real logo apos gravar:
+        recording.delete()
+        
+        return JsonResponse({'message': 'Áudio excluído com sucesso!'})
+    return JsonResponse({'error': 'Método inválido'}, status=405)

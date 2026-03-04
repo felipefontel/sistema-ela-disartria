@@ -4,14 +4,28 @@ document.addEventListener('DOMContentLoaded', () => {
     const uploadStatus = document.getElementById('uploadStatus');
     const nextBtn = document.getElementById('nextBtn');
 
+    const discardBtn = document.getElementById('discardBtn');
+    const canvas = document.getElementById('audioVisualizer');
+    const canvasCtx = canvas ? canvas.getContext('2d') : null;
+
     // Configurations passed from Django Template
-    const patientId = document.getElementById('audioConfig').dataset.patient;
-    const taskType = document.getElementById('audioConfig').dataset.task;
-    const uploadUrl = document.getElementById('audioConfig').dataset.url;
+    const audioConfig = document.getElementById('audioConfig');
+    const patientId = audioConfig.dataset.patient;
+    const taskType = audioConfig.dataset.task;
+    const uploadUrl = audioConfig.dataset.uploadUrl;
+    const deleteUrl = audioConfig.dataset.deleteUrl;
     const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
     let mediaRecorder;
     let audioChunks = [];
+    let currentRecordingId = null;
+
+    // Audio animation vars
+    let audioContext;
+    let analyser;
+    let dataArray;
+    let source;
+    let drawVisual;
 
     // CRITICAL: Constraints rigorosas para garantir áudio sem manipulação DSP
     const constraints = {
@@ -39,6 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
             mediaRecorder.stop();
             // Para as tracks do microfone para liberar o hardware
             mediaRecorder.stream.getTracks().forEach(track => track.stop());
+            if (drawVisual) cancelAnimationFrame(drawVisual);
 
             recordBtn.classList.remove('recording');
             recordBtn.style.display = 'none';
@@ -47,8 +62,85 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    discardBtn.addEventListener('click', async () => {
+        if (!currentRecordingId) return;
+
+        discardBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Descartando...';
+        discardBtn.disabled = true;
+        nextBtn.style.pointerEvents = 'none';
+        nextBtn.style.opacity = '0.5';
+
+        const formData = new FormData();
+        formData.append('recording_id', currentRecordingId);
+
+        try {
+            await fetch(deleteUrl, {
+                method: 'POST',
+                headers: { 'X-CSRFToken': csrfToken },
+                body: formData
+            });
+
+            // Reset UI for new recording
+            currentRecordingId = null;
+            nextBtn.style.display = 'none';
+            nextBtn.style.pointerEvents = 'auto';
+            nextBtn.style.opacity = '1';
+            discardBtn.style.display = 'none';
+            discardBtn.disabled = false;
+            discardBtn.innerHTML = '<i class="fa-solid fa-trash-can"></i> Descartar e Regravar';
+
+            canvas.style.display = 'none';
+            if (canvasCtx) canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
+            uploadStatus.innerHTML = '';
+
+            recordBtn.style.display = 'flex';
+        } catch (error) {
+            console.error(error);
+            uploadStatus.innerHTML = '<span style="color:red;"><i class="fa-solid fa-triangle-exclamation"></i> Erro ao excluir áudio. Tente novamente ou atualize.</span>';
+            discardBtn.disabled = false;
+            discardBtn.innerHTML = '<i class="fa-solid fa-trash-can"></i> Descartar e Regravar';
+            nextBtn.style.pointerEvents = 'auto';
+            nextBtn.style.opacity = '1';
+        }
+    });
+
+    function visualize() {
+        if (!canvas) return;
+        drawVisual = requestAnimationFrame(visualize);
+        analyser.getByteFrequencyData(dataArray);
+
+        canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
+
+        const barWidth = (canvas.width / dataArray.length) * 2.5;
+        let barHeight;
+        let x = 0;
+
+        for (let i = 0; i < dataArray.length; i++) {
+            barHeight = dataArray[i] / 2;
+
+            canvasCtx.fillStyle = '#1bbca0';
+            canvasCtx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
+
+            x += barWidth + 1;
+        }
+    }
+
     function startRecording(stream) {
         audioChunks = [];
+
+        // Setup Visualizer
+        if (canvas) {
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            analyser = audioContext.createAnalyser();
+            source = audioContext.createMediaStreamSource(stream);
+            source.connect(analyser);
+            analyser.fftSize = 256;
+            const bufferLength = analyser.frequencyBinCount;
+            dataArray = new Uint8Array(bufferLength);
+            canvas.style.display = 'block';
+            visualize();
+        }
+
         // MIME Type de WebM (maior suporte web, sem re-encode pra não perder specs acústicos)
         let options = { mimeType: 'audio/webm' };
         if (!MediaRecorder.isTypeSupported('audio/webm')) {
@@ -95,8 +187,11 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             if (response.ok) {
+                const data = await response.json();
+                currentRecordingId = data.id;
                 uploadStatus.innerHTML = '<span style="color:var(--secondary-color);"><i class="fa-solid fa-check"></i> Áudio salvo com sucesso!</span>';
-                nextBtn.style.display = 'inline-block';
+                nextBtn.style.display = 'inline-flex';
+                discardBtn.style.display = 'inline-flex';
             } else {
                 throw new Error('Falha no upload do servidor.');
             }

@@ -22,4 +22,5 @@ urlpatterns = [
     # Gravação
     path('record/<int:patient_id>/step/<int:step>/', views.recording_task_view, name='recording_task'),
     path('api/upload-audio/', views.upload_audio_api, name='upload_audio_api'),
+    path('api/delete-audio/', views.delete_audio_api, name='delete_audio_api'),
 ]
