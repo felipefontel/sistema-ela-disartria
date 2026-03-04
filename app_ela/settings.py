@@ -109,8 +109,8 @@ else:
         }
         
         # Só força SSL se não estiver no localhost, pois o Azure exige SSL de fora.
-        # Porém, às vezes do seu IP local o Azure aceita tráfego sem/outro tipo de SSL dependendo da lib Psycopg2 no Windows.
-        if 'localhost' not in ALLOWED_HOSTS and '*' not in ALLOWED_HOSTS:
+        # A Vercel automaticamente injeta a variável de ambiente VERCEL="1" nos deployments dela
+        if os.getenv('VERCEL') == '1' or os.getenv('REQUIRE_SSL') == 'True':
              DATABASES['default']['OPTIONS'] = {'sslmode': 'require'}
     else:
         DATABASES['default'] = dj_database_url.config(
