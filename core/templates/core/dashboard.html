@@ -95,11 +95,6 @@
                         <a href="{% url 'patient_detail' patient.pk %}" style="color: var(--primary-color); text-decoration: none; transition: opacity 0.2s;"
                            onmouseover="this.style.opacity='0.75'" onmouseout="this.style.opacity='1'">
                             {{ patient.name }}
-                            {% if not patient.is_active %}
-                            <span style="font-size: 0.70rem; padding: 2px 6px; border-radius: 12px; background: rgba(229,62,62,0.15); color: #e53e3e; margin-left: 0.5rem; vertical-align: middle;">
-                                <i class="fa-solid fa-ban"></i> Desativado
-                            </span>
-                            {% endif %}
                         </a>
                     </td>
                     <td>
@@ -111,7 +106,6 @@
                     <td style="color: var(--text-secondary); font-size: 0.85rem;">{{ patient.created_at|date:"d/m/Y" }}</td>
                     <td style="text-align: center;">
                         <div style="display: flex; gap: 0.4rem; justify-content: center; flex-wrap: wrap;">
-                            {% if patient.is_active %}
                             <a href="{% url 'patient_detail' patient.pk %}"
                                style="display: inline-flex; align-items: center; gap: 0.3rem; padding: 5px 10px; border-radius: 6px; font-size: 0.78rem; background: rgba(99,179,237,0.15); color: #63b3ed; border: 1px solid rgba(99,179,237,0.3); text-decoration: none; transition: all 0.2s;"
                                onmouseover="this.style.background='rgba(99,179,237,0.3)'" onmouseout="this.style.background='rgba(99,179,237,0.15)'">
@@ -122,17 +116,14 @@
                                onmouseover="this.style.background='rgba(237,137,54,0.3)'" onmouseout="this.style.background='rgba(237,137,54,0.15)'">
                                 <i class="fa-solid fa-pen"></i> Editar
                             </a>
-                            <form action="{% url 'patient_delete' patient.pk %}" method="POST" style="display:inline;" onsubmit="return confirm('Tem certeza que deseja desativar este paciente? Ele não aparecerá mais nas listas comuns.');">
+                            <form action="{% url 'patient_delete' patient.pk %}" method="POST" style="display:inline;" onsubmit="return confirm('Tem certeza que deseja excluir este paciente? Esta ação não pode ser desfeita e todas as gravações vinculadas serão apagadas permanentemente.');">
                                 {% csrf_token %}
                                 <button type="submit"
                                         style="display: inline-flex; align-items: center; gap: 0.3rem; padding: 5px 10px; border-radius: 6px; font-size: 0.78rem; background: rgba(252,129,129,0.15); color: #fc8181; border: 1px solid rgba(252,129,129,0.3); cursor: pointer; transition: all 0.2s;"
                                         onmouseover="this.style.background='rgba(252,129,129,0.3)'" onmouseout="this.style.background='rgba(252,129,129,0.15)'">
-                                    <i class="fa-solid fa-trash"></i> Desativar
+                                    <i class="fa-solid fa-trash"></i> Excluir
                                 </button>
                             </form>
-                            {% else %}
-                            <span style="font-size: 0.75rem; color: var(--text-secondary); opacity: 0.6;">Ações Restritas</span>
-                            {% endif %}
                         </div>
                     </td>
                 </tr>
