@@ -27,6 +27,13 @@ document.addEventListener('DOMContentLoaded', () => {
     let source;
     let drawVisual;
 
+    // Timer vars
+    let recordingTimerInterval;
+    let recordingSeconds = 0;
+    const timerDisplay = document.getElementById('recordingTimer');
+    const audioPlaybackContainer = document.getElementById('audioPlaybackContainer');
+    const audioPlayback = document.getElementById('audioPlayback');
+
     // CRITICAL: Constraints rigorosas para garantir áudio sem manipulação DSP
     const constraints = {
         audio: {
@@ -54,6 +61,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Para as tracks do microfone para liberar o hardware
             mediaRecorder.stream.getTracks().forEach(track => track.stop());
             if (drawVisual) cancelAnimationFrame(drawVisual);
+            stopTimer();
 
             recordBtn.classList.remove('recording');
             recordBtn.style.display = 'none';
@@ -91,6 +99,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
             canvas.style.display = 'none';
             if (canvasCtx) canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Esconde e zera o timer e player
+            timerDisplay.style.display = 'none';
+            timerDisplay.textContent = '00:00';
+            audioPlaybackContainer.style.display = 'none';
+            audioPlayback.src = '';
+
             uploadStatus.innerHTML = '';
 
             recordBtn.style.display = 'flex';
@@ -103,6 +118,22 @@ document.addEventListener('DOMContentLoaded', () => {
             nextBtn.style.opacity = '1';
         }
     });
+
+    function startTimer() {
+        recordingSeconds = 0;
+        timerDisplay.textContent = '00:00';
+        timerDisplay.style.display = 'block';
+        recordingTimerInterval = setInterval(() => {
+            recordingSeconds++;
+            const m = Math.floor(recordingSeconds / 60).toString().padStart(2, '0');
+            const s = (recordingSeconds % 60).toString().padStart(2, '0');
+            timerDisplay.textContent = `${m}:${s}`;
+        }, 1000);
+    }
+
+    function stopTimer() {
+        clearInterval(recordingTimerInterval);
+    }
 
     function visualize() {
         if (!canvas) return;
@@ -127,7 +158,11 @@ document.addEventListener('DOMContentLoaded', () => {
         let x = 0;
 
         for (let i = 0; i < analyser.frequencyBinCount; i++) {
-            const v = dataArray[i] / 128.0; // valor central é 128
+            // Amplificando a onda para ficar mais visual
+            let v = dataArray[i] / 128.0; // centralizado no 1
+            // 2.0x amplitude multiplier
+            v = ((v - 1) * 2.5) + 1;
+
             const y = v * (canvas.height / 2);
 
             if (i === 0) {
@@ -145,6 +180,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function startRecording(stream) {
         audioChunks = [];
+        startTimer();
 
         // Setup Visualizer
         if (canvas) {
@@ -207,6 +243,11 @@ document.addEventListener('DOMContentLoaded', () => {
             if (response.ok) {
                 const data = await response.json();
                 currentRecordingId = data.id;
+
+                // Exibe player e seta a URL blob local para ouvir imediato
+                audioPlayback.src = URL.createObjectURL(audioBlob);
+                audioPlaybackContainer.style.display = 'block';
+
                 uploadStatus.innerHTML = '<span style="color:var(--secondary-color);"><i class="fa-solid fa-check"></i> Áudio salvo com sucesso!</span>';
                 nextBtn.style.display = 'inline-flex';
                 discardBtn.style.display = 'inline-flex';

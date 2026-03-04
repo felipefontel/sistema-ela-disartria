@@ -47,37 +47,48 @@
             <i class="fa-solid fa-stop"></i>
         </button>
         
-        <div id="uploadStatus" style="margin-top: 1rem; font-weight: 600; height: 30px;">
+        <div id="uploadStatus" style="margin-top: 1rem; font-weight: 600; min-height: 30px;">
             <!-- Status messages via JS -->
+        </div>
+
+        <div id="recordingTimer" style="display: none; font-size: 1.5rem; font-family: monospace; color: #e74c3c; font-weight: 700; margin-top: 0.5rem;">
+            00:00
+        </div>
+        
+        <div id="audioPlaybackContainer" style="display: none; margin-top: 1.5rem;">
+            <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.5rem;">Ouça o que você acabou de gravar:</p>
+            <audio id="audioPlayback" controls style="height: 40px; width: 100%; max-width: 350px; outline: none;"></audio>
         </div>
         
         <!-- Espectro de Áudio Visual -->
         <canvas id="audioVisualizer" width="500" height="80" style="display: none; margin: 1rem auto; width: 100%; max-width: 500px; height: 80px; background: rgba(255,255,255,0.4); border-radius: 12px; border: 1px solid rgba(0,0,0,0.05);"></canvas>
         
-        <div style="margin-top: 2rem; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
-            {% if step > 1 %}
-            <a href="{% url 'recording_task' patient.id step|add:'-1' %}" class="btn-secondary" style="text-decoration: none; flex: 1; max-width: 160px; text-align: center;">
-                <i class="fa-solid fa-arrow-left"></i> Voltar Tarefa
-            </a>
-            {% else %}
-            <div style="flex: 1; max-width: 160px;"></div> <!-- space filler -->
-            {% endif %}
+        <div style="margin-top: 3rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+            
+            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                {% if step > 1 %}
+                <a href="{% url 'recording_task' patient.id step|add:'-1' %}" class="btn-secondary" style="text-decoration: none; align-items: center; justify-content: center; gap: 0.5rem;">
+                    <i class="fa-solid fa-arrow-left"></i> Voltar Tarefa
+                </a>
+                {% endif %}
 
-            <div style="display: flex; gap: 1rem; flex: 2; justify-content: flex-end; flex-wrap: wrap; align-items: center;">
-                <button id="discardBtn" class="btn-secondary" style="display: none; color: #e53e3e; border-color: #e53e3e; padding: 0.8rem 1.5rem; font-size: 1rem; font-weight: 600; align-items: center; justify-content: center; gap: 0.5rem; border-radius: 8px; transition: all 0.2s;" onmouseover="this.style.background='rgba(229,62,62,0.1)'" onmouseout="this.style.background='white'">
+                <button id="discardBtn" class="btn-secondary" style="display: none; color: #e53e3e; border-color: #e53e3e; padding: 0.5rem 1rem; font-size: 1rem; font-weight: 600; align-items: center; justify-content: center; gap: 0.5rem; border-radius: 8px; transition: all 0.2s;" onmouseover="this.style.background='rgba(229,62,62,0.1)'" onmouseout="this.style.background='white'">
                     <i class="fa-solid fa-trash-can"></i> Descartar e Regravar
                 </button>
+            </div>
 
+            <div>
                 {% if task.next_step %}
-                    <a id="nextBtn" href="{% url 'recording_task' patient.id task.next_step %}" class="btn-primary" style="display: none; width: auto; text-decoration: none; align-items: center; justify-content: center; gap: 0.5rem;">
+                    <a id="nextBtn" href="{% url 'recording_task' patient.id task.next_step %}" class="btn-primary" style="display: none; width: auto; text-decoration: none; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.8rem 1.5rem;">
                         Próxima Tarefa <i class="fa-solid fa-arrow-right"></i>
                     </a>
                 {% else %}
-                    <a id="nextBtn" href="{% url 'dashboard' %}" class="btn-primary" style="display: none; width: auto; background: var(--secondary-color); text-decoration: none; align-items: center; justify-content: center; gap: 0.5rem;">
+                    <a id="nextBtn" href="{% url 'dashboard' %}" class="btn-primary" style="display: none; width: auto; background: var(--secondary-color); text-decoration: none; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.8rem 1.5rem;">
                         Finalizar Avaliação <i class="fa-solid fa-check"></i>
                     </a>
                 {% endif %}
             </div>
+            
         </div>
     </div>
 
