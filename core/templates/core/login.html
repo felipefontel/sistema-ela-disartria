@@ -5,9 +5,9 @@
 
 {% block content %}
 <div class="glass-panel login-card">
-    <img src="{% static 'core/images/APP DISARTRIA.png' %}" alt="App ELA Logo" style="height: 100px; width: auto; object-fit: contain; margin-bottom: 1.5rem;">
-    <h2>Bem-vindo(a)</h2>
-    <p>Acesse o Sistema de Coleta de Áudio (Disartria)</p>
+    <img src="{% static 'core/images/APP DISARTRIA.png' %}" alt="App ELA Logo" style="max-height: 200px; max-width: 100%; height: auto; width: auto; object-fit: contain; margin-bottom: 0rem;">
+    <h2 style="font-size: 1.20rem;">Bem-vindo(a)</h2>
+    <p>Entre com seu Usuário e Senha</p>
 
     <form method="post" action="{% url 'login' %}">
         {% csrf_token %}
