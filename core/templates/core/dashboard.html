@@ -22,37 +22,59 @@
     </div>
 
     <!-- Busca e Filtros -->
-    <form method="get" style="margin-bottom: 1.25rem;">
-        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;">
-            <input type="text" name="q" value="{{ query }}"
-                   placeholder="Buscar por nome..."
-                   class="form-control"
-                   style="flex: 1; min-width: 200px; max-width: 320px;">
+    <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 1rem; margin-bottom: 1.5rem;">
+        <form method="get" style="margin: 0;">
+            <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: flex-end;">
+                <div style="flex: 1; min-width: 250px;">
+                    <label style="display: block; margin-bottom: 0.3rem; color: var(--text-secondary); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">Paciente</label>
+                    <div style="position: relative;">
+                        <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-secondary); font-size: 0.9rem;"></i>
+                        <input type="text" name="q" value="{{ query }}"
+                               placeholder="Buscar por nome..."
+                               class="form-control"
+                               style="width: 100%; padding-left: 36px; height: 42px;">
+                    </div>
+                </div>
 
-            <select name="diagnosis" class="form-control" style="min-width: 170px;">
-                <option value="">Todos os diagnósticos</option>
-                {% for value, label in diagnosis_choices %}
-                <option value="{{ value }}" {% if diagnosis_filter == value %}selected{% endif %}>{{ label }}</option>
-                {% endfor %}
-            </select>
+                <div style="flex: 1; min-width: 180px;">
+                    <label style="display: block; margin-bottom: 0.3rem; color: var(--text-secondary); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">Diagnóstico</label>
+                    <div style="position: relative;">
+                        <select name="diagnosis" class="form-control" style="width: 100%; height: 42px; appearance: none; padding-right: 30px;">
+                            <option value="">Todos os diagnósticos</option>
+                            {% for value, label in diagnosis_choices %}
+                            <option value="{{ value }}" {% if diagnosis_filter == value %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                        <i class="fa-solid fa-chevron-down" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: var(--text-secondary); font-size: 0.8rem; pointer-events: none;"></i>
+                    </div>
+                </div>
 
-            <select name="gender" class="form-control" style="min-width: 130px;">
-                <option value="">Todos os sexos</option>
-                {% for value, label in gender_choices %}
-                <option value="{{ value }}" {% if gender_filter == value %}selected{% endif %}>{{ label }}</option>
-                {% endfor %}
-            </select>
+                <div style="flex: 1; min-width: 140px;">
+                    <label style="display: block; margin-bottom: 0.3rem; color: var(--text-secondary); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">Sexo</label>
+                    <div style="position: relative;">
+                        <select name="gender" class="form-control" style="width: 100%; height: 42px; appearance: none; padding-right: 30px;">
+                            <option value="">Todos os sexos</option>
+                            {% for value, label in gender_choices %}
+                            <option value="{{ value }}" {% if gender_filter == value %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                        <i class="fa-solid fa-chevron-down" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: var(--text-secondary); font-size: 0.8rem; pointer-events: none;"></i>
+                    </div>
+                </div>
 
-            <button type="submit" class="btn-secondary" style="display: inline-flex; align-items: center; gap: 0.4rem; white-space: nowrap;">
-                <i class="fa-solid fa-filter"></i> Filtrar
-            </button>
-            {% if query or diagnosis_filter or gender_filter %}
-            <a href="{% url 'dashboard' %}" class="btn-secondary" style="text-decoration: none; display: inline-flex; align-items: center; gap: 0.4rem;">
-                <i class="fa-solid fa-xmark"></i> Limpar
-            </a>
-            {% endif %}
-        </div>
-    </form>
+                <div style="display: flex; gap: 0.5rem; flex-shrink: 0; min-width: max-content; margin-top: 0.5rem;">
+                    <button type="submit" class="btn-primary" style="height: 42px; display: inline-flex; align-items: center; gap: 0.4rem; white-space: nowrap; padding: 0 1.25rem;">
+                        <i class="fa-solid fa-filter"></i> Filtrar
+                    </button>
+                    {% if query or diagnosis_filter or gender_filter %}
+                    <a href="{% url 'dashboard' %}" class="btn-secondary" style="height: 42px; display: inline-flex; align-items: center; gap: 0.4rem; padding: 0 1rem; text-decoration: none;">
+                        <i class="fa-solid fa-xmark"></i> Limpar
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </form>
+    </div>
 
     <!-- Tabela -->
     <div style="overflow-x: auto;">
