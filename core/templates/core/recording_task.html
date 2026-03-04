@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="glass-panel" style="max-width: 800px; margin: 0 auto;">
+    
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <h2 style="color: var(--primary-color);">Coleta de Áudio</h2>
+        <span style="background: rgba(11, 111, 184, 0.1); padding: 0.5rem 1rem; border-radius: 20px; font-weight: 600; color: var(--primary-color);">
+            Passo {{ step }} de 5
+        </span>
+    </div>
+
+    <div style="text-align: center; margin-bottom: 2rem;">
+        <p style="color: var(--text-secondary); margin-bottom: 0.5rem;">Paciente: <strong>{{ patient.name }}</strong></p>
+        <h3 style="font-size: 1.8rem; margin-bottom: 1rem;">{{ task.title }}</h3>
+        
+        <div class="task-instruction">
+            <i class="fa-solid fa-circle-info" style="color: var(--secondary-color);"></i>
+            {{ task.instruction }}
+        </div>
+        
+        <div style="margin-top: 1rem; color: var(--text-secondary); font-size: 0.9rem;">
+            Ouça o áudio de exemplo: <br><br>
+            <audio controls style="height: 40px;">
+                <!-- Placeholder, in the future this will be dynamically retrieved -->
+                <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+                Seu navegador não suporta áudio html5.
+            </audio>
+        </div>
+    </div>
+
+    <!-- Hidden config bridge for Javascript -->
+    <div id="audioConfig" 
+         data-patient="{{ patient.id }}" 
+         data-task="{{ task.id }}" 
+         data-url="{% url 'upload_audio_api' %}" style="display:none;"></div>
+
+    <div class="recording-container">
+        <!-- Main Action Buttons -->
+        <button id="recordBtn" class="mic-button" title="Clique para Iniciar a Gravação">
+            <i class="fa-solid fa-microphone"></i>
+        </button>
+        
+        <button id="stopBtn" class="mic-button" style="display: none; background: var(--text-secondary);" title="Parar Gravação">
+            <i class="fa-solid fa-stop"></i>
+        </button>
+        
+        <div id="uploadStatus" style="margin-top: 1rem; font-weight: 600; height: 30px;">
+            <!-- Status messages via JS -->
+        </div>
+        
+        <div style="margin-top: 2rem; display: flex; justify-content: space-between;">
+            {% if step > 1 %}
+            <a href="{% url 'recording_task' patient.id step|add:'-1' %}" class="btn-secondary" style="text-decoration: none;">
+                <i class="fa-solid fa-arrow-left"></i> Voltar Tarefa
+            </a>
+            {% else %}
+            <div></div> <!-- space filler -->
+            {% endif %}
+
+            {% if task.next_step %}
+                <a id="nextBtn" href="{% url 'recording_task' patient.id task.next_step %}" class="btn-primary" style="display: none; width: auto; text-decoration: none;">
+                    Próxima Tarefa <i class="fa-solid fa-arrow-right"></i>
+                </a>
+            {% else %}
+                <a id="nextBtn" href="{% url 'dashboard' %}" class="btn-primary" style="display: none; width: auto; background: var(--secondary-color); text-decoration: none;">
+                    Finalizar Avaliação <i class="fa-solid fa-check"></i>
+                </a>
+            {% endif %}
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'core/js/media_recorder.js' %}"></script>
+{% endblock %}

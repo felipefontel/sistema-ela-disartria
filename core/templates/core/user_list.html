@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="glass-panel">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <h2 style="color: var(--primary-color);">Usuários do Sistema</h2>
+        <!-- Por enquanto apenas visualização do Admin -->
+    </div>
+
+    <div style="overflow-x: auto;">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Usuário</th>
+                    <th>Nome</th>
+                    <th>Email</th>
+                    <th>Status Admin</th>
+                    <th>Último Login</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for u in users %}
+                <tr>
+                    <td>{{ u.username }}</td>
+                    <td>{{ u.get_full_name }}</td>
+                    <td>{{ u.email }}</td>
+                    <td>
+                        {% if u.is_superuser %}
+                            <span style="color:var(--secondary-color); font-weight:bold;">Administrador</span>
+                        {% else %}
+                            <span style="color:var(--text-secondary);">Comum</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ u.last_login|date:"d/m/Y H:i"|default:"Nunca" }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+                        Nenhum usuário cadastrado além do root.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

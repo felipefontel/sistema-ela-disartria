@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="glass-panel">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <h2 style="color: var(--primary-color);">Pacientes Cadastrados</h2>
+        <a href="{% url 'patient_create' %}" class="btn-primary" style="width: auto; text-decoration: none;">
+            <i class="fa-solid fa-plus"></i> Novo Paciente
+        </a>
+    </div>
+
+    <div style="overflow-x: auto;">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Data Nascimento</th>
+                    <th>Diagnóstico</th>
+                    <th>Data Registro</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for patient in patients %}
+                <tr>
+                    <td>{{ patient.name }}</td>
+                    <td>{{ patient.birth_date|date:"d/m/Y" }}</td>
+                    <td>{{ patient.get_diagnosis_display }}</td>
+                    <td>{{ patient.created_at|date:"d/m/Y" }}</td>
+                    <td>
+                        <a href="#" class="btn-secondary" style="padding: 0.3rem 0.6rem; font-size: 0.85rem; text-decoration:none;"><i class="fa-solid fa-microphone"></i> Iniciar Coleta</a>
+                        <!-- TODO: Link for Coleta -->
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+                        Nenhum paciente cadastrado ainda.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="glass-panel" style="max-width: 800px; margin: 0 auto;">
+    <h2 style="color: var(--primary-color); margin-bottom: 2rem;">Novo Paciente</h2>
+    
+    <form method="post" action="{% url 'patient_create' %}">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label for="{{ form.name.id_for_label }}">Nome Completo</label>
+            {{ form.name }}
+            {{ form.name.errors }}
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="form-group">
+                <label for="{{ form.birth_date.id_for_label }}">Data de Nascimento</label>
+                {{ form.birth_date }}
+                {{ form.birth_date.errors }}
+            </div>
+            <div class="form-group">
+                <label for="{{ form.gender.id_for_label }}">Sexo Biológico</label>
+                {{ form.gender }}
+                {{ form.gender.errors }}
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.diagnosis.id_for_label }}">Diagnóstico</label>
+            {{ form.diagnosis }}
+            {{ form.diagnosis.errors }}
+        </div>
+
+        <div class="form-group" id="diagnosis_other_container" style="display: none;">
+            <label for="{{ form.diagnosis_other.id_for_label }}">Especifique o Diagnóstico</label>
+            {{ form.diagnosis_other }}
+            {{ form.diagnosis_other.errors }}
+        </div>
+
+        <div class="form-group" style="display: flex; align-items: center; gap: 0.5rem; margin-top: 1.5rem; background: rgba(11, 111, 184, 0.05); padding: 1rem; border-radius: 8px; border: 1px solid rgba(11, 111, 184, 0.2);">
+            {{ form.consent_signed }}
+            <label for="{{ form.consent_signed.id_for_label }}" style="margin: 0; font-weight: 600; color: var(--text-primary);">
+                Confirmo que o paciente assinou o Termo de Consentimento Livre e Esclarecido (TCLE).
+            </label>
+            {{ form.consent_signed.errors }}
+        </div>
+
+        <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+            <a href="{% url 'patient_list' %}" class="btn-secondary" style="flex: 1; text-align: center; text-decoration: none;">Cancelar</a>
+            <button type="submit" class="btn-primary" style="flex: 2;">Cadastrar e Iniciar Avaliação <i class="fa-solid fa-arrow-right ml-2"></i></button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const diagSelect = document.getElementById('id_diagnosis');
+        const diagOtherContainer = document.getElementById('diagnosis_other_container');
+        const diagOtherInput = document.getElementById('id_diagnosis_other');
+
+        function toggleOtherField() {
+            if (diagSelect.value === 'OUTRO') {
+                diagOtherContainer.style.display = 'block';
+                diagOtherInput.style.display = 'block';
+                diagOtherInput.required = true;
+            } else {
+                diagOtherContainer.style.display = 'none';
+                diagOtherInput.style.display = 'none';
+                diagOtherInput.required = false;
+                diagOtherInput.value = '';
+            }
+        }
+
+        diagSelect.addEventListener('change', toggleOtherField);
+        // Initial check
+        toggleOtherField();
+    });
+</script>
+{% endblock %}

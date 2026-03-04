@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="glass-panel">
+    <h2 style="margin-bottom: 2rem; color: var(--primary-color);">Dashboard de Atendimentos</h2>
+    
+    <div class="stats-grid">
+        <div class="stat-card glass-panel">
+            <div class="stat-icon">
+                <i class="fa-solid fa-hospital-user"></i>
+            </div>
+            <div class="stat-info">
+                <h3>{{ total_patients }}</h3>
+                <p>Pacientes Cadastrados</p>
+            </div>
+        </div>
+        <div class="stat-card glass-panel">
+            <div class="stat-icon">
+                <i class="fa-solid fa-microphone-lines"></i>
+            </div>
+            <div class="stat-info">
+                <h3>{{ total_recordings }}</h3>
+                <p>Gravações Realizadas</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="action-buttons">
+        <a href="{% url 'patient_create' %}" class="btn-primary" style="text-align: center; text-decoration: none; display: inline-block;">
+            <i class="fa-solid fa-user-plus"></i> Novo Paciente
+        </a>
+        <a href="{% url 'patient_list' %}" class="btn-secondary" style="text-align: center; text-decoration: none; display: inline-block;">
+            <i class="fa-solid fa-users"></i> Ver Pacientes
+        </a>
+        <a href="{% url 'user_list' %}" class="btn-secondary" style="text-align: center; text-decoration: none; display: inline-block;">
+            <i class="fa-solid fa-user-shield"></i> Gerenciar Usuários
+        </a>
+    </div>
+</div>
+{% endblock %}

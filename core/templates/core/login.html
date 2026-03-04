@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block main_class %}auth-container{% endblock %}
+
+{% block content %}
+<div class="glass-panel login-card">
+    <i class="fa-solid fa-waveform-lines fa-4x" style="color: var(--primary-color); margin-bottom: 1rem;"></i>
+    <h2>Bem-vindo(a)</h2>
+    <p>Acesse o Sistema de Coleta de Áudio (Disartria)</p>
+
+    <form method="post" action="{% url 'login' %}">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="username">Usuário</label>
+            <input type="text" name="username" id="username" class="form-control" required autofocus>
+        </div>
+        <div class="form-group">
+            <label for="password">Senha</label>
+            <input type="password" name="password" id="password" class="form-control" required>
+        </div>
+        <button type="submit" class="btn-primary">
+            Entrar <i class="fa-solid fa-arrow-right ml-2"></i>
+        </button>
+    </form>
+</div>
+{% endblock %}
