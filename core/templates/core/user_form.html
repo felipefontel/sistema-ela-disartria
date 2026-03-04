@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="glass-panel" style="max-width: 600px; margin: 0 auto;">
+    <div style="margin-bottom: 2rem;">
+        <a href="{% url 'user_list' %}" style="color: var(--text-secondary); text-decoration: none; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.4rem; transition: color 0.2s;" onmouseover="this.style.color='var(--primary-color)'" onmouseout="this.style.color='var(--text-secondary)'">
+            <i class="fa-solid fa-arrow-left"></i> Voltar para Usuários
+        </a>
+        <h2 style="color: var(--primary-color); margin: 0.75rem 0 0.25rem 0;">{{ action }}</h2>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+        <div style="padding: 0.8rem 1.2rem; margin-bottom: 1.5rem; border-radius: 8px; font-size: 0.9rem;
+                    background: {% if message.tags == 'error' %}rgba(255,80,80,0.15); border: 1px solid rgba(255,80,80,0.4); color: #ff6b6b{% else %}rgba(80,255,150,0.15); border: 1px solid rgba(80,255,150,0.4); color: #4ade80{% endif %};">
+            <i class="fa-solid {% if message.tags == 'error' %}fa-circle-xmark{% else %}fa-circle-check{% endif %}"></i>
+            {{ message }}
+        </div>
+        {% endfor %}
+    {% endif %}
+
+    <form method="post" novalidate>
+        {% csrf_token %}
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+            <div>
+                <label style="display: block; margin-bottom: 0.4rem; color: var(--text-secondary); font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.05em;">{{ form.first_name.label }}</label>
+                {{ form.first_name }}
+                {% if form.first_name.errors %}<p style="color:#fc8181; font-size:0.8rem; margin-top:0.3rem;">{{ form.first_name.errors.0 }}</p>{% endif %}
+            </div>
+            <div>
+                <label style="display: block; margin-bottom: 0.4rem; color: var(--text-secondary); font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.05em;">{{ form.last_name.label }}</label>
+                {{ form.last_name }}
+                {% if form.last_name.errors %}<p style="color:#fc8181; font-size:0.8rem; margin-top:0.3rem;">{{ form.last_name.errors.0 }}</p>{% endif %}
+            </div>
+        </div>
+
+        {% if form.username %}
+        <div style="margin-bottom: 1rem;">
+            <label style="display: block; margin-bottom: 0.4rem; color: var(--text-secondary); font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.05em;">{{ form.username.label }}</label>
+            {{ form.username }}
+            {% if form.username.errors %}<p style="color:#fc8181; font-size:0.8rem; margin-top:0.3rem;">{{ form.username.errors.0 }}</p>{% endif %}
+        </div>
+        {% endif %}
+
+        <div style="margin-bottom: 1rem;">
+            <label style="display: block; margin-bottom: 0.4rem; color: var(--text-secondary); font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.05em;">{{ form.email.label }}</label>
+            {{ form.email }}
+            {% if form.email.errors %}<p style="color:#fc8181; font-size:0.8rem; margin-top:0.3rem;">{{ form.email.errors.0 }}</p>{% endif %}
+        </div>
+
+        <div style="margin-bottom: 1.5rem;">
+            <label style="display: block; margin-bottom: 0.4rem; color: var(--text-secondary); font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.05em;">{{ form.papel.label }}</label>
+            {{ form.papel }}
+            <p style="margin-top: 0.3rem; color: var(--text-secondary); font-size: 0.78rem;">
+                <i class="fa-solid fa-circle-info"></i>
+                <strong>Médico</strong>: acessa pacientes e gravações. <strong>Administrador</strong>: acesso total, incluindo gerenciamento de usuários.
+            </p>
+        </div>
+
+        <hr style="border: none; border-top: 1px solid rgba(255,255,255,0.08); margin-bottom: 1.5rem;">
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+            <div>
+                <label style="display: block; margin-bottom: 0.4rem; color: var(--text-secondary); font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.05em;">{{ form.password.label }}</label>
+                {{ form.password }}
+                {% if form.password.errors %}<p style="color:#fc8181; font-size:0.8rem; margin-top:0.3rem;">{{ form.password.errors.0 }}</p>{% endif %}
+            </div>
+            <div>
+                <label style="display: block; margin-bottom: 0.4rem; color: var(--text-secondary); font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.05em;">{{ form.password_confirm.label }}</label>
+                {{ form.password_confirm }}
+                {% if form.password_confirm.errors %}<p style="color:#fc8181; font-size:0.8rem; margin-top:0.3rem;">{{ form.password_confirm.errors.0 }}</p>{% endif %}
+            </div>
+        </div>
+
+        {% if form.non_field_errors %}
+        <div style="padding: 0.8rem 1.2rem; margin-bottom: 1rem; border-radius: 8px; background: rgba(255,80,80,0.15); border: 1px solid rgba(255,80,80,0.4); color: #ff6b6b; font-size: 0.9rem;">
+            {% for error in form.non_field_errors %}
+                <i class="fa-solid fa-triangle-exclamation"></i> {{ error }}<br>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+            <a href="{% url 'user_list' %}" class="btn-secondary" style="text-decoration: none; display: inline-flex; align-items: center; gap: 0.4rem;">
+                <i class="fa-solid fa-xmark"></i> Cancelar
+            </a>
+            <button type="submit" class="btn-primary" style="display: inline-flex; align-items: center; gap: 0.4rem; border: none; cursor: pointer;">
+                <i class="fa-solid fa-floppy-disk"></i> Salvar
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

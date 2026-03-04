@@ -3,40 +3,84 @@
 {% block content %}
 <div class="glass-panel">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-        <h2 style="color: var(--primary-color);">Usuários do Sistema</h2>
-        <!-- Por enquanto apenas visualização do Admin -->
+        <div>
+            <h2 style="color: var(--primary-color); margin: 0;">Usuários do Sistema</h2>
+            <p style="color: var(--text-secondary); margin: 0.25rem 0 0 0; font-size: 0.9rem;">Gerencie os acessos ao sistema</p>
+        </div>
+        <a href="{% url 'user_create' %}" class="btn-primary" style="text-decoration: none; display: inline-flex; align-items: center; gap: 0.4rem;">
+            <i class="fa-solid fa-user-plus"></i> Novo Usuário
+        </a>
     </div>
+
+    {% if messages %}
+        {% for message in messages %}
+        <div style="padding: 0.8rem 1.2rem; margin-bottom: 1rem; border-radius: 8px; font-size: 0.9rem;
+                    background: {% if message.tags == 'error' %}rgba(255,80,80,0.15); border: 1px solid rgba(255,80,80,0.4); color: #ff6b6b{% else %}rgba(80,255,150,0.15); border: 1px solid rgba(80,255,150,0.4); color: #4ade80{% endif %};">
+            <i class="fa-solid {% if message.tags == 'error' %}fa-circle-xmark{% else %}fa-circle-check{% endif %}"></i>
+            {{ message }}
+        </div>
+        {% endfor %}
+    {% endif %}
 
     <div style="overflow-x: auto;">
         <table class="data-table">
             <thead>
                 <tr>
                     <th>Usuário</th>
-                    <th>Nome</th>
-                    <th>Email</th>
-                    <th>Status Admin</th>
+                    <th>Nome Completo</th>
+                    <th>E-mail</th>
+                    <th>Papel</th>
                     <th>Último Login</th>
+                    <th style="text-align: center;">Ações</th>
                 </tr>
             </thead>
             <tbody>
                 {% for u in users %}
                 <tr>
-                    <td>{{ u.username }}</td>
-                    <td>{{ u.get_full_name }}</td>
-                    <td>{{ u.email }}</td>
+                    <td>
+                        <span style="font-family: monospace; background: rgba(255,255,255,0.06); padding: 2px 8px; border-radius: 4px;">{{ u.username }}</span>
+                    </td>
+                    <td>{{ u.get_full_name|default:"—" }}</td>
+                    <td>{{ u.email|default:"—" }}</td>
                     <td>
                         {% if u.is_superuser %}
-                            <span style="color:var(--secondary-color); font-weight:bold;">Administrador</span>
+                            <span style="display: inline-flex; align-items: center; gap: 0.3rem; color: var(--secondary-color); font-weight: 600; font-size: 0.85rem;">
+                                <i class="fa-solid fa-shield-halved"></i> Administrador
+                            </span>
                         {% else %}
-                            <span style="color:var(--text-secondary);">Comum</span>
+                            <span style="display: inline-flex; align-items: center; gap: 0.3rem; color: var(--text-secondary); font-size: 0.85rem;">
+                                <i class="fa-solid fa-user-doctor"></i> Médico
+                            </span>
                         {% endif %}
                     </td>
-                    <td>{{ u.last_login|date:"d/m/Y H:i"|default:"Nunca" }}</td>
+                    <td style="color: var(--text-secondary); font-size: 0.85rem;">{{ u.last_login|date:"d/m/Y H:i"|default:"Nunca" }}</td>
+                    <td style="text-align: center;">
+                        <div style="display: flex; gap: 0.5rem; justify-content: center;">
+                            <a href="{% url 'user_edit' u.pk %}" 
+                               style="display: inline-flex; align-items: center; gap: 0.3rem; padding: 5px 12px; border-radius: 6px; font-size: 0.8rem; background: rgba(99,179,237,0.15); color: #63b3ed; border: 1px solid rgba(99,179,237,0.3); text-decoration: none; transition: all 0.2s;"
+                               onmouseover="this.style.background='rgba(99,179,237,0.3)'" onmouseout="this.style.background='rgba(99,179,237,0.15)'">
+                                <i class="fa-solid fa-pen"></i> Editar
+                            </a>
+                            {% if u != request.user %}
+                            <form method="post" action="{% url 'user_delete' u.pk %}" onsubmit="return confirm('Tem certeza que deseja excluir o usuário {{ u.username }}?');" style="margin:0;">
+                                {% csrf_token %}
+                                <button type="submit"
+                                        style="display: inline-flex; align-items: center; gap: 0.3rem; padding: 5px 12px; border-radius: 6px; font-size: 0.8rem; background: rgba(252,129,129,0.15); color: #fc8181; border: 1px solid rgba(252,129,129,0.3); cursor: pointer; transition: all 0.2s;"
+                                        onmouseover="this.style.background='rgba(252,129,129,0.3)'" onmouseout="this.style.background='rgba(252,129,129,0.15)'">
+                                    <i class="fa-solid fa-trash"></i> Excluir
+                                </button>
+                            </form>
+                            {% else %}
+                            <span style="font-size: 0.75rem; color: var(--text-secondary); padding: 5px 8px;">(você)</span>
+                            {% endif %}
+                        </div>
+                    </td>
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="5" style="text-align: center; padding: 2rem; color: var(--text-secondary);">
-                        Nenhum usuário cadastrado além do root.
+                    <td colspan="6" style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+                        <i class="fa-solid fa-users-slash" style="font-size: 2rem; margin-bottom: 0.5rem; display: block;"></i>
+                        Nenhum usuário cadastrado.
                     </td>
                 </tr>
                 {% endfor %}

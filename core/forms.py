@@ -1,4 +1,5 @@
 from django import forms
+from django.contrib.auth.models import User
 from .models import Patient
 
 class PatientForm(forms.ModelForm):
@@ -27,4 +28,50 @@ class PatientForm(forms.ModelForm):
         if not consent_signed:
             self.add_error('consent_signed', 'Deve confirmar o Termo de Consentimento Livre e Esclarecido (TCLE) para prosseguir.')
 
+        return cleaned_data
+
+
+PAPEL_CHOICES = [
+    ('medico', 'Médico'),
+    ('admin', 'Administrador'),
+]
+
+class UserCreateForm(forms.Form):
+    first_name = forms.CharField(label='Nome', max_length=150, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nome'}))
+    last_name = forms.CharField(label='Sobrenome', max_length=150, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Sobrenome'}))
+    username = forms.CharField(label='Usuário (login)', max_length=150, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'nome.usuario'}))
+    email = forms.EmailField(label='E-mail', required=False, widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'email@exemplo.com'}))
+    papel = forms.ChoiceField(label='Papel', choices=PAPEL_CHOICES, widget=forms.Select(attrs={'class': 'form-control'}))
+    password = forms.CharField(label='Senha', widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Senha'}))
+    password_confirm = forms.CharField(label='Confirmar Senha', widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Confirme a senha'}))
+
+    def clean_username(self):
+        username = self.cleaned_data.get('username')
+        if User.objects.filter(username=username).exists():
+            raise forms.ValidationError('Este nome de usuário já está em uso.')
+        return username
+
+    def clean(self):
+        cleaned_data = super().clean()
+        password = cleaned_data.get('password')
+        password_confirm = cleaned_data.get('password_confirm')
+        if password and password_confirm and password != password_confirm:
+            self.add_error('password_confirm', 'As senhas não coincidem.')
+        return cleaned_data
+
+
+class UserEditForm(forms.Form):
+    first_name = forms.CharField(label='Nome', max_length=150, widget=forms.TextInput(attrs={'class': 'form-control'}))
+    last_name = forms.CharField(label='Sobrenome', max_length=150, widget=forms.TextInput(attrs={'class': 'form-control'}))
+    email = forms.EmailField(label='E-mail', required=False, widget=forms.EmailInput(attrs={'class': 'form-control'}))
+    papel = forms.ChoiceField(label='Papel', choices=PAPEL_CHOICES, widget=forms.Select(attrs={'class': 'form-control'}))
+    password = forms.CharField(label='Nova Senha (deixe em branco para não alterar)', required=False, widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Nova senha (opcional)'}))
+    password_confirm = forms.CharField(label='Confirmar Nova Senha', required=False, widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Confirme a nova senha'}))
+
+    def clean(self):
+        cleaned_data = super().clean()
+        password = cleaned_data.get('password')
+        password_confirm = cleaned_data.get('password_confirm')
+        if password and password != password_confirm:
+            self.add_error('password_confirm', 'As senhas não coincidem.')
         return cleaned_data

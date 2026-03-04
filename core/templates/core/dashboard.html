@@ -32,9 +32,11 @@
         <a href="{% url 'patient_list' %}" class="btn-secondary" style="text-align: center; text-decoration: none; display: inline-block;">
             <i class="fa-solid fa-users"></i> Ver Pacientes
         </a>
+        {% if request.user.is_superuser %}
         <a href="{% url 'user_list' %}" class="btn-secondary" style="text-align: center; text-decoration: none; display: inline-block;">
             <i class="fa-solid fa-user-shield"></i> Gerenciar Usuários
         </a>
+        {% endif %}
     </div>
 </div>
 {% endblock %}
