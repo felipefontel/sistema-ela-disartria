@@ -148,11 +148,13 @@
     <div style="display: flex; justify-content: center; align-items: center; gap: 0.5rem; margin-top: 1.5rem; flex-wrap: wrap;">
         {% if page_obj.has_previous %}
         <a href="?page=1{% if query %}&q={{ query }}{% endif %}{% if diagnosis_filter %}&diagnosis={{ diagnosis_filter }}{% endif %}{% if gender_filter %}&gender={{ gender_filter }}{% endif %}"
-           style="padding: 6px 12px; border-radius: 6px; background: rgba(255,255,255,0.06); color: var(--text-secondary); text-decoration: none; font-size: 0.82rem; border: 1px solid rgba(255,255,255,0.1);">
+           style="padding: 6px 12px; border-radius: 6px; background: #ffffff; color: var(--primary-color); text-decoration: none; font-size: 0.82rem; border: 1px solid rgba(0,0,0,0.1); font-weight: 500; transition: all 0.2s;"
+           onmouseover="this.style.background='#f0f0f0'" onmouseout="this.style.background='#ffffff'">
             «
         </a>
         <a href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if diagnosis_filter %}&diagnosis={{ diagnosis_filter }}{% endif %}{% if gender_filter %}&gender={{ gender_filter }}{% endif %}"
-           style="padding: 6px 14px; border-radius: 6px; background: rgba(255,255,255,0.06); color: var(--text-secondary); text-decoration: none; font-size: 0.82rem; border: 1px solid rgba(255,255,255,0.1);">
+           style="padding: 6px 14px; border-radius: 6px; background: #ffffff; color: var(--primary-color); text-decoration: none; font-size: 0.82rem; border: 1px solid rgba(0,0,0,0.1); font-weight: 500; transition: all 0.2s;"
+           onmouseover="this.style.background='#f0f0f0'" onmouseout="this.style.background='#ffffff'">
             ‹ Anterior
         </a>
         {% endif %}
@@ -163,11 +165,13 @@
 
         {% if page_obj.has_next %}
         <a href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% if diagnosis_filter %}&diagnosis={{ diagnosis_filter }}{% endif %}{% if gender_filter %}&gender={{ gender_filter }}{% endif %}"
-           style="padding: 6px 14px; border-radius: 6px; background: rgba(255,255,255,0.06); color: var(--text-secondary); text-decoration: none; font-size: 0.82rem; border: 1px solid rgba(255,255,255,0.1);">
+           style="padding: 6px 14px; border-radius: 6px; background: #ffffff; color: var(--primary-color); text-decoration: none; font-size: 0.82rem; border: 1px solid rgba(0,0,0,0.1); font-weight: 500; transition: all 0.2s;"
+           onmouseover="this.style.background='#f0f0f0'" onmouseout="this.style.background='#ffffff'">
             Próxima ›
         </a>
         <a href="?page={{ page_obj.paginator.num_pages }}{% if query %}&q={{ query }}{% endif %}{% if diagnosis_filter %}&diagnosis={{ diagnosis_filter }}{% endif %}{% if gender_filter %}&gender={{ gender_filter }}{% endif %}"
-           style="padding: 6px 12px; border-radius: 6px; background: rgba(255,255,255,0.06); color: var(--text-secondary); text-decoration: none; font-size: 0.82rem; border: 1px solid rgba(255,255,255,0.1);">
+           style="padding: 6px 12px; border-radius: 6px; background: #ffffff; color: var(--primary-color); text-decoration: none; font-size: 0.82rem; border: 1px solid rgba(0,0,0,0.1); font-weight: 500; transition: all 0.2s;"
+           onmouseover="this.style.background='#f0f0f0'" onmouseout="this.style.background='#ffffff'">
             »
         </a>
         {% endif %}
