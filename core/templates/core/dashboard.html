@@ -14,14 +14,18 @@
                 <p>Pacientes Cadastrados</p>
             </div>
         </div>
-        <div class="stat-card glass-panel">
-            <div class="stat-icon">
-                <i class="fa-solid fa-microphone-lines"></i>
+
+        <!-- Gráfico de Donut: Diagnósticos -->
+        <div class="stat-card glass-panel" style="flex-direction: column; align-items: center; justify-content: center; padding: 1.5rem; min-height: 200px;">
+            {% if diagnosis_data %}
+            <canvas id="diagnosisChart" style="max-height: 180px; max-width: 180px;"></canvas>
+            <p style="margin-top: 0.75rem; color: var(--text-secondary); font-size: 0.82rem; text-align: center;">Diagnósticos dos Pacientes</p>
+            {% else %}
+            <div style="text-align: center; color: var(--text-secondary);">
+                <i class="fa-solid fa-chart-pie" style="font-size: 2.5rem; opacity: 0.3; margin-bottom: 0.5rem;"></i>
+                <p style="font-size: 0.85rem;">Nenhum paciente cadastrado ainda.</p>
             </div>
-            <div class="stat-info">
-                <h3>{{ total_recordings }}</h3>
-                <p>Gravações Realizadas</p>
-            </div>
+            {% endif %}
         </div>
     </div>
 
@@ -39,4 +43,57 @@
         {% endif %}
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+{% if diagnosis_data %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+    const ctx = document.getElementById('diagnosisChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: {{ diagnosis_labels|safe }},
+            datasets: [{
+                data: {{ diagnosis_data|safe }},
+                backgroundColor: [
+                    'rgba(99, 179, 237, 0.85)',
+                    'rgba(129, 230, 217, 0.85)',
+                    'rgba(252, 129, 74, 0.85)',
+                    'rgba(154, 117, 234, 0.85)',
+                    'rgba(252, 197, 74, 0.85)',
+                ],
+                borderColor: 'rgba(255,255,255,0.1)',
+                borderWidth: 2,
+                hoverOffset: 8,
+            }]
+        },
+        options: {
+            responsive: true,
+            cutout: '65%',
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        color: 'rgba(255,255,255,0.7)',
+                        font: { size: 11, family: 'Inter' },
+                        padding: 12,
+                        boxWidth: 12,
+                        boxHeight: 12,
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(ctx) {
+                            const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
+                            const pct = ((ctx.parsed / total) * 100).toFixed(1);
+                            return ` ${ctx.parsed} paciente(s) (${pct}%)`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+</script>
+{% endif %}
 {% endblock %}

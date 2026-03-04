@@ -32,12 +32,30 @@ def logout_view(request):
 
 @login_required
 def dashboard_view(request):
+    from django.db.models import Count
     total_patients = Patient.objects.count()
-    total_recordings = PatientRecording.objects.count()
+    
+    DIAGNOSIS_LABELS = {
+        'SAUDAVEL': 'Saudável',
+        'PARKINSON': 'Doença de Parkinson',
+        'ELA': 'ELA',
+        'AVC': 'AVC',
+        'OUTRO': 'Outro',
+    }
+
+    diagnosis_qs = (
+        Patient.objects
+        .values('diagnosis')
+        .annotate(total=Count('id'))
+        .order_by('diagnosis')
+    )
+    diagnosis_labels = [DIAGNOSIS_LABELS.get(d['diagnosis'], d['diagnosis']) for d in diagnosis_qs]
+    diagnosis_data = [d['total'] for d in diagnosis_qs]
     
     context = {
         'total_patients': total_patients,
-        'total_recordings': total_recordings,
+        'diagnosis_labels': diagnosis_labels,
+        'diagnosis_data': diagnosis_data,
     }
     return render(request, 'core/dashboard.html', context)
 
