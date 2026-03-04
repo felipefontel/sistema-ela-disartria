@@ -144,7 +144,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
 
-        canvasCtx.lineWidth = 3;
+        canvasCtx.lineWidth = 4; // Um pouco mais grossa pra destacar
 
         // Gradiente bonito
         let gradient = canvasCtx.createLinearGradient(0, 0, canvas.width, 0);
@@ -159,10 +159,13 @@ document.addEventListener('DOMContentLoaded', () => {
         let x = 0;
 
         for (let i = 0; i < analyser.frequencyBinCount; i++) {
-            // Amplificando a onda para ficar mais visual
+            // Amplificando a onda DEMAIS para qualquer sussuro mexer a linha
             let v = dataArray[i] / 128.0; // centralizado no 1
-            // 2.0x amplitude multiplier
-            v = ((v - 1) * 2.5) + 1;
+
+            // Subtrai-1 pra achar a oscilação pura,
+            // Multiplica por 6.0 (super sensível!)
+            // Soma 1 de volta
+            v = ((v - 1) * 6.0) + 1;
 
             const y = v * (canvas.height / 2);
 
@@ -265,7 +268,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                         // Ganho brutal para áudios muito fracos
                         const gainNode = playCtx.createGain();
-                        gainNode.gain.value = 3.5;
+                        gainNode.gain.value = 2.5;
 
                         track.connect(compressor);
                         compressor.connect(gainNode);
