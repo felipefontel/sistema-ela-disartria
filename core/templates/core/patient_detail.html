@@ -17,6 +17,16 @@
         <a href="{% url 'recording_task' patient.id 1 %}" class="btn-primary" style="text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem;">
             <i class="fa-solid fa-microphone"></i> Nova Sessão de Gravação
         </a>
+        <a href="{% url 'patient_edit' patient.pk %}" class="btn-secondary" style="text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem;">
+            <i class="fa-solid fa-pen"></i> Editar
+        </a>
+        <form method="post" action="{% url 'patient_delete' patient.pk %}" onsubmit="return confirm('Excluir o paciente {{ patient.name }}? Esta ação não pode ser desfeita.');" style="margin:0;">
+            {% csrf_token %}
+            <button type="submit" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.55rem 1.2rem; border-radius: 8px; font-size: 0.88rem; background: rgba(252,129,129,0.15); color: #fc8181; border: 1px solid rgba(252,129,129,0.35); cursor: pointer; transition: all 0.2s; font-family: inherit;"
+                    onmouseover="this.style.background='rgba(252,129,129,0.35)'" onmouseout="this.style.background='rgba(252,129,129,0.15)'">
+                <i class="fa-solid fa-trash"></i> Excluir
+            </button>
+        </form>
     </div>
 
     <!-- Informações do Paciente -->

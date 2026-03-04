@@ -10,6 +10,8 @@ urlpatterns = [
     path('patients/', views.patient_list, name='patient_list'),
     path('patients/add/', views.patient_create, name='patient_create'),
     path('patients/<int:pk>/', views.patient_detail, name='patient_detail'),
+    path('patients/<int:pk>/edit/', views.patient_edit, name='patient_edit'),
+    path('patients/<int:pk>/delete/', views.patient_delete, name='patient_delete'),
     
     # Usuários (restrito a superusuários)
     path('users/', views.user_list, name='user_list'),

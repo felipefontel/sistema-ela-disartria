@@ -68,11 +68,26 @@
                     <td style="color: var(--text-secondary);">{{ patient.get_gender_display }}</td>
                     <td style="color: var(--text-secondary); font-size: 0.85rem;">{{ patient.created_at|date:"d/m/Y" }}</td>
                     <td style="text-align: center;">
-                        <a href="{% url 'recording_task' patient.id 1 %}"
-                           style="display: inline-flex; align-items: center; gap: 0.3rem; padding: 5px 14px; border-radius: 6px; font-size: 0.8rem; background: rgba(129,230,217,0.15); color: #81e6d9; border: 1px solid rgba(129,230,217,0.3); text-decoration: none; transition: all 0.2s;"
-                           onmouseover="this.style.background='rgba(129,230,217,0.3)'" onmouseout="this.style.background='rgba(129,230,217,0.15)'">
-                            <i class="fa-solid fa-microphone"></i> Gravar
-                        </a>
+                        <div style="display: flex; gap: 0.4rem; justify-content: center; flex-wrap: wrap;">
+                            <a href="{% url 'patient_detail' patient.pk %}"
+                               style="display: inline-flex; align-items: center; gap: 0.3rem; padding: 5px 10px; border-radius: 6px; font-size: 0.78rem; background: rgba(99,179,237,0.15); color: #63b3ed; border: 1px solid rgba(99,179,237,0.3); text-decoration: none; transition: all 0.2s;"
+                               onmouseover="this.style.background='rgba(99,179,237,0.3)'" onmouseout="this.style.background='rgba(99,179,237,0.15)'">
+                                <i class="fa-solid fa-eye"></i> Ver
+                            </a>
+                            <a href="{% url 'patient_edit' patient.pk %}"
+                               style="display: inline-flex; align-items: center; gap: 0.3rem; padding: 5px 10px; border-radius: 6px; font-size: 0.78rem; background: rgba(251,211,141,0.15); color: #fbd38d; border: 1px solid rgba(251,211,141,0.3); text-decoration: none; transition: all 0.2s;"
+                               onmouseover="this.style.background='rgba(251,211,141,0.3)'" onmouseout="this.style.background='rgba(251,211,141,0.15)'">
+                                <i class="fa-solid fa-pen"></i> Editar
+                            </a>
+                            <form method="post" action="{% url 'patient_delete' patient.pk %}" onsubmit="return confirm('Excluir paciente {{ patient.name }}? Esta ação não pode ser desfeita.');" style="margin:0;">
+                                {% csrf_token %}
+                                <button type="submit"
+                                        style="display: inline-flex; align-items: center; gap: 0.3rem; padding: 5px 10px; border-radius: 6px; font-size: 0.78rem; background: rgba(252,129,129,0.15); color: #fc8181; border: 1px solid rgba(252,129,129,0.3); cursor: pointer; transition: all 0.2s;"
+                                        onmouseover="this.style.background='rgba(252,129,129,0.3)'" onmouseout="this.style.background='rgba(252,129,129,0.15)'">
+                                    <i class="fa-solid fa-trash"></i> Excluir
+                                </button>
+                            </form>
+                        </div>
                     </td>
                 </tr>
                 {% empty %}

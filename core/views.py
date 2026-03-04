@@ -103,6 +103,36 @@ def patient_detail(request, pk):
     })
 
 
+@login_required
+def patient_edit(request, pk):
+    patient = get_object_or_404(Patient, pk=pk)
+    if request.method == 'POST':
+        form = PatientForm(request.POST, instance=patient)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Dados do paciente atualizados com sucesso!')
+            return redirect('patient_detail', pk=patient.pk)
+    else:
+        form = PatientForm(instance=patient)
+    return render(request, 'core/patient_form.html', {
+        'form': form,
+        'patient': patient,
+        'action': 'Editar Paciente',
+    })
+
+
+@login_required
+def patient_delete(request, pk):
+    patient = get_object_or_404(Patient, pk=pk)
+    if request.method == 'POST':
+        name = patient.name
+        patient.delete()
+        messages.success(request, f'Paciente "{name}" excluído com sucesso!')
+        return redirect('dashboard')
+    return redirect('patient_detail', pk=pk)
+
+
+
 # ── Usuários (apenas superusuários) ──────────────────────────────────────────
 
 def _superuser_required(view_func):
