@@ -22,9 +22,8 @@
 
     {% if user.is_authenticated %}
     <nav class="navbar glass-panel">
-        <a href="{% url 'dashboard' %}" class="brand">
-            <i class="fa-solid fa-stethoscope"></i>
-            <span>Sistema Coleta de Fala</span>
+        <a href="{% url 'dashboard' %}" class="brand" style="display: flex; align-items: center; text-decoration: none;">
+            <img src="{% static 'core/images/APP DISARTRIA.png' %}" alt="App ELA Logo" style="height: 48px; width: auto; object-fit: contain;">
         </a>
         <div class="nav-links">
             <span class="text-secondary"><i class="fa-solid fa-user-doctor"></i> {{ user.get_full_name|default:user.username }}</span>
