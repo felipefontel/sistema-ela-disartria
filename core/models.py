@@ -36,6 +36,10 @@ class Patient(models.Model):
         return f"{self.name} - {self.get_diagnosis_display()}"
 
 
+def patient_directory_path(instance, filename):
+    # O arquivo será salvo para: recordings/paciente_<id>/<nome_do_arquivo>
+    return f'recordings/paciente_{instance.patient.id}/{filename}'
+
 class PatientRecording(models.Model):
     TASK_CHOICES = [
         ('FONACAO', 'Fonação Sustentada'),
@@ -47,7 +51,7 @@ class PatientRecording(models.Model):
 
     patient = models.ForeignKey(Patient, on_delete=models.CASCADE, related_name="recordings")
     task_type = models.CharField("Tipo de Tarefa", max_length=20, choices=TASK_CHOICES)
-    audio_file = models.FileField("Arquivo de Áudio", upload_to="recordings/%Y/%m/")
+    audio_file = models.FileField("Arquivo de Áudio", upload_to=patient_directory_path)
     created_at = models.DateTimeField(auto_now_add=True)
     recorded_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
 

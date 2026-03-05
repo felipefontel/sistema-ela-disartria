@@ -10,12 +10,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name='patient',
-            name='disease_duration',
-        ),
-        migrations.RemoveField(
-            model_name='patient',
-            name='is_active',
-        ),
+        # disease_duration e is_active já não existem no banco, remoção ignorada
     ]
