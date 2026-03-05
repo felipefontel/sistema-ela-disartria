@@ -54,6 +54,34 @@
                 {{ form.gender }}
                 {{ form.gender.errors }}
             </div>
+            <div class="form-group">
+                <label for="{{ form.phone.id_for_label }}">Telefone</label>
+                {{ form.phone }}
+                {{ form.phone.errors }}
+            </div>
+            <div class="form-group">
+                <label for="{{ form.city.id_for_label }}">Cidade</label>
+                {{ form.city }}
+                {{ form.city.errors }}
+            </div>
+            <div class="form-group">
+                <label for="{{ form.state.id_for_label }}">Estado</label>
+                {{ form.state }}
+                {{ form.state.errors }}
+            </div>
+        </div>
+
+        <div class="form-group" style="margin-top: 1rem;">
+            <label for="{{ form.has_escort.id_for_label }}" style="display:flex; align-items:center; gap:0.5rem; cursor:pointer;">
+                {{ form.has_escort }} {{ form.has_escort.label }}
+            </label>
+            {{ form.has_escort.errors }}
+        </div>
+
+        <div class="form-group" id="escort_name_container" style="display: none;">
+            <label for="{{ form.escort_name.id_for_label }}">Nome do Acompanhante</label>
+            {{ form.escort_name }}
+            {{ form.escort_name.errors }}
         </div>
 
         <div class="form-group">
@@ -157,6 +185,7 @@
 {% block extra_js %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Lógica do Diagnóstico Outro
         const diagSelect = document.getElementById('id_diagnosis');
         const diagOtherContainer = document.getElementById('diagnosis_other_container');
         const diagOtherInput = document.getElementById('id_diagnosis_other');
@@ -176,6 +205,27 @@
 
         diagSelect.addEventListener('change', toggleOtherField);
         toggleOtherField();
+
+        // Lógica do Acompanhante
+        const escortCheckbox = document.getElementById('id_has_escort');
+        const escortContainer = document.getElementById('escort_name_container');
+        const escortInput = document.getElementById('id_escort_name');
+
+        function toggleEscortField() {
+            if (escortCheckbox.checked) {
+                escortContainer.style.display = 'block';
+                escortInput.style.display = 'block';
+                escortInput.required = true;
+            } else {
+                escortContainer.style.display = 'none';
+                escortInput.style.display = 'none';
+                escortInput.required = false;
+                escortInput.value = '';
+            }
+        }
+
+        escortCheckbox.addEventListener('change', toggleEscortField);
+        toggleEscortField();
     });
 </script>
 {% endblock %}

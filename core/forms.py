@@ -5,11 +5,16 @@ from .models import Patient
 class PatientForm(forms.ModelForm):
     class Meta:
         model = Patient
-        fields = ['name', 'birth_date', 'gender', 'diagnosis', 'diagnosis_other', 'consent_signed']
+        fields = ['name', 'birth_date', 'gender', 'phone', 'city', 'state', 'has_escort', 'escort_name', 'diagnosis', 'diagnosis_other', 'consent_signed']
         widgets = {
             'birth_date': forms.DateInput(format='%Y-%m-%d', attrs={'type': 'date', 'class': 'form-control'}),
             'name': forms.TextInput(attrs={'class': 'form-control'}),
             'gender': forms.Select(attrs={'class': 'form-control'}),
+            'phone': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '(11) 98888-7777'}),
+            'city': forms.TextInput(attrs={'class': 'form-control'}),
+            'state': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'UF', 'maxlength': '2'}),
+            'has_escort': forms.CheckboxInput(attrs={'id': 'id_has_escort'}),
+            'escort_name': forms.TextInput(attrs={'class': 'form-control', 'id': 'id_escort_name', 'style': 'display:none;'}),
             'diagnosis': forms.Select(attrs={'class': 'form-control', 'id': 'id_diagnosis'}),
             'diagnosis_other': forms.TextInput(attrs={'class': 'form-control', 'id': 'id_diagnosis_other', 'style': 'display:none;'}),
         }
@@ -19,11 +24,18 @@ class PatientForm(forms.ModelForm):
         diagnosis = cleaned_data.get('diagnosis')
         diagnosis_other = cleaned_data.get('diagnosis_other')
         consent_signed = cleaned_data.get('consent_signed')
+        has_escort = cleaned_data.get('has_escort')
+        escort_name = cleaned_data.get('escort_name')
 
         if diagnosis == 'OUTRO' and not diagnosis_other:
             self.add_error('diagnosis_other', 'Por favor, especifique o diagnóstico.')
         elif diagnosis != 'OUTRO':
             cleaned_data['diagnosis_other'] = ''
+
+        if has_escort and not escort_name:
+            self.add_error('escort_name', 'Por favor, informe o nome do acompanhante.')
+        elif not has_escort:
+            cleaned_data['escort_name'] = ''
 
         if not consent_signed:
             self.add_error('consent_signed', 'Deve confirmar o Termo de Consentimento Livre e Esclarecido (TCLE) para prosseguir.')

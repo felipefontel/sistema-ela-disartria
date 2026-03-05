@@ -21,6 +21,12 @@ class Patient(models.Model):
     gender = models.CharField("Sexo Biológico", max_length=1, choices=GENDER_CHOICES)
     diagnosis = models.CharField("Diagnóstico", max_length=20, choices=DIAGNOSIS_CHOICES)
     diagnosis_other = models.CharField("Outro Diagnóstico", max_length=255, blank=True, null=True, help_text="Preencher apenas se o diagnóstico for 'Outro'")
+    phone = models.CharField("Telefone", max_length=20, blank=True, null=True)
+    city = models.CharField("Cidade", max_length=100, blank=True, null=True)
+    state = models.CharField("Estado (UF)", max_length=2, blank=True, null=True)
+    has_escort = models.BooleanField("Está com acompanhante?", default=False)
+    escort_name = models.CharField("Nome do Acompanhante", max_length=255, blank=True, null=True, help_text="Preencher apenas se estiver com acompanhante")
+
     consent_signed = models.BooleanField("Concordou com o TCLE", default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
