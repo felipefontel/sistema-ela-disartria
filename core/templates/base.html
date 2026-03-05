@@ -65,6 +65,10 @@
             </div>
         {% endif %}
 
+        {% if user.is_authenticated %}
+            {% block breadcrumb %}{% endblock %}
+        {% endif %}
+
         {% block content %}{% endblock %}
     </main>
 

@@ -1,5 +1,13 @@
 {% extends 'base.html' %}
 
+{% block breadcrumb %}
+<div style="margin-bottom: 1.5rem; color: var(--text-secondary); font-size: 0.9rem;">
+    <a href="{% url 'dashboard' %}" style="color: var(--primary-color); text-decoration: none;" title="Início"><i class="fa-solid fa-house"></i></a>
+    <span style="margin: 0 0.5rem;">/</span>
+    <span style="color: var(--text-primary); font-weight: 500;">Usuários</span>
+</div>
+{% endblock %}
+
 {% block content %}
 <div class="glass-panel">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">

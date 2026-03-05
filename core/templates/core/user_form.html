@@ -1,5 +1,15 @@
 {% extends 'base.html' %}
 
+{% block breadcrumb %}
+<div style="margin-bottom: 1.5rem; color: var(--text-secondary); font-size: 0.9rem;">
+    <a href="{% url 'dashboard' %}" style="color: var(--primary-color); text-decoration: none;" title="Início"><i class="fa-solid fa-house"></i></a>
+    <span style="margin: 0 0.5rem;">/</span>
+    <a href="{% url 'user_list' %}" style="color: var(--primary-color); text-decoration: none;">Usuários</a>
+    <span style="margin: 0 0.5rem;">/</span>
+    <span style="color: var(--text-primary); font-weight: 500;">{{ action }}</span>
+</div>
+{% endblock %}
+
 {% block content %}
 <div class="glass-panel" style="max-width: 600px; margin: 0 auto;">
     <div style="margin-bottom: 2rem;">
