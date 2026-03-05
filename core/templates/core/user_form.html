@@ -32,7 +32,7 @@
     <form method="post" novalidate>
         {% csrf_token %}
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
             <div>
                 <label style="display: block; margin-bottom: 0.4rem; color: var(--text-secondary); font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.05em;">{{ form.first_name.label }}</label>
                 {{ form.first_name }}
@@ -70,7 +70,7 @@
 
         <hr style="border: none; border-top: 1px solid rgba(255,255,255,0.08); margin-bottom: 1.5rem;">
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
             <div>
                 <label style="display: block; margin-bottom: 0.4rem; color: var(--text-secondary); font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.05em;">{{ form.password.label }}</label>
                 {{ form.password }}

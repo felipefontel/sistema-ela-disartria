@@ -43,7 +43,7 @@
             {{ form.name.errors }}
         </div>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
             <div class="form-group">
                 <label for="{{ form.birth_date.id_for_label }}">Data de Nascimento</label>
                 {{ form.birth_date }}
