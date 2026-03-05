@@ -202,10 +202,6 @@
                         <span style="font-size: 0.8rem; color: var(--text-secondary); white-space: nowrap;">
                             {{ rec.created_at|date:"d/m/Y H:i" }}
                         </span>
-                        <span data-duration-for="audio-{{ rec.id }}"
-                              style="font-size: 0.75rem; background: rgba(99,179,237,0.12); color: #63b3ed; border: 1px solid rgba(99,179,237,0.2); border-radius: 20px; padding: 1px 8px; white-space: nowrap; display: none;">
-                            <i class="fa-regular fa-clock" style="font-size: 0.7rem;"></i> <span class="dur-value">--:--</span>
-                        </span>
                     </div>
                     <audio id="audio-{{ rec.id }}" controls preload="metadata" style="height: 36px; max-width: 100%;">
                         <source src="{{ rec.audio_file.url }}">

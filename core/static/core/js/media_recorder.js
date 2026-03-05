@@ -183,36 +183,77 @@ document.addEventListener('DOMContentLoaded', () => {
         audioChunks = [];
         startTimer();
 
-        // Setup Visualizer
+        // Um único AudioContext para visualizador + captura PCM
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const sampleRate = audioContext.sampleRate;
+
+        analyser = audioContext.createAnalyser();
+        analyser.fftSize = 2048;
+        dataArray = new Uint8Array(analyser.frequencyBinCount);
+
+        source = audioContext.createMediaStreamSource(stream);
+        source.connect(analyser);
+
         if (canvas) {
-            audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            analyser = audioContext.createAnalyser();
-            source = audioContext.createMediaStreamSource(stream);
-            source.connect(analyser);
-            analyser.fftSize = 2048;
-            const bufferLength = analyser.frequencyBinCount;
-            dataArray = new Uint8Array(bufferLength);
             canvas.style.display = 'block';
             visualize();
         }
 
-        // MIME Type de WebM (maior suporte web, sem re-encode pra não perder specs acústicos)
-        let options = { mimeType: 'audio/webm' };
-        if (!MediaRecorder.isTypeSupported('audio/webm')) {
-            options = { mimeType: 'audio/mp4' };
-        }
+        // ScriptProcessor captura PCM bruto (Float32) para codificar como WAV
+        const scriptProcessor = audioContext.createScriptProcessor(4096, 1, 1);
+        source.connect(scriptProcessor);
+        scriptProcessor.connect(audioContext.destination);
 
-        mediaRecorder = new MediaRecorder(stream, options);
-
-        mediaRecorder.ondataavailable = (event) => {
-            if (event.data.size > 0) {
-                audioChunks.push(event.data);
-            }
+        const pcmChunks = [];
+        scriptProcessor.onaudioprocess = (e) => {
+            pcmChunks.push(new Float32Array(e.inputBuffer.getChannelData(0)));
         };
 
-        mediaRecorder.onstop = uploadRecording;
+        // Codifica Float32 PCM → WAV 16-bit
+        function encodeWav(chunks, sr) {
+            const numSamples = chunks.reduce((acc, c) => acc + c.length, 0);
+            const buf = new ArrayBuffer(44 + numSamples * 2);
+            const view = new DataView(buf);
+            const str = (off, s) => { for (let i = 0; i < s.length; i++) view.setUint8(off + i, s.charCodeAt(i)); };
+            str(0, 'RIFF');
+            view.setUint32(4, 36 + numSamples * 2, true);
+            str(8, 'WAVE');
+            str(12, 'fmt ');
+            view.setUint32(16, 16, true);
+            view.setUint16(20, 1, true);     // PCM
+            view.setUint16(22, 1, true);     // mono
+            view.setUint32(24, sr, true);
+            view.setUint32(28, sr * 2, true);
+            view.setUint16(32, 2, true);
+            view.setUint16(34, 16, true);    // 16-bit
+            str(36, 'data');
+            view.setUint32(40, numSamples * 2, true);
+            let offset = 44;
+            for (const chunk of chunks) {
+                for (let i = 0; i < chunk.length; i++) {
+                    const s = Math.max(-1, Math.min(1, chunk[i]));
+                    view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
+                    offset += 2;
+                }
+            }
+            return buf;
+        }
 
-        mediaRecorder.start(200); // chunking
+        // MediaRecorder apenas como gancho de stop (o áudio real vem do ScriptProcessor)
+        let options = { mimeType: 'audio/webm' };
+        if (!MediaRecorder.isTypeSupported('audio/webm')) options = { mimeType: 'audio/mp4' };
+        mediaRecorder = new MediaRecorder(stream, options);
+        mediaRecorder.ondataavailable = () => { };
+        mediaRecorder.onstop = () => {
+            scriptProcessor.onaudioprocess = null;
+            scriptProcessor.disconnect();
+            const wavBuffer = encodeWav(pcmChunks, sampleRate);
+            const wavBlob = new Blob([wavBuffer], { type: 'audio/wav' });
+            audioChunks = [wavBlob];
+            uploadRecording();
+        };
+
+        mediaRecorder.start(200);
 
         // UI Updates
         recordBtn.classList.add('recording');
@@ -226,9 +267,9 @@ document.addEventListener('DOMContentLoaded', () => {
     async function uploadRecording() {
         uploadStatus.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Enviando áudio com segurança...';
 
-        const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+        const audioBlob = audioChunks[0]; // já é um Blob WAV
         const formData = new FormData();
-        formData.append('audio_file', audioBlob, `${taskType}_${patientId}_${Date.now()}.webm`);
+        formData.append('audio_file', audioBlob, `${taskType}_${patientId}_${Date.now()}.wav`);
         formData.append('patient_id', patientId);
         formData.append('task_type', taskType);
 
