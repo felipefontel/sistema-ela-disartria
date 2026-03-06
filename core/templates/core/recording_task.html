@@ -69,6 +69,8 @@
             <i class="fa-solid fa-stop"></i>
         </button>
         
+        <div id="recordLabel" style="margin-top: 0.5rem; color: var(--primary-color); font-weight: 600; font-size: 1.1rem; letter-spacing: 0.5px;">Gravar</div>
+        
         <div id="uploadStatus" style="margin-top: 1rem; font-weight: 600; min-height: 30px;">
             <!-- Status messages via JS -->
         </div>
@@ -115,5 +117,5 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'core/js/media_recorder.js' %}"></script>
+<script src="{% static 'core/js/media_recorder.js' %}?v=2"></script>
 {% endblock %}

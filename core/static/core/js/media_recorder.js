@@ -3,8 +3,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const stopBtn = document.getElementById('stopBtn');
     const uploadStatus = document.getElementById('uploadStatus');
     const nextBtn = document.getElementById('nextBtn');
-
     const discardBtn = document.getElementById('discardBtn');
+    const recordLabel = document.getElementById('recordLabel');
     const canvas = document.getElementById('audioVisualizer');
     const canvasCtx = canvas ? canvas.getContext('2d') : null;
 
@@ -67,6 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
             recordBtn.classList.remove('recording');
             recordBtn.style.display = 'none';
             stopBtn.style.display = 'none';
+            if (recordLabel) recordLabel.style.display = 'none';
             uploadStatus.textContent = "Processando áudio...";
         }
     });
@@ -109,11 +110,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
             uploadStatus.innerHTML = '';
 
+            if (recordLabel) {
+                recordLabel.style.display = 'block';
+                recordLabel.textContent = 'Gravar';
+                recordLabel.style.color = 'var(--primary-color)';
+            }
+
             recordBtn.style.display = 'flex';
         } catch (error) {
             console.error(error);
             uploadStatus.innerHTML = '<span style="color:red;"><i class="fa-solid fa-triangle-exclamation"></i> Erro ao excluir áudio. Tente novamente ou atualize.</span>';
             discardBtn.disabled = false;
+            if (recordLabel) recordLabel.style.display = 'none';
             discardBtn.innerHTML = '<i class="fa-solid fa-trash-can"></i> Descartar e Regravar';
             nextBtn.style.pointerEvents = 'auto';
             nextBtn.style.opacity = '1';
@@ -261,6 +269,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         recordBtn.style.display = 'none';
         stopBtn.style.display = 'flex';
+
+        if (recordLabel) {
+            recordLabel.style.display = 'block';
+            recordLabel.textContent = 'Parar';
+            recordLabel.style.color = '#e74c3c';
+        }
+
         uploadStatus.innerHTML = '<span style="color:var(--secondary-color);"><i class="fa-solid fa-circle-dot fa-fade"></i> Gravando modo RAW...</span>';
     }
 
@@ -336,6 +351,12 @@ document.addEventListener('DOMContentLoaded', () => {
             recordBtn.style.display = 'flex';
             recordBtn.classList.remove('recording');
             stopBtn.style.display = 'none';
+
+            if (recordLabel) {
+                recordLabel.style.display = 'block';
+                recordLabel.textContent = 'Gravar';
+                recordLabel.style.color = 'var(--primary-color)';
+            }
         }
     }
 });
