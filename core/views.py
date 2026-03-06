@@ -304,33 +304,52 @@ def user_delete(request, pk):
 
 RECORDING_TASKS = [
     {
-        'id': 'FONACAO',
-        'title': '1. Fonação Sustentada',
+        'id': 'FONACAO_A',
+        'title': '1. Fonação Sustentada (Vogal A)',
         'instruction': "Diga 'AAAAA' o mais longo que conseguir.",
+        'example_audio': 'core/audios/Tarefa AAAA.wav',
         'next_step': 2
     },
     {
-        'id': 'DIADOCOCINESIA',
-        'title': '2. Diadococinesia',
-        'instruction': "Repita 'PA-TA-KA' rápido por 10 segundos.",
+        'id': 'FONACAO_I',
+        'title': '2. Fonação Sustentada (Vogal I)',
+        'instruction': "Diga 'IIIII' o mais longo que conseguir.",
+        'example_audio': 'core/audios/Tarefa IIII.wav',
         'next_step': 3
     },
     {
-        'id': 'PALAVRAS',
-        'title': '3. Palavras Complexas',
-        'instruction': "Leia em voz alta: Prato, Trator, Plástico, Bicicleta.",
+        'id': 'FONACAO_U',
+        'title': '3. Fonação Sustentada (Vogal U)',
+        'instruction': "Diga 'UUUUU' o mais longo que conseguir.",
+        'example_audio': 'core/audios/Tarefa UUUU.wav',
         'next_step': 4
     },
     {
-        'id': 'LEITURA',
-        'title': '4. Leitura Padronizada',
-        'instruction': "Leia em voz alta: 'O rato roeu a roupa do rei de Roma'.",
+        'id': 'DIADOCOCINESIA',
+        'title': '4. Diadococinesia',
+        'instruction': "Repita 'PA-TA-KA' rápido por 10 segundos.",
+        'example_audio': 'core/audios/Tarefa PATAKA.wav',
         'next_step': 5
     },
     {
+        'id': 'PALAVRAS',
+        'title': '5. Palavras Complexas',
+        'instruction': "Leia em voz alta: Prato, Trator, Plástico, Bicicleta.",
+        'example_audio': 'core/audios/Tarefa Prato Trator Plastico Biscicleta.wav',
+        'next_step': 6
+    },
+    {
+        'id': 'LEITURA',
+        'title': '6. Leitura Padronizada',
+        'instruction': "Leia em voz alta: 'O rato roeu a roupa do rei de Roma'.",
+        'example_audio': 'core/audios/Tarefa O Rato Roeu a Roupa do Rei de Roma.wav',
+        'next_step': 7
+    },
+    {
         'id': 'ESPONTANEA',
-        'title': '5. Fala Espontânea',
+        'title': '7. Fala Espontânea',
         'instruction': "Descreva brevemente uma rotina do seu dia.",
+        'example_audio': 'core/audios/Tarefa Fala Rotina.wav',
         'next_step': None
     }
 ]
@@ -339,7 +358,7 @@ RECORDING_TASKS = [
 def recording_task_view(request, patient_id, step):
     patient = get_object_or_404(Patient, id=patient_id)
     
-    if step < 1 or step > 5:
+    if step < 1 or step > len(RECORDING_TASKS):
         return redirect('dashboard')
         
     task_info = RECORDING_TASKS[step - 1]

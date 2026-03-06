@@ -42,7 +42,9 @@ def patient_directory_path(instance, filename):
 
 class PatientRecording(models.Model):
     TASK_CHOICES = [
-        ('FONACAO', 'Fonação Sustentada'),
+        ('FONACAO_A', 'Fonação Sustentada (Vogal A)'),
+        ('FONACAO_I', 'Fonação Sustentada (Vogal I)'),
+        ('FONACAO_U', 'Fonação Sustentada (Vogal U)'),
         ('DIADOCOCINESIA', 'Diadococinesia'),
         ('PALAVRAS', 'Palavras Complexas'),
         ('LEITURA', 'Leitura Padronizada'),
