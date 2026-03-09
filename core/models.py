@@ -10,9 +10,8 @@ class Patient(models.Model):
 
     DIAGNOSIS_CHOICES = [
         ('SAUDAVEL', 'Saudável'),
-        ('PARKINSON', 'Doença de Parkinson'),
-        ('ELA', 'Esclerose Lateral Amiotrófica - ELA'),
-        ('AVC', 'Acidente Vascular Cerebral - AVC'),
+        ('ELA_ESPINHAL', 'ELA espinhal'),
+        ('ELA_BULBAR', 'ELA bulbar'),
         ('OUTRO', 'Outro'),
     ]
 

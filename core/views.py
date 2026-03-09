@@ -97,13 +97,15 @@ def patient_detail(request, pk):
     
     # Agrupa gravações por tipo de tarefa
     TASK_LABELS = {
-        'FONACAO': '1. Fonação Sustentada',
-        'DIADOCOCINESIA': '2. Diadococinesia',
-        'PALAVRAS': '3. Palavras Complexas',
-        'LEITURA': '4. Leitura Padronizada',
-        'ESPONTANEA': '5. Fala Espontânea',
+        'FONACAO_A': '1. Fonação Sustentada (Vogal A)',
+        'FONACAO_I': '2. Fonação Sustentada (Vogal I)',
+        'FONACAO_U': '3. Fonação Sustentada (Vogal U)',
+        'DIADOCOCINESIA': '4. Diadococinesia',
+        'PALAVRAS': '5. Palavras Complexas',
+        'LEITURA': '6. Leitura Padronizada',
+        'ESPONTANEA': '7. Fala Espontânea',
     }
-    TASK_ORDER = ['FONACAO', 'DIADOCOCINESIA', 'PALAVRAS', 'LEITURA', 'ESPONTANEA']
+    TASK_ORDER = ['FONACAO_A', 'FONACAO_I', 'FONACAO_U', 'DIADOCOCINESIA', 'PALAVRAS', 'LEITURA', 'ESPONTANEA']
     
     recordings_by_task = {}
     for task_id in TASK_ORDER:
@@ -133,13 +135,15 @@ def patient_edit(request, pk):
         form = PatientForm(instance=patient)
 
     # Carregar gravações existentes por tarefa
-    TASK_ORDER = ['FONACAO', 'DIADOCOCINESIA', 'PALAVRAS', 'LEITURA', 'ESPONTANEA']
+    TASK_ORDER = ['FONACAO_A', 'FONACAO_I', 'FONACAO_U', 'DIADOCOCINESIA', 'PALAVRAS', 'LEITURA', 'ESPONTANEA']
     TASK_LABELS = {
-        'FONACAO': 'Fonação Sustentada',
-        'DIADOCOCINESIA': 'Diadococinesia',
-        'PALAVRAS': 'Palavras Complexas',
-        'LEITURA': 'Leitura Padronizada',
-        'ESPONTANEA': 'Fala Espontânea',
+        'FONACAO_A': '1. Fonação Sustentada (Vogal A)',
+        'FONACAO_I': '2. Fonação Sustentada (Vogal I)',
+        'FONACAO_U': '3. Fonação Sustentada (Vogal U)',
+        'DIADOCOCINESIA': '4. Diadococinesia',
+        'PALAVRAS': '5. Palavras Complexas',
+        'LEITURA': '6. Leitura Padronizada',
+        'ESPONTANEA': '7. Fala Espontânea',
     }
     recordings = list(patient.recordings.order_by('created_at'))
     recordings_by_task = {}
