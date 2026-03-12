@@ -105,11 +105,9 @@ def patient_detail(request, pk):
         'FONACAO_I': '2. Fonação Sustentada (Vogal I)',
         'FONACAO_U': '3. Fonação Sustentada (Vogal U)',
         'DIADOCOCINESIA': '4. Diadococinesia',
-        'PALAVRAS': '5. Palavras Complexas',
-        'LEITURA': '6. Leitura Padronizada',
-        'ESPONTANEA': '7. Fala Espontânea',
+        'LEITURA': '5. Leitura Padronizada',
     }
-    TASK_ORDER = ['FONACAO_A', 'FONACAO_I', 'FONACAO_U', 'DIADOCOCINESIA', 'PALAVRAS', 'LEITURA', 'ESPONTANEA']
+    TASK_ORDER = ['FONACAO_A', 'FONACAO_I', 'FONACAO_U', 'DIADOCOCINESIA', 'LEITURA']
     
     recordings_by_task = {}
     for task_id in TASK_ORDER:
@@ -139,15 +137,13 @@ def patient_edit(request, pk):
         form = PatientForm(instance=patient)
 
     # Carregar gravações existentes por tarefa
-    TASK_ORDER = ['FONACAO_A', 'FONACAO_I', 'FONACAO_U', 'DIADOCOCINESIA', 'PALAVRAS', 'LEITURA', 'ESPONTANEA']
+    TASK_ORDER = ['FONACAO_A', 'FONACAO_I', 'FONACAO_U', 'DIADOCOCINESIA', 'LEITURA']
     TASK_LABELS = {
         'FONACAO_A': '1. Fonação Sustentada (Vogal A)',
         'FONACAO_I': '2. Fonação Sustentada (Vogal I)',
         'FONACAO_U': '3. Fonação Sustentada (Vogal U)',
         'DIADOCOCINESIA': '4. Diadococinesia',
-        'PALAVRAS': '5. Palavras Complexas',
-        'LEITURA': '6. Leitura Padronizada',
-        'ESPONTANEA': '7. Fala Espontânea',
+        'LEITURA': '5. Leitura Padronizada',
     }
     recordings = list(patient.recordings.order_by('created_at'))
     recordings_by_task = {}
@@ -440,24 +436,10 @@ RECORDING_TASKS = [
         'next_step': 5
     },
     {
-        'id': 'PALAVRAS',
-        'title': '5. Palavras Complexas',
-        'instruction': "Leia em voz alta: Prato, Trator, Plástico, Bicicleta.",
-        'example_audio': 'core/audios/Tarefa Prato Trator Plastico Biscicleta.wav',
-        'next_step': 6
-    },
-    {
         'id': 'LEITURA',
-        'title': '6. Leitura Padronizada',
-        'instruction': "Leia em voz alta: 'O rato roeu a roupa do rei de Roma'.",
+        'title': '5. Leitura Padronizada',
+        'instruction': "Leia em voz alta em ritmo natural. Vá até o final:\n\n'O Vento Norte e o Sol discutiam qual dos dois era o mais forte, quando surgiu um viajante envolto em uma capa. Eles concordaram que aquele que fizesse o viajante tirar a capa primeiro seria considerado o mais forte.'",
         'example_audio': 'core/audios/Tarefa O Rato Roeu a Roupa do Rei de Roma.wav',
-        'next_step': 7
-    },
-    {
-        'id': 'ESPONTANEA',
-        'title': '7. Fala Espontânea',
-        'instruction': "Descreva brevemente uma rotina do seu dia.",
-        'example_audio': 'core/audios/Tarefa Fala Rotina.wav',
         'next_step': None
     }
 ]

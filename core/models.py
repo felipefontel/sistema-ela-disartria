@@ -45,9 +45,7 @@ class PatientRecording(models.Model):
         ('FONACAO_I', 'Fonação Sustentada (Vogal I)'),
         ('FONACAO_U', 'Fonação Sustentada (Vogal U)'),
         ('DIADOCOCINESIA', 'Diadococinesia'),
-        ('PALAVRAS', 'Palavras Complexas'),
         ('LEITURA', 'Leitura Padronizada'),
-        ('ESPONTANEA', 'Fala Espontânea'),
     ]
 
     patient = models.ForeignKey(Patient, on_delete=models.CASCADE, related_name="recordings")
