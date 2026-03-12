@@ -135,6 +135,14 @@ document.addEventListener('DOMContentLoaded', () => {
             // Remove o painel de countdown caso ainda esteja presente
             const dkkPanel = document.getElementById('dkkCountdownPanel');
             if (dkkPanel) dkkPanel.remove();
+
+            // Remove o player estilo WhatsApp
+            const pbBubble = document.getElementById('waPlaybackBubble');
+            if (pbBubble) pbBubble.remove();
+
+            // Restaura o áudio de exemplo se existir
+            const exampleAudio = document.getElementById('exampleAudioContainer');
+            if (exampleAudio) exampleAudio.style.display = 'block';
         } catch (error) {
             console.error(error);
             uploadStatus.innerHTML = '<span style="color:red;"><i class="fa-solid fa-triangle-exclamation"></i> Erro ao excluir áudio. Tente novamente ou atualize.</span>';
@@ -284,153 +292,173 @@ document.addEventListener('DOMContentLoaded', () => {
         // UI Updates
         recordBtn.classList.add('recording');
 
-        if (taskType === 'DIADOCOCINESIA') {
-            const DDK_DURATION = 7; // segundos
+        // UI Updates
+        recordBtn.classList.add('recording');
+        recordBtn.style.display = 'none';
+        stopBtn.style.display = 'none';
+        if (recordLabel) recordLabel.style.display = 'none';
+        if (timerDisplay) timerDisplay.style.display = 'none';
+        if (canvas) canvas.style.display = 'none';
 
-            // Ocultar btn de stop para forçar automação
-            recordBtn.style.display = 'flex';
-            recordBtn.style.pointerEvents = 'none';
-            recordBtn.style.background = 'rgba(234, 179, 8, 0.1)';
-            recordBtn.style.color = '#eab308';
-            recordBtn.style.borderColor = '#eab308';
-            recordBtn.innerHTML = '<i class="fa-solid fa-ear-listen fa-fade"></i>';
-            stopBtn.style.display = 'none';
+        const isDDK = taskType === 'DIADOCOCINESIA';
+        const isVowel = taskType.startsWith('FONACAO_');
+        const isCountdown = isDDK || isVowel;
+        const countdownDuration = isDDK ? 7 : 5;
 
-            if (recordLabel) {
-                recordLabel.style.display = 'block';
-                recordLabel.textContent = 'Ouvindo...';
-                recordLabel.style.color = '#eab308';
+        // ── BOLHA WHATSAPP UNIVERSAL ────────────────────────────────
+        const waBubble = document.createElement('div');
+        waBubble.id = 'dkkCountdownPanel'; // Mantendo ID para compatibilidade com o .remove()
+        waBubble.style.cssText = `
+            margin: 1.5rem auto 0;
+            max-width: 340px;
+            background: #1f2c34;
+            border-radius: 20px;
+            padding: 10px 14px 10px 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.35);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        `;
+
+        // Coluna Esquerda: Botão/Dot
+        const leftCol = document.createElement('div');
+        leftCol.style.cssText = 'flex-shrink:0; position:relative;';
+        
+        const dot = document.createElement('div');
+        dot.style.cssText = `
+            width: 40px; height: 40px; border-radius: 50%;
+            background: #ef4444; display: flex; align-items: center; justify-content: center;
+            animation: waDotPulse 1s infinite;
+        `;
+        dot.innerHTML = '<i class="fa-solid fa-microphone" style="color:#fff; font-size:1rem;"></i>';
+        leftCol.appendChild(dot);
+
+        // Se NÃO for countdown (LEITURA), o dot é o botão de parar
+        if (!isCountdown) {
+            dot.style.cursor = 'pointer';
+            dot.title = 'Clique para parar';
+            dot.addEventListener('click', () => stopBtn.click());
+            dot.innerHTML = '<i class="fa-solid fa-stop" style="color:#fff; font-size:1rem;"></i>';
+        }
+
+        // Centro: Waveform e (se countdown) Barra de Progresso
+        const center = document.createElement('div');
+        center.style.cssText = 'flex: 1; display: flex; flex-direction: column; gap: 6px; overflow: hidden;';
+
+        const waCanvas = document.createElement('canvas');
+        waCanvas.width = 220; waCanvas.height = 32;
+        waCanvas.style.cssText = 'width:100%; height:32px; display:block;';
+        const waCtx = waCanvas.getContext('2d');
+        center.appendChild(waCanvas);
+
+        let progressInner;
+        if (isCountdown) {
+            const progressOuter = document.createElement('div');
+            progressOuter.style.cssText = 'width: 100%; height: 3px; background: rgba(255,255,255,0.12); border-radius: 99px; overflow: hidden;';
+            progressInner = document.createElement('div');
+            progressInner.style.cssText = `height: 100%; width: 0%; background: #25d366; border-radius: 99px; transition: width ${countdownDuration}s linear;`;
+            progressOuter.appendChild(progressInner);
+            center.appendChild(progressOuter);
+        }
+
+        // Direita: Timer
+        const right = document.createElement('div');
+        right.style.cssText = 'display: flex; flex-direction: column; align-items: flex-end; flex-shrink: 0; gap: 3px;';
+
+        const timerNum = document.createElement('div');
+        timerNum.style.cssText = `font-size: 1.6rem; font-weight: 800; font-family: monospace; color: #25d366; line-height: 1; transition: color 0.4s;`;
+        timerNum.textContent = isCountdown ? countdownDuration : '0:00';
+
+        const timerSub = document.createElement('div');
+        timerSub.style.cssText = 'font-size: 0.6rem; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 0.8px;';
+        if (isDDK) timerSub.textContent = 'PA-TA-KA';
+        else if (isVowel) timerSub.textContent = 'VOGAL';
+        else timerSub.textContent = 'LEITURA';
+
+        right.appendChild(timerNum);
+        right.appendChild(timerSub);
+
+        waBubble.appendChild(leftCol);
+        waBubble.appendChild(center);
+        waBubble.appendChild(right);
+
+        uploadStatus.innerHTML = '';
+        uploadStatus.parentNode.insertBefore(waBubble, uploadStatus.nextSibling);
+
+        // Estilos e Keyframes
+        if (!document.getElementById('waStyles')) {
+            const style = document.createElement('style');
+            style.id = 'waStyles';
+            style.textContent = `@keyframes waDotPulse { 0%,100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.45); } 50% { box-shadow: 0 0 0 8px rgba(239,68,68,0); } }`;
+            document.head.appendChild(style);
+        }
+
+        if (isCountdown) {
+            requestAnimationFrame(() => { requestAnimationFrame(() => { progressInner.style.width = '100%'; }); });
+        }
+
+        let waDrawId;
+        (function drawWA() {
+            waDrawId = requestAnimationFrame(drawWA);
+            if (!analyser) return;
+            analyser.getByteFrequencyData(dataArray);
+            waCtx.clearRect(0, 0, waCanvas.width, waCanvas.height);
+            const barCount = 38, barW = 3;
+            const gap = (waCanvas.width - barCount * barW) / (barCount - 1);
+            const centerY = waCanvas.height / 2;
+            for (let i = 0; i < barCount; i++) {
+                const idx = Math.floor((i / barCount) * analyser.frequencyBinCount * 0.7);
+                let h = Math.max(2, (dataArray[idx] / 255) * waCanvas.height * 0.85);
+                waCtx.fillStyle = '#25d366';
+                waCtx.beginPath();
+                if (waCtx.roundRect) waCtx.roundRect(i * (barW + gap), centerY - h / 2, barW, h, 2);
+                else waCtx.rect(i * (barW + gap), centerY - h / 2, barW, h);
+                waCtx.fill();
             }
+        })();
 
-            // ── Cria o painel de contagem regressiva e barra de progresso ──
-            const dkkPanel = document.createElement('div');
-            dkkPanel.id = 'dkkCountdownPanel';
-            dkkPanel.style.cssText = `
-                margin: 1.2rem auto 0;
-                max-width: 380px;
-                background: rgba(234, 179, 8, 0.08);
-                border: 1px solid rgba(234, 179, 8, 0.25);
-                border-radius: 16px;
-                padding: 1rem 1.4rem;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                gap: 0.7rem;
-            `;
-
-            // Número grande countdown
-            const countdownNum = document.createElement('div');
-            countdownNum.style.cssText = `
-                font-size: 3.5rem;
-                font-weight: 800;
-                font-family: monospace;
-                color: #eab308;
-                line-height: 1;
-                letter-spacing: -2px;
-                transition: color 0.5s;
-            `;
-            countdownNum.textContent = DDK_DURATION;
-
-            const countdownLabel = document.createElement('div');
-            countdownLabel.style.cssText = `
-                font-size: 0.75rem;
-                font-weight: 600;
-                letter-spacing: 1.5px;
-                text-transform: uppercase;
-                color: #a16207;
-                opacity: 0.8;
-            `;
-            countdownLabel.textContent = 'segundos restantes';
-
-            // ── Barra de progresso estilo WhatsApp ──
-            const barOuter = document.createElement('div');
-            barOuter.style.cssText = `
-                width: 100%;
-                height: 6px;
-                background: rgba(234, 179, 8, 0.15);
-                border-radius: 99px;
-                overflow: hidden;
-                margin-top: 0.3rem;
-            `;
-            const barInner = document.createElement('div');
-            barInner.id = 'dkkProgressBar';
-            barInner.style.cssText = `
-                height: 100%;
-                width: 0%;
-                background: linear-gradient(90deg, #eab308, #f59e0b);
-                border-radius: 99px;
-                transition: width ${DDK_DURATION}s linear;
-            `;
-            barOuter.appendChild(barInner);
-
-            // Marcadores de tempo (tipo WhatsApp) – 0s … 7s
-            const tickRow = document.createElement('div');
-            tickRow.style.cssText = `
-                width: 100%;
-                display: flex;
-                justify-content: space-between;
-                font-size: 0.65rem;
-                color: #a16207;
-                font-weight: 600;
-                margin-top: -0.2rem;
-            `;
-            for (let t = 0; t <= DDK_DURATION; t++) {
-                const tick = document.createElement('span');
-                tick.textContent = t + 's';
-                tickRow.appendChild(tick);
-            }
-
-            dkkPanel.appendChild(countdownNum);
-            dkkPanel.appendChild(countdownLabel);
-            dkkPanel.appendChild(barOuter);
-            dkkPanel.appendChild(tickRow);
-
-            // Insere o painel logo após o uploadStatus
-            uploadStatus.parentNode.insertBefore(dkkPanel, uploadStatus.nextSibling);
-
-
-            // Kick-off da barra (força reflow antes de aplicar a transição)
-            requestAnimationFrame(() => {
-                requestAnimationFrame(() => { barInner.style.width = '100%'; });
-            });
-
-            // Contador regressivo a cada segundo
-            let remaining = DDK_DURATION;
-            const countInterval = setInterval(() => {
+        // Lógica do Timer
+        let elapsed = 0;
+        let remaining = countdownDuration;
+        const countInterval = setInterval(() => {
+            if (isCountdown) {
                 remaining--;
-                countdownNum.textContent = remaining;
-                // Vira vermelho nos últimos 2 segundos
+                timerNum.textContent = remaining;
                 if (remaining <= 2) {
-                    countdownNum.style.color = '#ef4444';
-                    barInner.style.background = 'linear-gradient(90deg, #ef4444, #f87171)';
+                    timerNum.style.color = '#ef4444';
+                    progressInner.style.background = 'linear-gradient(90deg,#ef4444,#f87171)';
+                    dot.style.background = '#b91c1c';
                 }
                 if (remaining <= 0) clearInterval(countInterval);
-            }, 1000);
+            } else {
+                elapsed++;
+                const mins = Math.floor(elapsed / 60);
+                const secs = elapsed % 60;
+                timerNum.textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+            }
+        }, 1000);
 
-            // Stop automático exatamente nos 7 segundos
+        if (isCountdown) {
             autoStopTimeout = setTimeout(() => {
                 clearInterval(countInterval);
+                cancelAnimationFrame(waDrawId);
                 const panel = document.getElementById('dkkCountdownPanel');
                 if (panel) panel.remove();
                 if (mediaRecorder && mediaRecorder.state === 'recording') {
                     stopBtn.click();
-                    uploadStatus.innerHTML = '<span style="color:var(--secondary-color);"><i class="fa-solid fa-check-circle fa-beat"></i> Captura concluída! Processando áudio perfeito...</span>';
+                    uploadStatus.innerHTML = '<span style="color:#25d366;"><i class="fa-solid fa-check-circle fa-beat"></i> Captura concluída! Processando áudio...</span>';
                 }
-            }, DDK_DURATION * 1000);
-
+            }, countdownDuration * 1000);
         } else {
-            // Executa comportamento original de gravação aberta
-            recordBtn.innerHTML = '<i class="fa-solid fa-microphone"></i>';
-            recordBtn.style.display = 'none';
-            stopBtn.style.display = 'flex';
-
-            if (recordLabel) {
-                recordLabel.style.display = 'block';
-                recordLabel.textContent = 'Parar';
-                recordLabel.style.color = '#e74c3c';
-            }
-
-            uploadStatus.innerHTML = '<span style="color:var(--secondary-color);"><i class="fa-solid fa-circle-dot fa-fade"></i> Gravando modo RAW...</span>';
+            // Para a leitura, limpamos ao parar
+            const cleanupWA = () => {
+                clearInterval(countInterval);
+                cancelAnimationFrame(waDrawId);
+                const panel = document.getElementById('dkkCountdownPanel');
+                if (panel) panel.remove();
+            };
+            stopBtn.addEventListener('click', cleanupWA, { once: true });
         }
     }
 
@@ -456,46 +484,218 @@ document.addEventListener('DOMContentLoaded', () => {
                 const data = await response.json();
                 currentRecordingId = data.id;
 
-                // Exibe player e seta a URL blob local para ouvir imediato
-                audioPlayback.src = URL.createObjectURL(audioBlob);
-                audioPlaybackContainer.style.display = 'block';
+                // ── Player estilo WhatsApp ───────────────────────────────────
+                const blobUrl = URL.createObjectURL(audioBlob);
 
-                // Normaliza/Amplifica O PLAYER apenas uma vez (sem alterar o blob bruto enviado ao server)
-                if (!playbackNormalized) {
+                // Remove bubble antiga se existir (ex: ao regravar)
+                const oldBubble = document.getElementById('waPlaybackBubble');
+                if (oldBubble) oldBubble.remove();
+
+                const playBubble = document.createElement('div');
+                playBubble.id = 'waPlaybackBubble';
+                playBubble.style.cssText = `
+                    margin: 1.2rem auto 0;
+                    max-width: 340px;
+                    background: #1f2c34;
+                    border-radius: 20px;
+                    padding: 10px 14px 10px 10px;
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    box-shadow: 0 4px 24px rgba(0,0,0,0.3);
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+                `;
+
+                // Botão play/pause
+                const playBtn = document.createElement('button');
+                playBtn.style.cssText = `
+                    width: 40px; height: 40px; border-radius: 50%;
+                    background: #25d366; border: none; cursor: pointer;
+                    display: flex; align-items: center; justify-content: center;
+                    flex-shrink: 0; transition: background 0.2s;
+                `;
+                playBtn.innerHTML = '<i class="fa-solid fa-play" style="color:#fff; font-size:0.95rem; margin-left:2px;"></i>';
+
+                // Área central: waveform estático + barra de progresso
+                const pbCenter = document.createElement('div');
+                pbCenter.style.cssText = 'flex:1; display:flex; flex-direction:column; gap:5px; overflow:hidden;';
+
+                const pbCanvas = document.createElement('canvas');
+                pbCanvas.width = 220;
+                pbCanvas.height = 32;
+                pbCanvas.style.cssText = 'width:100%; height:32px; display:block; cursor:pointer;';
+                const pbCtx = pbCanvas.getContext('2d');
+
+                // Barra de progresso de reprodução
+                const pbBarOuter = document.createElement('div');
+                pbBarOuter.style.cssText = `width:100%; height:3px; background:rgba(255,255,255,0.12); border-radius:99px; overflow:hidden; cursor:pointer;`;
+                const pbBarInner = document.createElement('div');
+                pbBarInner.style.cssText = `height:100%; width:0%; background:#25d366; border-radius:99px; transition:width 0.1s linear;`;
+                pbBarOuter.appendChild(pbBarInner);
+
+                pbCenter.appendChild(pbCanvas);
+                pbCenter.appendChild(pbBarOuter);
+
+                // Contador de tempo direito
+                const pbTime = document.createElement('div');
+                pbTime.style.cssText = `font-size:0.72rem; font-family:monospace; color:rgba(255,255,255,0.55); flex-shrink:0; min-width:36px; text-align:right;`;
+                pbTime.textContent = '0:00';
+
+                playBubble.appendChild(playBtn);
+                playBubble.appendChild(pbCenter);
+                playBubble.appendChild(pbTime);
+
+                // Insere após o uploadStatus
+                uploadStatus.parentNode.insertBefore(playBubble, uploadStatus.nextSibling);
+
+                // ── Elemento de áudio oculto ──
+                const hiddenAudio = new Audio(blobUrl);
+
+                // ── Desenha waveform estático (analisa o blob WAV) ──
+                (async () => {
                     try {
-                        const playCtx = new (window.AudioContext || window.webkitAudioContext)();
-                        const track = playCtx.createMediaElementSource(audioPlayback);
+                        const arrBuf = await audioBlob.arrayBuffer();
+                        const offCtx = new OfflineAudioContext(1, 1, 44100);
+                        const decoded = await offCtx.decodeAudioData(arrBuf);
+                        const raw = decoded.getChannelData(0);
+                        const barCount = 38;
+                        const step = Math.ceil(raw.length / barCount);
+                        const centerY = pbCanvas.height / 2;
+                        const barW = 3;
+                        const gap = (pbCanvas.width - barCount * barW) / (barCount - 1);
 
-                        // Compressor e Compressor Dinâmico
-                        const compressor = playCtx.createDynamicsCompressor();
-                        compressor.threshold.value = -35;
-                        compressor.knee.value = 30;
-                        compressor.ratio.value = 10;
-                        compressor.attack.value = 0.05;
-                        compressor.release.value = 0.25;
+                        pbCtx.clearRect(0, 0, pbCanvas.width, pbCanvas.height);
+                        for (let i = 0; i < barCount; i++) {
+                            let peak = 0;
+                            for (let j = 0; j < step; j++) {
+                                const s = Math.abs(raw[i * step + j] || 0);
+                                if (s > peak) peak = s;
+                            }
+                            const h = Math.max(2, peak * pbCanvas.height * 0.9);
+                            pbCtx.fillStyle = 'rgba(37,211,102,0.6)';
+                            pbCtx.beginPath();
+                            if (pbCtx.roundRect) pbCtx.roundRect(i * (barW + gap), centerY - h / 2, barW, h, 2);
+                            else pbCtx.rect(i * (barW + gap), centerY - h / 2, barW, h);
+                            pbCtx.fill();
+                        }
+                    } catch(e) { console.warn('Waveform decode:', e); }
+                })();
 
-                        // Ganho brutal para áudios muito fracos
-                        const gainNode = playCtx.createGain();
-                        gainNode.gain.value = 2.5;
+                // ── Helpers de formatação ──
+                const fmt = s => `${Math.floor(s/60)}:${String(Math.floor(s%60)).padStart(2,'0')}`;
 
-                        track.connect(compressor);
-                        compressor.connect(gainNode);
-                        gainNode.connect(playCtx.destination);
+                // ── Progresso durante reprodução ──
+                hiddenAudio.addEventListener('timeupdate', () => {
+                    const pct = hiddenAudio.duration ? (hiddenAudio.currentTime / hiddenAudio.duration) * 100 : 0;
+                    pbBarInner.style.width = pct + '%';
+                    pbTime.textContent = fmt(hiddenAudio.currentTime);
+                });
+                hiddenAudio.addEventListener('ended', () => {
+                    playBtn.innerHTML = '<i class="fa-solid fa-play" style="color:#fff; font-size:0.95rem; margin-left:2px;"></i>';
+                    pbBarInner.style.width = '0%';
+                    pbTime.textContent = '0:00';
+                });
+                hiddenAudio.addEventListener('loadedmetadata', () => {
+                    pbTime.textContent = fmt(hiddenAudio.duration);
+                });
 
-                        playbackNormalized = true;
-                    } catch (e) {
-                        console.warn("AudioContext init failed para o preview:", e);
+                // ── AudioContext para animação ao vivo durante a reprodução ──
+                let pbAudioCtx, pbAnalyser, pbDataArray, pbDrawId;
+                let pbContextReady = false;
+
+                function initPbContext() {
+                    if (pbContextReady) return;
+                    try {
+                        pbAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                        pbAnalyser = pbAudioCtx.createAnalyser();
+                        pbAnalyser.fftSize = 2048;
+                        pbDataArray = new Uint8Array(pbAnalyser.frequencyBinCount);
+
+                        const src = pbAudioCtx.createMediaElementSource(hiddenAudio);
+                        src.connect(pbAnalyser);
+                        pbAnalyser.connect(pbAudioCtx.destination);
+                        pbContextReady = true;
+                    } catch(e) { console.warn('PB AudioContext:', e); }
+                }
+
+                function drawPbWave() {
+                    pbDrawId = requestAnimationFrame(drawPbWave);
+                    if (!pbAnalyser) return;
+                    pbAnalyser.getByteFrequencyData(pbDataArray);
+                    pbCtx.clearRect(0, 0, pbCanvas.width, pbCanvas.height);
+                    const barCount = 38, barW = 3;
+                    const gap = (pbCanvas.width - barCount * barW) / (barCount - 1);
+                    const centerY = pbCanvas.height / 2;
+                    for (let i = 0; i < barCount; i++) {
+                        const idx = Math.floor((i / barCount) * pbAnalyser.frequencyBinCount * 0.7);
+                        let h = Math.max(2, (pbDataArray[idx] / 255) * pbCanvas.height * 0.85);
+                        pbCtx.fillStyle = '#25d366';
+                        pbCtx.beginPath();
+                        if (pbCtx.roundRect) pbCtx.roundRect(i * (barW + gap), centerY - h / 2, barW, h, 2);
+                        else pbCtx.rect(i * (barW + gap), centerY - h / 2, barW, h);
+                        pbCtx.fill();
                     }
                 }
 
-                uploadStatus.innerHTML = '<span style="color:var(--secondary-color);"><i class="fa-solid fa-check"></i> Áudio salvo com sucesso!</span>';
-                nextBtn.style.display = 'inline-flex';
-                discardBtn.style.display = 'inline-flex';
+                function stopPbWave() {
+                    if (pbDrawId) { cancelAnimationFrame(pbDrawId); pbDrawId = null; }
+                }
+
+                // ── Clique no play/pause ──
+                playBtn.addEventListener('click', () => {
+                    if (hiddenAudio.paused) {
+                        initPbContext();
+                        if (pbAudioCtx && pbAudioCtx.state === 'suspended') pbAudioCtx.resume();
+                        hiddenAudio.play();
+                        drawPbWave();
+                        playBtn.innerHTML = '<i class="fa-solid fa-pause" style="color:#fff; font-size:0.95rem;"></i>';
+                        playBtn.style.background = '#128c5e';
+                    } else {
+                        hiddenAudio.pause();
+                        stopPbWave();
+                        playBtn.innerHTML = '<i class="fa-solid fa-play" style="color:#fff; font-size:0.95rem; margin-left:2px;"></i>';
+                        playBtn.style.background = '#25d366';
+                    }
+                });
+
+                // Ao terminar, também para a animação
+                hiddenAudio.addEventListener('ended', () => {
+                    stopPbWave();
+                });
+
+                // Clique na barra para saltar
+                pbBarOuter.addEventListener('click', e => {
+                    if (!hiddenAudio.duration) return;
+                    const rect = pbBarOuter.getBoundingClientRect();
+                    hiddenAudio.currentTime = ((e.clientX - rect.left) / rect.width) * hiddenAudio.duration;
+                });
+
+                // Oculta o container genérico (não mais necessário)
+                audioPlaybackContainer.style.display = 'none';
 
                 // Oculta o áudio de exemplo e o visualizador
                 const exampleAudio = document.getElementById('exampleAudioContainer');
                 if (exampleAudio) exampleAudio.style.display = 'none';
                 if (canvas) canvas.style.display = 'none';
+
+                // ── Status de revisão (não "salvo" ainda, usuário deve confirmar) ──
+                uploadStatus.innerHTML = '<span style="color:var(--text-secondary); font-size:0.85rem; margin-top:0.8rem; display:block;"><i class="fa-solid fa-headphones"></i> Revise o áudio — clique em <b>Concluir</b> para confirmar.</span>';
+                nextBtn.style.display = 'inline-flex';
+                discardBtn.style.display = 'inline-flex';
+
+                // ── Intercepta o Concluir/Próxima Tarefa para mostrar feedback ──
+                const originalHref = nextBtn.href;
+                nextBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    hiddenAudio.pause();
+                    stopPbWave();
+                    uploadStatus.innerHTML = '<span style="color:#25d366;"><i class="fa-solid fa-spinner fa-spin"></i> Salvando definitivamente...</span>';
+                    nextBtn.style.pointerEvents = 'none';
+                    discardBtn.style.pointerEvents = 'none';
+                    setTimeout(() => {
+                        window.location.href = originalHref;
+                    }, 700);
+                }, { once: true });
             } else {
                 throw new Error('Falha no upload do servidor.');
             }

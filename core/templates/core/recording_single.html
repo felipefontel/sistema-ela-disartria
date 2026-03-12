@@ -6,13 +6,16 @@
 
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
         <div>
-            <a href="{{ return_url }}" style="color: var(--text-secondary); text-decoration: none; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.4rem; margin-bottom: 0.5rem; transition: color 0.2s;"
-               onmouseover="this.style.color='var(--primary-color)'" onmouseout="this.style.color='var(--text-secondary)'">
+            <a href="{{ return_url }}"
+                style="color: var(--text-secondary); text-decoration: none; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.4rem; margin-bottom: 0.5rem; transition: color 0.2s;"
+                onmouseover="this.style.color='var(--primary-color)'"
+                onmouseout="this.style.color='var(--text-secondary)'">
                 <i class="fa-solid fa-arrow-left"></i> Voltar para Edição
             </a>
             <h2 style="color: var(--primary-color); margin: 0;">Regravar Áudio</h2>
         </div>
-        <span style="background: rgba(237,137,54,0.15); padding: 0.5rem 1rem; border-radius: 20px; font-weight: 600; color: #ed8936; border: 1px solid rgba(237,137,54,0.3);">
+        <span
+            style="background: rgba(237,137,54,0.15); padding: 0.5rem 1rem; border-radius: 20px; font-weight: 600; color: #ed8936; border: 1px solid rgba(237,137,54,0.3);">
             <i class="fa-solid fa-rotate"></i> Regravação Individual
         </span>
     </div>
@@ -27,8 +30,10 @@
         </div>
 
         {% if task.example_audio %}
-        <div id="exampleAudioContainer" style="margin-top: 1.5rem; color: var(--text-secondary); font-size: 0.95rem; text-align: left; background: rgba(11, 111, 184, 0.05); padding: 1rem; border-radius: 12px; border: 1px dashed rgba(11, 111, 184, 0.2); max-width: 500px; margin-left: auto; margin-right: auto;">
-            <div style="margin-bottom: 0.5rem; font-weight: 500; display: flex; align-items: center; gap: 0.5rem; color: var(--primary-color);">
+        <div id="exampleAudioContainer"
+            style="margin-top: 1.5rem; color: var(--text-secondary); font-size: 0.95rem; text-align: left; background: rgba(11, 111, 184, 0.05); padding: 1rem; border-radius: 12px; border: 1px dashed rgba(11, 111, 184, 0.2); max-width: 500px; margin-left: auto; margin-right: auto;">
+            <div
+                style="margin-bottom: 0.5rem; font-weight: 500; display: flex; align-items: center; gap: 0.5rem; color: var(--primary-color);">
                 <i class="fa-solid fa-volume-high"></i> Ouça um exemplo de como fazer:
             </div>
             <audio controls style="height: 40px; max-width: 100%; width: 100%; box-sizing: border-box;">
@@ -40,13 +45,9 @@
     </div>
 
     <!-- Hidden config bridge for Javascript -->
-    <div id="audioConfig"
-         data-patient="{{ patient.id }}"
-         data-task="{{ task.id }}"
-         data-upload-url="{% url 'upload_audio_api' %}"
-         data-delete-url="{% url 'delete_audio_api' %}"
-         data-return-url="{{ return_url }}"
-         style="display:none;"></div>
+    <div id="audioConfig" data-patient="{{ patient.id }}" data-task="{{ task.id }}"
+        data-upload-url="{% url 'upload_audio_api' %}" data-delete-url="{% url 'delete_audio_api' %}"
+        data-return-url="{{ return_url }}" style="display:none;"></div>
 
     <div class="recording-container">
         <!-- Main Action Buttons -->
@@ -54,38 +55,50 @@
             <i class="fa-solid fa-microphone"></i>
         </button>
 
-        <button id="stopBtn" class="mic-button" style="display: none; background: var(--text-secondary);" title="Parar Gravação">
+        <button id="stopBtn" class="mic-button" style="display: none; background: var(--text-secondary);"
+            title="Parar Gravação">
             <i class="fa-solid fa-stop"></i>
         </button>
 
-        <div id="recordLabel" style="margin-top: 0.5rem; color: var(--primary-color); font-weight: 600; font-size: 1.1rem; letter-spacing: 0.5px;">Gravar</div>
+        <div id="recordLabel"
+            style="margin-top: 0.5rem; color: var(--primary-color); font-weight: 600; font-size: 1.1rem; letter-spacing: 0.5px;">
+            Gravar</div>
 
-        <div id="uploadStatus" style="margin-top: 1rem; font-weight: 600; min-height: 30px;">
+        <div id="uploadStatus" style=" font-weight: 600; min-height: 30px;">
             <!-- Status messages via JS -->
         </div>
 
-        <div id="recordingTimer" style="display: none; font-size: 1.5rem; font-family: monospace; color: #e74c3c; font-weight: 700; margin-top: 0.5rem;">
+        <div id="recordingTimer"
+            style="display: none; font-size: 1.5rem; font-family: monospace; color: #e74c3c; font-weight: 700; margin-top: 0.5rem;">
             00:00
         </div>
 
         <div id="audioPlaybackContainer" style="display: none; margin-top: 1.5rem;">
-            <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.5rem;">Ouça o que você acabou de gravar:</p>
-            <audio id="audioPlayback" controls style="height: 40px; width: 100%; max-width: 350px; outline: none;"></audio>
+            <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.5rem;">Ouça o que você acabou
+                de gravar:</p>
+            <audio id="audioPlayback" controls
+                style="height: 40px; width: 100%; max-width: 350px; outline: none;"></audio>
         </div>
 
         <!-- Espectro de Áudio Visual -->
-        <canvas id="audioVisualizer" width="500" height="80" style="display: none; margin: 1rem auto; width: 100%; max-width: 500px; height: 80px; background: rgba(255,255,255,0.4); border-radius: 12px; border: 1px solid rgba(0,0,0,0.05);"></canvas>
+        <canvas id="audioVisualizer" width="500" height="80"
+            style="display: none; margin: 1rem auto; width: 100%; max-width: 500px; height: 80px; background: rgba(255,255,255,0.4); border-radius: 12px; border: 1px solid rgba(0,0,0,0.05);"></canvas>
 
         <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-top: 1rem;">
-            <a href="{{ return_url }}" class="btn-secondary" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.8rem 1.5rem; font-size: 1rem; font-weight: 600; min-width: 180px;">
+            <a href="{{ return_url }}" class="btn-secondary"
+                style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.8rem 1.5rem; font-size: 1rem; font-weight: 600; min-width: 180px;">
                 <i class="fa-solid fa-arrow-left"></i> Cancelar
             </a>
 
-            <button id="discardBtn" class="btn-secondary" style="display: none; color: #e53e3e; border-color: #e53e3e; padding: 0.8rem 1.5rem; font-size: 1rem; font-weight: 600; align-items: center; justify-content: center; gap: 0.5rem; border-radius: 8px; transition: all 0.2s; min-width: 180px;" onmouseover="this.style.background='rgba(229,62,62,0.1)'" onmouseout="this.style.background='transparent'">
+            <button id="discardBtn" class="btn-secondary"
+                style="display: none; color: #e53e3e; border-color: #e53e3e; padding: 0.8rem 1.5rem; font-size: 1rem; font-weight: 600; align-items: center; justify-content: center; gap: 0.5rem; border-radius: 8px; transition: all 0.2s; min-width: 180px;"
+                onmouseover="this.style.background='rgba(229,62,62,0.1)'"
+                onmouseout="this.style.background='transparent'">
                 <i class="fa-solid fa-trash-can"></i> Descartar e Regravar
             </button>
 
-            <a id="nextBtn" href="{{ return_url }}" class="btn-primary" style="display: none; background: var(--secondary-color); text-decoration: none; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.8rem 1.5rem; font-size: 1rem; font-weight: 600; min-width: 180px;">
+            <a id="nextBtn" href="{{ return_url }}" class="btn-primary"
+                style="display: none; background: var(--secondary-color); text-decoration: none; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.8rem 1.5rem; font-size: 1rem; font-weight: 600; min-width: 180px;">
                 Concluir <i class="fa-solid fa-check"></i>
             </a>
         </div>
