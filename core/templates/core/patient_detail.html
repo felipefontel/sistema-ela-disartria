@@ -65,6 +65,17 @@
 
         <!-- Direita: ações -->
         <div class="patient-header-actions">
+            <!-- Acesso ao Admin (Relatório Clínico) -->
+            {% if request.user.is_superuser %}
+            <a href="{% url 'patient_features' patient.pk %}"
+               style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.5rem 1rem; border-radius: 8px; font-size: 0.85rem; font-weight: 600; background: rgba(56, 189, 248, 0.1); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); text-decoration: none; transition: all 0.2s; white-space: nowrap; margin-right: 0.5rem;"
+               onmouseover="this.style.background='rgba(56, 189, 248, 0.2)';"
+               onmouseout="this.style.background='rgba(56, 189, 248, 0.1)';">
+                <i class="fas fa-microscope" style="font-size: 0.8rem;"></i>
+                <span class="btn-label"> Relatório Clínico Funcional</span>
+            </a>
+            {% endif %}
+
             <!-- Editar -->
             <a href="{% url 'patient_edit' patient.pk %}"
                style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.5rem 1rem; border-radius: 8px; font-size: 0.85rem; font-weight: 600; background: transparent; color: var(--text-secondary); border: 1px solid rgba(255,255,255,0.15); text-decoration: none; transition: all 0.2s; white-space: nowrap;"

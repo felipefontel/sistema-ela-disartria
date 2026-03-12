@@ -8,6 +8,8 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_protect
 from .models import Patient, PatientRecording
 from .forms import PatientForm, UserCreateForm, UserEditForm
+import sys
+import os
 
 
 def login_view(request):
@@ -203,6 +205,61 @@ def _superuser_required(view_func):
             return redirect('dashboard')
         return view_func(request, *args, **kwargs)
     return wrapper
+
+@_superuser_required
+def patient_features_view(request, pk):
+    """View administrativa para visualizar features de áudio geradas sob-demanda"""
+    patient = get_object_or_404(Patient, pk=pk)
+    
+    # Adicionamos dinamicamente de volta ao path para importar as funções que fizemos avulso no arquivo de extração do projeto
+    sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    from extrator_features_ela import (
+        get_audio_path, 
+        extract_jitter_shimmer_hnr, 
+        extract_vsa, 
+        extract_f0_stats, 
+        extract_speech_rate, 
+        extract_temporal_rhythm, 
+        cleanup_temp_files
+    )
+
+    recordings = patient.recordings.all()
+    recs_dict = {rec.task_type: rec for rec in recordings}
+    
+    # Download temporário
+    audio_a = get_audio_path(recs_dict.get('FONACAO_A'))
+    audio_i = get_audio_path(recs_dict.get('FONACAO_I'))
+    audio_u = get_audio_path(recs_dict.get('FONACAO_U'))
+    audio_leitura = get_audio_path(recs_dict.get('LEITURA'))
+    audio_ddk = get_audio_path(recs_dict.get('DIADOCOCINESIA'))
+
+    # Cálculos na hora para a Page Visual
+    jitter_a, shimmer_a, hnr_a = extract_jitter_shimmer_hnr(audio_a)
+    vsa = extract_vsa(audio_a, audio_i, audio_u)
+    f0_mean, f0_std = extract_f0_stats(audio_leitura)
+    speech_rate, pauses_count, speaking_duration = extract_speech_rate(audio_leitura)
+    ddk_count, ddk_regularity = extract_temporal_rhythm(audio_ddk)
+
+    # Limpeza Limpador RAM
+    cleanup_temp_files([audio_a, audio_i, audio_u, audio_leitura, audio_ddk])
+
+    context = {
+        'patient': patient,
+        'features': {
+            'jitter': round(jitter_a, 5) if jitter_a is not None else None,
+            'shimmer': round(shimmer_a, 5) if shimmer_a is not None else None,
+            'hnr': round(hnr_a, 2) if hnr_a is not None else None,
+            'vsa': round(vsa, 2) if vsa is not None else None,
+            'f0_mean': round(f0_mean, 2) if f0_mean is not None else None,
+            'f0_std': round(f0_std, 2) if f0_std is not None else None,
+            'speech_rate': round(speech_rate, 2) if speech_rate is not None else None,
+            'pauses_count': pauses_count if pauses_count is not None else None,
+            'ddk_count': ddk_count if ddk_count is not None else None,
+            'ddk_regularity': round(ddk_regularity, 4) if ddk_regularity is not None else None,
+        }
+    }
+    
+    return render(request, 'core/patient_features.html', context)
 
 
 def _get_user_papel(user):
