@@ -217,7 +217,8 @@ def patient_features_view(request, pk):
         extract_vsa, 
         extract_f0_stats, 
         extract_speech_rate, 
-        extract_temporal_rhythm, 
+        extract_temporal_rhythm,
+        extract_mfcc_and_dynamics,
         cleanup_temp_files
     )
 
@@ -237,6 +238,8 @@ def patient_features_view(request, pk):
     f0_mean, f0_std = extract_f0_stats(audio_leitura)
     speech_rate, pauses_count, speaking_duration = extract_speech_rate(audio_leitura)
     ddk_count, ddk_regularity = extract_temporal_rhythm(audio_ddk)
+    mfccs_dyn = extract_mfcc_and_dynamics(audio_leitura)
+    zcr_mean = mfccs_dyn[39] if mfccs_dyn and len(mfccs_dyn) == 40 else None
 
     # Limpeza Limpador RAM
     cleanup_temp_files([audio_a, audio_i, audio_u, audio_leitura, audio_ddk])
@@ -254,6 +257,8 @@ def patient_features_view(request, pk):
             'pauses_count': pauses_count if pauses_count is not None else None,
             'ddk_count': ddk_count if ddk_count is not None else None,
             'ddk_regularity': round(ddk_regularity, 4) if ddk_regularity is not None else None,
+            'zcr_mean': round(zcr_mean, 5) if zcr_mean is not None else None,
+            'has_mfcc': (mfccs_dyn[0] is not None) if mfccs_dyn and len(mfccs_dyn) > 0 else False,
         }
     }
     

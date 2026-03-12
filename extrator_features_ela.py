@@ -5,60 +5,77 @@ import numpy as np
 import tempfile
 
 # =====================================================================
-# CONFIGURAÇÃO INICIAL DO DJANGO
+# MÓDULO 1: CONFIGURAÇÃO INICIAL DO AMBIENTE DJANGO
 # =====================================================================
-# Antes de importar os modelos, precisamos configurar o ambiente Django.
-# Isso permite que este script avulso acesse o banco de dados e use o 
-# ORM (Object-Relational Mapping - o sistema de banco de dados do Django).
+# Por que fazer isso? 
+# Este arquivo (extrator_features_ela.py) é um script executado "por fora" do servidor (stand-alone).
+# Para que ele consiga ler o banco de dados (SQLite/PostgreSQL) e puxar a lista de pacientes 
+# que nós salvamos no painel web, precisamos forçar o Python a inicializar o "cérebro" do Django primeiro.
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'app_ela.settings')
 django.setup()
 
 # =====================================================================
-# IMPORTAÇÃO DAS BIBLIOTECAS DE PROCESSAMENTO DE ÁUDIO E MODELOS
+# MÓDULO 2: IMPORTAÇÃO DAS BIBLIOTECAS CIENTÍFICAS
 # =====================================================================
-# librosa: excelente pacote de áudio (usado para detecção de silêncio, ritmo e MFCCs).
+# Librosa: Uma das bibliotecas mais poderosas do mundo para análise de música e áudio no Python.
+# Usamos o Librosa principalmente para matemática de ritmo (descobrir onde ocorrem sílabas) e 
+# para extrair os MFCCs (Filtros que descobrem o formato interno "Timbre" do tubo vocal).
 import librosa
-# parselmouth: interface Python para o Praat (software de bio-acústica padrão-ouro em Fonoaudiologia).
+
+# Parselmouth: É o motor do famoso "Praat" (o software usado por 9 dentre 10 fonoaudiólogos e linguistas).
+# O Praat foi escrito em C/C++ na Holanda. O Parselmouth é uma ponte que nos permite rodar os 
+# exatos mesmos algoritmos padrão-ouro do Praat diretamente aqui pelo Python, sem precisar abrir o programa.
 import parselmouth
-# Importa o modelo Patient para buscar os dados diretamente do banco de dados do aplicativo.
+
+# Importamos a "Entidade" Paciente do nosso banco de dados. 
+# Dela, podemos facilmente acessar as gravações vinculadas (.recordings.all())
 from core.models import Patient
 
 # =====================================================================
-# FUNÇÕES AUXILIARES
+# MÓDULO 3: INFRAESTRUTURA DE PROCESSAMENTO DE ARQUIVOS (HELPERS)
 # =====================================================================
 
 def get_audio_path(recording):
     """
-    Função Helper: Obtém o caminho do áudio no sistema ou baixa temporariamente se estiver na nuvem (Azure Blob).
+    Função Helper Principal: Como o Parselmouth e o Librosa são ferramentas que exigem
+    ler um arquivo FÍSICO (em disco, terminando em .wav, com caminho c:/pasta/som.wav), 
+    nós precisamos garantir que o áudio do banco de dados possa ser lido.
+
+    Se o sistema estiver hospedado na Nuvem (como Azure ou AWS S3), o áudio é apenas 
+    uma URL online e não um arquivo local. Essa função resolve isso bajando o áudio 
+    da nuvem e salvando temporariamente num arquivo escondido no HD do servidor.
     """
-    # Se a gravação não existir ou não possuir um arquivo associado, retorna Vazio (None).
+    # Se o paciente "pulou" essa gravação e não deitou dado no banco, retorna Vazio.
     if not recording or not recording.audio_file:
         return None
         
     try:
-        # Primeiro, tentamos acessá-lo como se fosse um arquivo salvo no HD do computador/servidor web.
+        # TENTATIVA 1: Ambiente Local (Ex: Rodando no seu próprio PC no C:\...)
+        # Se funcionar, maravilhoso! Ele acha e devolve de cara o caminho absoluto.
         path = recording.audio_file.path
         if os.path.exists(path):
             return path
     except NotImplementedError:
-        # Quando usamos nuvem (Azure Blob), o arquivo não tem um caminho físico no Windows/Linux, 
-        # então o Django dispara esse 'NotImplementedError'. Se acontecer, sabemos que é nuvem.
+        # Se o sistema responder "Não sei pegar o path local! Está na nuvem!" (NotImplementedError),
+        # nós engolimos o erro (pass) e partimos pro Plano B abaixo.
         pass
         
     try:
-        # Fase Nuvem: Extrai o conteúdo em bytes (binário) através do link online.
+        # TENTATIVA 2 (PLANO B): Nuvem (Azure Blob, S3, etc)
+        # 1. Fazemos download de todo o streaming bruto (os bytes da música)
         file_content = recording.audio_file.read()
-        # Descobre a extensão do arquivo (ex: .wav, .m4a, .mp3)
+        
+        # 2. Descobrimos se é um .wav, .mp3, etc.
         suffix = os.path.splitext(recording.audio_file.name)[-1]
         
-        # Cria um arquivo temporário físico no computador. 
-        # (As bibliotecas Praat e Librosa exigem ler um arquivo real salvo no disco para funcionar rápido 
-        # sem sobrecarregar a memória RAM, por isso forçamos esse download provisório).
+        # 3. Mandamos o Windows/Linux criar um arquivo falso/temporário (ex: Temp/som_92837.wav)
+        # O delete=False significa que nós vamos avisar quando pode deletar manualmente, 
+        # para a librosa ter tempo de abrir antes que o Windows apague sozinho.
         temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=suffix)
         temp_file.write(file_content)
-        temp_file.close() # Libera o arquivo para que outras ferramentas possam abri-lo e ler.
+        temp_file.close() # Fecha a "caneta" (modo de edição) para a librosa poder "ler".
         
-        # Retorna a localização de onde salvamos esse áudio (ex: C:/Temp/som_abc.wav)
+        # 4. Retorna para o cálculo a rota desse arquivo temporário recém-criado.
         return temp_file.name 
     except Exception as e:
         print(f"Erro ao carregar ou baixar arquivo de áudio: {e}")
@@ -66,48 +83,63 @@ def get_audio_path(recording):
 
 def cleanup_temp_files(paths):
     """
-    Função Helper: Remove os arquivos temporários criados pela função acima (get_audio_path).
-    Extremamente vital para não lotar o Servidor quando extrairmos features de milhares de pacientes.
+    Função do Lixeiro: Depois que a máquina calcular o paciente, ela DEVE ser limpa.
+    Imagina processar 5.000 pacientes: criaríamos 25.000 áudios "falsos" no servidor
+    até estourar todo o HD. Essa função deleta os arquivos pós-processados.
     """
     for path in paths:
-        # Verifica se o arquivo existe e garante de novo que ele está apenas na pasta "Temp" de fato.
+        # Se o caminho existir E tiver "Temp" (ou /tmp) na string (garantia de não deletar coisa errada do C:\)
         if path and os.path.exists(path) and tempfile.gettempdir() in path:
             try:
-                os.remove(path) # Aciona a exclusão do Sistema Operacional.
+                os.remove(path) # Avisa ao SO para formatar/excluir o arquivo.
             except:
-                pass # Se der falha (por uso ou negação), apenas ignora para não parar a execução geral.
+                pass
+
 
 # =====================================================================
-# FUNÇÕES DE EXTRAÇÃO DE FEATURES ACÚSTICAS (PARÂMETROS DE ELA)
+# MÓDULO 4: CIÊNCIA FONOAUDIOLÓGICA (EXTRAÇÃO DE FEATURES / PARÂMETROS)
 # =====================================================================
 
 def extract_jitter_shimmer_hnr(audio_path):
     """
-    1. Instabilidade Fonatória e Ruído
-    Mede a instabilidade das pregas vocais, que pode apontar para fraqueza e rouquidão severa.
-    - Jitter: micro-variações da Frequência de ciclo a ciclo (traduzido como aspereza/rouquidão).
-    - Shimmer: micro-variações da Amplitude (Volume) de ciclo a ciclo (falha no sopro glótico).
-    - HNR (Harmonic-to-Noise Ratio): mede quanto tem de som puro (harmônico) contra o "chiado" e ar vazando (ruído).
+    FEATURE 1: Instabilidade Fonatória e Ruído Vocal. (Fonação da Vogal /A/)
+    
+    Contexto da ELA: A ELA bulbar gera hipertonia/espasticidade ou flacidez na musculatura da laringe. 
+    Isso faz as pregas vocais não fecharem bem e vibrarem em caos. O Praat consegue medir 
+    isso microscopicamente a cada milissegundo de vibração.
+    
+    1. Jitter: Avalia apenas a FREQUÊNCIA (Pitch). Se o ciclo de onda tem 100Hz e 
+       logo em seguida ele treme e cai pra 95Hz, e sobe pra 102Hz. Essa "tremidinha" é o Jitter (Aspereza).
+    2. Shimmer: Avalia apenas a AMPLITUDE (Volume/Força). Se a força do sopro for caindo 
+       logo em seguida ao longo de milissegundos sem sustentação.
+    3. HNR: Harmonics-to-Noise Ratio. Razão Harmônico-Ruído. Uma voz saudável é como uma 
+       viola limpa afinada (alta harmonia). Vozes doentes "vazam ar", gerando um som sujo que o 
+       computador lê como ruído estático em cima da onda musical. Pacientes de ELA têm HNR muito baixo.
     """
     if not audio_path:
         return None, None, None
         
     try:
-        # Carrega o áudio no algoritmo equivalente ao sistema "Praat"
+        # Carrega o áudio no kernel do Praat
         snd = parselmouth.Sound(audio_path)
         
-        # PointProcess: é como rastrear o "batimento cardíaco" do áudio. O Praat marca cada pulsação vocal na linha do tempo.
-        # Os valores de 75 Hz a 600 Hz são os tetos biológicos humanos de frequência fundamental onde a busca ocorre.
+        # 1. PASSO FUNDAMENTAL: "PointProcess" (Marcação de Pulso Glótico).
+        # Pra medir mudança de vibração, o Praat precisa primeiro achar o exato momento que a prega vocal 
+        # bateu palma (abriu/fechou). Os valores de 75 até 600 Hz informados na funçao
+        # são basicamente os "limites humanos". Um homem grave dá ~100Hz. Uma criança dá ~300Hz. 
+        # Estamos mandando o programa focar só no intervalo que a biologia produz.
         point_process = parselmouth.praat.call(snd, "To PointProcess (periodic, cc)", 75.0, 600.0)
         
-        # Mede o Jitter na modalidade "local" (a mais tradicional do protocolo médico).
+        # 2. Get Jitter: Com todos os "Pulsos Cardíacos" mapeados, aplicamos um algoritmo 
+        # do tipo "local" (Jitter Absoluto), que é e mais clássico entre médicos 
+        # (varrendo distâncias absolutas de ciclo a ciclo).
         jitter = parselmouth.praat.call(point_process, "Get jitter (local)", 0.0, 0.0, 0.0001, 0.02, 1.3)
         
-        # Mede o Shimmer. Ele exige comparar os pontos marcados (point_process) com as ondas originais (snd).
+        # 3. Get Shimmer: Funciona igual o Jitter, mas pra Força da onda. Precisamos passar DUAS coisas aqui 
+        # num array: O som em si [snd] para medir tamanho da onda + [point_process] para saber onde as ondas começam.
         shimmer = parselmouth.praat.call([snd, point_process], "Get shimmer (local)", 0.0, 0.0, 0.0001, 0.02, 1.3, 1.6)
         
-        # Mede a Harmonia do Som (HNR). 
-        # Valores baixos de HNR significam mais soprosidade/disfonia, indicando que a prega vocal não fecha direito (ELA Bulbar).
+        # 4. Get HNR: Separa a pureza sonora total da "chiadeira" e gera uma razão.
         harmonicity = parselmouth.praat.call(snd, "To Harmonicity (cc)", 0.01, 75.0, 0.1, 1.0)
         hnr = parselmouth.praat.call(harmonicity, "Get mean", 0.0, 0.0)
         
@@ -119,48 +151,60 @@ def extract_jitter_shimmer_hnr(audio_path):
 
 def extract_vsa(audio_a, audio_i, audio_u):
     """
-    2. Vowel Space Area (VSA) / Área do Espaço Vocálico
-    Calcula matematicamente o triângulo vocálico A-I-U. Na neurologia, isso mede indiretamente o
-    grau de agilidade articulatória da pessoa (a capacidade de abrir a boca, mexer a língua rápido, etc).
-    Indivíduos saudáveis geram uma área gigantesca. Disártricos têm "hipocinesia" e uma área achatada.
+    FEATURE 2: Vowel Space Area (VSA) / Área do Espaço Vocálico (A - I - U).
+    
+    Contexto Crítico na ELA: Todo fisioterapeuta/fonoaudiólogo sabe: o que faz a Letra A e a 
+    Letra I soarem diferentes não é a Garganta, é o FORMATO DA BOCA.
+    A ressonância que capta formato da boca se chama FORMANTES.
+    - FORMANTES F1 controlam a Abertura de mandíbula (A boca abriu muito ou está quase fechada?)
+    - FORMANTES F2 controlam a Língua (A língua está tocando os dentes na frente, ou retraída no céu da boca atrás?)
+    
+    Como na ELA ocorre a atrofia rápida da musculatura da Língua, as pessoas falam com os músculos "moles",
+    isso é conhecido como HIPOCINESIA ARTICULATÓRIA (sem movimento). Como resultado, Saudáveis conseguem 
+    esticar extremos nos números matemáticos do F1/F2 gerando um gráfico gigante. Já os Doentes de ELA 
+    falam com as vogais se misturando e centralizadas ("Centralização Vocálica"), um gráfico pequeno esmagado!
     """
     
-    # Subfunção de ajuda para extrair os "Formantes" de uma vogal específica de forma fácil.
+    # Esta é uma função aninhada (uma sub-ajudante). Só ela sabe extrair o F1 e F2 de uma vogal crua.
     def get_f1_f2(audio_path):
         if not audio_path:
             return None, None
         try:
             snd = parselmouth.Sound(audio_path)
-            # Aciona o classificador de 'Burg' (muito usado pra estimar frequências de ressonância do trato oral).
+            # O mundo científico da conversão de tubos acústicos quase não tem rivais à aproximação linear de 'Burg'.
+            # Esse método converte o som gravado e descobre (em Hertz) onde é que reverberou o osso/laringe da pessoa.
             formants = snd.to_formant_burg()
             
             f1_list, f2_list = [], []
-            # Percorre a linha temporal sonora analiticamente a cada 0.05 segundos
+            
+            # Percorremos a timeline do áudio da pessoa, analisando a musculatura a cada 0.05 milissegundos!
             for t in np.arange(0, snd.duration, 0.05): 
-                # F1 captura o quão aberta está a boca. F2 captura o quão retraída pra trás está a base da língua.
+                # Retorna em Hertz a medida (ex: se F1 do João der 900 Hertz no /a/. Significa que aos t=0.05 segundos, João abriu as cordas e afundou bem a língua).
                 f1 = formants.get_value_at_time(1, t) 
                 f2 = formants.get_value_at_time(2, t)
                 
-                # Se não retornar NotA-Number (NaN), ele empilha nas listas
+                # O if garante que não puxamos um erro "Not A Number / Vazio / Mudo". Só puxamos dados válidos.
                 if not np.isnan(f1): f1_list.append(f1)
                 if not np.isnan(f2): f2_list.append(f2)
                 
-            # Extrai o número representativo (a Média de Hz no corpo total do áudio) para os formantes
+            # O formante muda durante o ar da gravação. Tiramos a "Média Geral" que vai representar o Paciente.
             f1_mean = np.mean(f1_list) if f1_list else None
             f2_mean = np.mean(f2_list) if f2_list else None
             return f1_mean, f2_mean
         except Exception as e:
             return None, None
             
-    # Passo obrigatório, processamos a fonação prolongada de cada uma das 3 vogais "Cardeais"
-    f1_a, f2_a = get_f1_f2(audio_a) # Ponto inferior do triângulo acústico
-    f1_i, f2_i = get_f1_f2(audio_i) # Ponto frontal extremo esquerdo
-    f1_u, f2_u = get_f1_f2(audio_u) # Ponto posterior extremo direito
+    # Executamos as 3 vogais fundamentais "Cardeais" cruciais requeridas pra avaliação VSA global:
+    # A = Vogal inferior de abertura forte
+    f1_a, f2_a = get_f1_f2(audio_a) 
+    # I = Vogal antero-superior (Fechada, alta e a língua explode nos dentes)
+    f1_i, f2_i = get_f1_f2(audio_i)
+    # U = Vogal póstero-superior (Fechada, altíssima, e a língua embola encolhida rasgando a úvula/fim da garganta)
+    f1_u, f2_u = get_f1_f2(audio_u) 
     
-    # Se obtivemos os "Coordenadas geográficas" (Hz) de X e Y das 3 vogais sem erros...
+    # Se todas as 6 informações vieram lidas com sucesso, é hora da fórmula de geometria escolar (Área de um Triângulo Bidimensional) 
+    # Trocando X por F1 e Y por F2! Se estiver esmagado, a Inteligência Artificial vai reconhecer Doença nos números.
     if all(v is not None for v in [f1_a, f2_a, f1_i, f2_i, f1_u, f2_u]):
-        # A fórmula matemática pura para achar a área bidimensional de um triângulo traçado num gráfico onde X é o F2 e Y é o F1:
-        # 0.5 * | xA(yB - yC) + xB(yC - yA) + xC(yA - yB) |
         vsa = 0.5 * abs(f2_a*(f1_i - f1_u) + f2_i*(f1_u - f1_a) + f2_u*(f1_a - f1_i))
         return vsa
     return None
@@ -168,87 +212,121 @@ def extract_vsa(audio_a, audio_i, audio_u):
 
 def extract_f0_stats(audio_path):
     """
-    3. Descritores Prosódicos
-    Extrai informações sobre a melodia básica de locução do paciente durante a Tarefa de Leitura.
-    Pessoas com neurodegeneração tendem ao "Monotonismo" (voz robótica de único tom), resultando num desvio padrão mínimo.
+    FEATURE 3: Descritores Prosódicos F0. (Tarefa de Leitura da fábula "O Vento e o Sol")
+    
+    Contexto ELA: Frequência Fundamental (F0) é o tom "musical" principal que faz a voz ser aguda ou grossa.
+    Na Disartria da Esclerose Lateral, a degeneração muscular causa "Monotonismo" ou Mono-Pitch.
+    O paciente é incapaz de alterar os tons vocais numa entonação interrogativa ("?") ou animada ("!").  A fala sai reta, robotizada.
+    Portanto, nós buscamos capturar a média musical dele, mas, principalmente o `f0_std` (Desvio Padrão).
+    Um std que tende a zero diz-nos matematicamente que o F0 não "variou", indiciando severo empobrecimento de prosódia.
     """
     if not audio_path:
         return None, None
     try:
         snd = parselmouth.Sound(audio_path)
-        # Pitch = Linha do tempo monitorando a Frequência Fundamental unicamente.
+        # to_pitch extrai toda a variação principal musical ignorando ruídos do quarto/ecos ambientais
         pitch = snd.to_pitch()
         
-        # A API liberta uma matriz com toda a "trilha de notas" vocais. Valores em Zero representam silêncio absoluto.
+        # O Praat retorna os valores, mas há um truque focado em silêncio: Nas respiradas e as pausas de fôlego 
+        # e palavras, não existe voz, ali não há Hz, aí ele envia `0.0` Hertz. Se mantivermos Zeros no array, 
+        # a média vai ficar errada e "abaixada", caindo drasticamente a pontuação dele.
         pitch_values = pitch.selected_array['frequency'] 
         
-        # Aqui, filtramos a lista cortando forçadamente os zeros (falsos amigos que afundariam a média total)
+        # Super Filtro Pandas/Numpy: Varremos e mantemos em mãos somente quadros estritos maiores que Zero positivo (quando houve verdadeiramente fala expressa).
         pitch_values = pitch_values[pitch_values > 0]
         
         if len(pitch_values) > 0:
-            # np.mean(média globais) e np.std (desvio padrão: quantidade de sobes e desces da entonação melódica)
             return np.mean(pitch_values), np.std(pitch_values)
         return None, None
     except Exception as e:
         return None, None
 
 
-def extract_mfcc(audio_path):
+def extract_mfcc_and_dynamics(audio_path):
     """
-    4. Descritores Espectrais e Timbrais (MFCCs)
-    Extrai as informações profundas psico-físicas do formato celular da garganta condensadas em 13 bandas.
-    Muito poderoso para Machine Learning captar as nuances sutis (distorções das ressonâncias faciais) da ELA.
+    FEATURE 4: Descritores Espectrais e Dinâmicos (MFCCs, Deltas e ZCR).
+    
+    Contexto ELA/Disartria: O MFCC puro tira uma "foto" do formato do trato vocal. 
+    Para detectar a "fala arrastada" (slurring) e a lentidão da língua entre uma consoante 
+    e outra, precisamos da cinemática:
+    - Delta MFCC: Velocidade da mudança articulatória.
+    - Delta-Delta MFCC: Aceleração da musculatura.
+    - ZCR (Zero-Crossing Rate): Taxa de fricção/ruído das consoantes plosivas.
     """
+    # Como passaremos a retornar 40 colunas em vez de 13 (13 MFCC + 13 Delta + 13 Delta-Delta + 1 ZCR)
+    empty_return = [None] * 40 
+    
     if not audio_path:
-        # Retorna 13 campos "vazios" (None) propositadamente pra preencher o DataFrame tabular e não quebrar as colunas do CSV final
-        return [None]*13 
+        return empty_return
+        
     try:
-        # Aqui trocamos as abordagens para usar o Librosa do C++ acoplado no Python que é mais performático nisso (FFT).
         y, sr = librosa.load(audio_path, sr=None)
         
-        # Corta a onda em dezenas de frames mínimos por segundo e tira os Coeficientes Ceptrom de 1 a 13.
+        # 1. MFCC Estático (13 coeficientes)
         mfccs = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=13)
         
-        # Pega a média por linha. Isso colapsa um vídeo longo num único "Frame Representante" (vetor achatado numérico de tamanho 13) 
-        # que representa como é a "Cor" do som vocal desse paciente especificamente (O formato do tubo).
-        mfccs_mean = np.mean(mfccs, axis=1)
-        return mfccs_mean.tolist()
+        # 2. Delta MFCC (Velocidade)
+        delta_mfccs = librosa.feature.delta(mfccs)
+        
+        # 3. Delta-Delta MFCC (Aceleração)
+        delta2_mfccs = librosa.feature.delta(mfccs, order=2)
+        
+        # 4. Zero-Crossing Rate (Atrito das consoantes)
+        zcr = librosa.feature.zero_crossing_rate(y)
+        
+        # Achata as matrizes tirando a média temporal
+        mfccs_mean = np.mean(mfccs, axis=1).tolist()
+        delta_mean = np.mean(delta_mfccs, axis=1).tolist()
+        delta2_mean = np.mean(delta2_mfccs, axis=1).tolist()
+        zcr_mean = [np.mean(zcr)]
+        
+        # Concatena em um vetor 1D de 40 posições
+        super_vector = mfccs_mean + delta_mean + delta2_mean + zcr_mean
+        return super_vector
+        
     except Exception as e:
-        return [None]*13
+        print(f"Erro na extração espectral dinâmica de {audio_path}: {e}")
+        return empty_return
 
 
 def extract_speech_rate(audio_path):
     """
-    5. Parâmetros Temporais Corridos - Velocidade de Leitura
-    Extrai:
-    - Taxa de elocução: Velocidade (sílabas/palavras por minuto, indicando bradicinesia/lentidão).
-    - Contagem de Pausas: Quantas vezes quebrou a frase pra exalar ar.
+    FEATURE 5: Parâmetros Temporais Corridos - Velocidade de Leitura & Respiradas. (Tarefa de Leitura da fábula longa)
+    
+    Contexto da Avaliação Bulbar em Fonoaudiologia: 
+    A fraqueza muscular geral atinge o peito, laringe e faringe, causando Bradicinesia Articulatória (tudo em câmera lenta e arrastado) 
+    e grave Incapacidade Vital (Capacidade do pulmão encher). Um paciente doente:
+    1 - Vai demorar anos pra finalizar a frase (Fala arrastada, rate muito baixo e prolongado).
+    2 - Vai interromper no meio de palavras pra respirar porque o ar escapuliu da laringe estendida (muitas pauses_counts).
+    A matemática do array do `Librosa` usa Decibéis + Picos Agudos do envelope pra contar separadamente as sílabas soltas do sopro de ruído no fundo.
     """
     if not audio_path:
         return None, None, None
     try:
         y, sr = librosa.load(audio_path, sr=None)
         
-        # 'Onset' é qualquer inicio forçado e pontiagudo num som. Num áudio limpo falado, 95% dos onsets marcam a explosão de uma nova sílaba falada.
+        # 'Onset' Strength (Força Inicial/Ataque). A biblioteca detectará na música picos fortes 
+        # seguidos de sons. Numa música falada sem bateria, todo ONSET em 99% das vezes é o começo "explodido" de uma nova Sílaba!
         onset_env = librosa.onset.onset_strength(y=y, sr=sr)
         onsets = librosa.onset.onset_detect(onset_envelope=onset_env, sr=sr)
         
-        # Identifica e separa o que é voz do que é o "ruído do ar-condicionado da sala" usando 20 Decibéis do pico mestre como linha de corte e teto.
+        # Split! Muta intervals significa picotar o áudio com a regrégia dos "20 Decibéis Acima do Som Base de fundo". 
+        # Tudo que a câmera não ver voz passante e decair do topo por -20 db, nós assumimos liminarmente que o Paciente PAROU pra respirar!
         non_mute_intervals = librosa.effects.split(y, top_db=20)
         
-        # Quantos segundos de gravação rodaram na fita:
+        # Descobre tamanho real da gravação crua pra cálculos puros em segundos de timeline
         duration = librosa.get_duration(y=y, sr=sr)
         
-        # Subtrai apenas as partes das vozes (fim do sinal sonoro - inicio do sinal sonoro e converte base de samples para Segundos)
+        # Transforma o vetor de intervalos cortados em fatias e soma ativamente quanto tempo real da fita contendo o som audível (Falando ativamente).
         speaking_duration = sum([(end - start)/sr for start, end in non_mute_intervals])
         
-        # Base matemática clássica: para existirem N blocos de som, há que se cortar o filme N-1 vezes em silêncios (pausas).
+        # Contagem de Pausas (Se tivemos 5 ilhas ativas de fala num recorte total gráfico.. é porque no limite do meio existiram quebras mudas.. ou seja.. 4 pausas).
         pauses_count = max(0, len(non_mute_intervals) - 1)
         
-        # Volume bruto de impulsões fônicas silabares deduzidas onsets.
+        # Total contagem teórica estimada de Sílabas que explodiram o Onset na fita (Exemplo: Na frase 'trator' a onda terá dois grandes onsets no T e T)
         syllables_count = len(onsets)
         
-        # Taxa simples = Quantidade gerada / pelo Tatal de Minutos Expresso na fita inteira incluindo os tempos mudos pra respirar.
+        # Regra de Três Temporal: (Quantidade total feita dividido pelo Tempo do filme expresso em casas decimais dos "Minutos" rodados).
         speech_rate = syllables_count / (duration / 60.0) if duration > 0 else 0
         
         return speech_rate, pauses_count, speaking_duration
@@ -258,26 +336,33 @@ def extract_speech_rate(audio_path):
 
 def extract_temporal_rhythm(audio_path):
     """
-    6. Parâmetros Temporais Rítmicos - Prova de Diadococinesia
-    Testa a alternânica muscular acelerada "pa-ta-ka" "pa-ta-ka".
-    Avalia em precisão de milésimos neurológico a regularidade automatizada ritmica da produção (se tropeça no caminho da fala).
+    FEATURE 6: Parâmetros Temporais Rítmicos - Prova de Diadococinesia Alternada (DDK)
+    
+    Contexto Analítico da DDK: Dizer repetições sequenciais PA-TA-KA o mais rápido que puder é o maior 
+    desafio neurológico motor. Para o paciente acertar PA e cruzar perfeitamente pro TA, o cérebro tem 
+    que fechar os lábios inteiros (Pa), soltá-los e subir a língua correndo no céu da boca atrás dos incisivos dentais (Ta) e arrastá-la no fundo.
+    Em pacientes com degeneração do motoneurônio (ELA), há "Gagueiras" neurológicas imperceptíveis.
+    O desvio padrão (STD do intervalo) revelará os "saltos" fora do ritmo base em milésimos de erro! Um STD perfeito tange no Zero.
     """
     if not audio_path:
         return None, None
     try:
         y, sr = librosa.load(audio_path, sr=None)
         
+        # Detecta explosões iniciais silábicas exatamente assim como calculamos em Velocidade (Speech Rate)
         onset_env = librosa.onset.onset_strength(y=y, sr=sr)
-        # Aqui usamos o parâmetro especial 'units=time', para que ele libere timestamps absolutos (Em x Segundos a pessoa emitiu y).
+        # DIFERENCIAL CHAVE DA CONFIGURAÇÃO (UNITS='TIME'). Quero que a biblioteca retorne não `frames/pixels` de dados e sim
+        # retorne uma estendida Array crua contendo exata precisão dos Tempos Marcadores Físicos de Ataque no eixo cartesiano. (Exemplo:  Ataque a 0.12 segundos.. 0.44s.. 0.7s)
         onsets = librosa.onset.onset_detect(onset_envelope=onset_env, sr=sr, units='time')
         
         if len(onsets) > 1:
-            # np.diff é excelente pra variação. Tem o vetor de tempo: [0.5, 1.2, 1.9, 2.7]. Ele subtrai um do adjacente e traz a distância: [0.7, 0.7, 0.8] de espaçamento de ar.
+            # np.diff é a melhor engenharia em subtrações de array contínuas. 
+            # Subtrai ativamente a distãncia temporal absoluta entre cada "Sílaba e sua sucessora futura" no array de Onsets.
+            # O array resultante conteria: [tempo percorrido em segundos do P pro A, depois do A pro T...]
             intervals = np.diff(onsets)
             
-            # Contabiliza quantos onsets rolou, e o STD (desvio das distâncias).
-            # -  STD perto de zero indica Metrônomo preciso rítmico.
-            # -  STD altíssimo indica gagueira/falha/assimetria no arrasto articulatório.
+            # length de Onsets informará no fim o Número de Ataque de Batidas Motoras que esse sujeito gerou em 10 segundos ininterruptos, 
+            # E Acompanharemos da Variação STD Rítmica das Batidas de Tambor Alternantes (A disritmia patológica revelada num número flutuante).
             return len(onsets), np.std(intervals)
             
         return len(onsets), None
@@ -285,78 +370,74 @@ def extract_temporal_rhythm(audio_path):
         return None, None
 
 # =====================================================================
-# FUNÇÃO MESTRA (CONTROLADOR E GERADOR)
+# MÓDULO 5: O CÉREBRO CONTROLADOR MESTRE DO FLUXO (ORQUESTRADOR DB)
 # =====================================================================
 
 def criar_dataset_pacientes():
     """
-    Controlador (Loop Central): Rastreia o banco do Django (Tabela de Pacientes), baixa os áudios 
-    referentes para cada sujeito mapeado e varre toda as 6 rotinas pesadas de extração explicadas 
-    ali pra cima de forma automatizada por Lote, cuspindo tudo num relatorial "dataset.csv".
+    A FUNÇÃO PRINCIPAL. 
+    1. Liga-se a conexão ORM via objetos do Banco.
+    2. Encontra a listagem macro de todos os indivíduos internados no Database do Sistema Web.
+    3. Passa cada uma das rotinas de Extrações Científicas em todos eles.
+    4. Aglomera individualmente, concatena cada coluna/feature como Chaves para uma tabela geral bidimensional.
+    5. Grava fisicamente na pasta base um 'arquivo relatorial numérico denso (.CSV) contendo o 'Ground Truth' preparado pra Redes Neurais/XGBoost.
     """
     print("Iniciando varredura geral de extração de features...")
     
-    data = [] # Lista de acúmulo temporária que vai virar o Corpo Principal do Dataset do Pandas
+    data = [] # O vetor "Tabela Infinita em Matriz" do Dataset.
     
-    # Via ORM nativo Django, puxamos do Banco Postgree/SQLite todavia os Cadastros
     patients = Patient.objects.all()
-    print(f"Total de pacientes identificados no Banco: {patients.count()}")
+    print(f"Total de pacientes identificados no Banco ORM Principal: {patients.count()}")
     
-    # Percorre de um em um Patient
+    # ITERAÇÃO GLOBAL DE VARREDURA DOS INDIVÍDUOS. O Loop Principal base da IA de extração.
     for patient in patients:
         print(f"-> Processando áudio do paciente: {patient.name} | Doença: {patient.get_diagnosis_display()}")
         
-        # Resgata todas as gravações vinculadas especificamente àquele paciente rodado
+        # O banco grava o Paciente -> E Gravações separadamente linkadas numa FK (Foreign Key "recordings")
         recordings = patient.recordings.all()
         
-        # Filtro de dicionário pra acelerar a busca no Python (O(1)). Transforma os models em dict key-based do tipo da Tarefa: recs_dict['LEITURA']..
+        # Filtro em dicionário otimizador O(1). Em vez de rodar 5 varredouras for, converto os models rapidamente 
+        # de forma associativa onde a key é o tipo (Ex: 'LEITURA' -> Objeto Model da Gravação e Caminho C:)
         recs_dict = {rec.task_type: rec for rec in recordings}
         
-        # Captura do AzureNuven/HD e passa pras variáveis (retornaram None se eles não fizeram essa gravação específica)
+        # Preparamos variáveis baixando ativamente pro processador em RAM da máquina principal usando a Lógica de Resgate na Nuvem.
         audio_a = get_audio_path(recs_dict.get('FONACAO_A'))
         audio_i = get_audio_path(recs_dict.get('FONACAO_I'))
         audio_u = get_audio_path(recs_dict.get('FONACAO_U'))
-        audio_leitura = get_audio_path(recs_dict.get('LEITURA'))
         audio_ddk = get_audio_path(recs_dict.get('DIADOCOCINESIA'))
-        
-        # ========= ENVIA OS AUDIOS PARA OS 'MATH LABS' ============
-        
-        # 1. Ruído e fonação da Vogal Isolada /A/.
-        jitter_a, shimmer_a, hnr_a = extract_jitter_shimmer_hnr(audio_a)
-        
-        # 2. VSA que analisa o triângulo de 3 gravações silabares de vez só.
-        vsa = extract_vsa(audio_a, audio_i, audio_u)
-        
-        # 3. Flutuação de curva F0 baseada inteiramente na trilha de áudio narrativo gravado (LEITURA).
-        f0_mean, f0_std = extract_f0_stats(audio_leitura)
-        
-        # 4. Taxas respiratórias e pausas na Leitura da fábula longa
-        speech_rate, pauses_count, speaking_duration = extract_speech_rate(audio_leitura)
-        
-        # 5. Avaliação métrica rítmica das batidas de "Ta-Ta-Ta-Ta".
-        ddk_count, ddk_regularity = extract_temporal_rhythm(audio_ddk)
-        
-        # 6. Mappea os coefiecientes timbrais na ressonância longa
-        mfccs = extract_mfcc(audio_leitura)
+        audio_leitura = get_audio_path(recs_dict.get('LEITURA'))
         
         # ==========================================================
+        # FASE MATEMÁTICA: EXECUÇÃO DOS SUB-CÁLCULOS 
+        # ==========================================================
+        jitter_a, shimmer_a, hnr_a = extract_jitter_shimmer_hnr(audio_a)
+        vsa = extract_vsa(audio_a, audio_i, audio_u)
+        f0_mean, f0_std = extract_f0_stats(audio_leitura)
+        speech_rate, pauses_count, speaking_duration = extract_speech_rate(audio_leitura)
+        ddk_count, ddk_regularity = extract_temporal_rhythm(audio_ddk)
+        # 6. Mapeia os coeficientes timbrais e dinâmicos (40 variáveis)
+        features_espectrais = extract_mfcc_and_dynamics(audio_leitura)
+        # ==========================================================
         
-        # Metadado Simples: Computar idade em momento real (anos rodados) para a estatística
+        # CONSTRUÇÃO DO METADADO "RUNTIME LABEL"
+        # Precisamos empacotar a idade do usuário para que o modelo preditor aprenda se é uma questão intrínseca de idoso ou da Patologia Base.
         idade = ""
         if patient.birth_date:
             from datetime import date
             today = date.today()
-            # Fórmula padrão em lógica: Elevação subtrai em -1 da diferença do Ano atual se ele ainda não fez o Nível de Mês de Nascimento Aniversariado
+            # Fórmula avançada: Diferença simples bruta anual, reduzida de verdadeiro/falso matematicamente (subtrai 1 se o Mês base local ainda não tiver passado na linha do tempo comemorativa).
             idade = today.year - patient.birth_date.year - ((today.month, today.day) < (patient.birth_date.month, patient.birth_date.day))
             
-        # Instancia o "Objeto Linha" (Dicionário numérico). Todas essas chaves virarão títulozinhos das barras verticais do Excel.
+        # O PACOTE DA LINHA PACIENTE
         row = {
-            'paciente_id': patient.id,          # ID Chave primária do Banco
-            'nome': patient.name,               # Nome Explicito
-            'idade': idade,                     # Demografia clínica 1
-            'sexo': patient.get_gender_display(),# Demografia biológica 2 textificada "Masculino/Feminino"
-            'diagnostico': patient.get_diagnosis_display(), # Label target Classificatória (Saudavel X Doente)
-            'jitter_local': jitter_a,           # Inicio das features Extraídas numéricas do Praat...
+            'paciente_id': patient.id,          # Feature Textual Identifier Principal
+            'nome': patient.name,               
+            'idade': idade,                     
+            'sexo': patient.get_gender_display(),
+            'diagnostico': patient.get_diagnosis_display(), # << Nossa TARGET CLASSIFICATION Y (O que a rede Neural Tentará Prever via Classificador Multi-classe ou Binário futuramente)
+            
+            # A seguir, os vetores extraídos no formato puro "Features Contínuas Float".
+            'jitter_local': jitter_a,           
             'shimmer_local': shimmer_a,
             'hnr': hnr_a,
             'vsa': vsa,
@@ -369,25 +450,38 @@ def criar_dataset_pacientes():
             'ddk_regularity_std': ddk_regularity
         }
         
-        # Empacota em 13 colunazinhas finais as 13 médias geradas na Lista Bruta dos mfccs via For loop numerado
-        for i, m in enumerate(mfccs):
-            row[f'mfcc_{i+1}'] = m
+        # Desempacota as 40 variáveis em colunas nominais e atrela à row
+        for i, val in enumerate(features_espectrais):
+            if i < 13:
+                row[f'mfcc_{i+1}'] = val
+            elif i < 26:
+                row[f'delta_mfcc_{i-12}'] = val
+            elif i < 39:
+                row[f'delta2_mfcc_{i-25}'] = val
+            else:
+                row['zcr_mean'] = val
             
-        # Transfere a linha do paciente com seus 25 resultados e aloca (append) em definitivo na super-lista data.
+        # Linha montada com 25 colunas preenchidas atada em definitivo na coleção geral primária.
         data.append(row)
         
-        # Tchau! Exclui do computador os wavs de voz deste paciente baixados da nuvem e dá espaço pros 10 milhões do próximo na esteira
-        cleanup_temp_files([audio_a, audio_i, audio_u, audio_leitura, audio_ddk])
+        # ATENÇÃO TÉCNICA!
+        # Sem essa linha 'cleanup', o Windows Server da infraestrutura Nuvem fatalmente acusará "Disk Storage Exceeded / Inodes" 
+        # por arquivos pendurados acumulados num cache malígno a cada geração. Apague lixos físicos sempre.
+        cleanup_temp_files([audio_a, audio_i, audio_u, audio_ddk, audio_leitura])
         
-    # Quando o grande laço "for patient" acabar com todos eles.. invocamos Pandas para renderizar.
+    # Renderização Dataframe via Pandas
+    # A biblioteca transforma listas de dicionários heterogêneas numa estrutura Tabular perfeita mapeada pronta pra Serialização e limpeza.
     df = pd.DataFrame(data)
     
-    # Salva o renderizado Pandas como um relatorial físico ".csv" exportado (index é a barra de numeração crua chata da lib, colocamos False)
+    # Serialização pra Arquivo em Formato .CSV Universal Exportável
+    # Passamos `index=False` para evitar aquela coluna inútil intrínseca lateral 0, 1, 2... do pandas poluindo o Dataset na exportação do Python.
     df.to_csv('dataset_features_ela.csv', index=False)
     
-    print("\n[+] Extração de todos os bancos finalizada em sucesso!")
-    print("O seu agrupamento CSV de dados 'dataset_features_ela.csv' já está na raiz do seu projeto.")
+    print("\n[+] Operação Bem Sucedida! Extração do Protocolo Analítico Fonoaudiológico Global finalizada.")
+    print("O seu relacional tabular 'dataset_features_ela.csv' se encontra pronto e populado no disco host da Aplicação Django.")
 
-# Porta de Entrada do Python Scripts isolados (Trava de Segurança). Significa: "Apenas dispare as funções se o arquivo for evocado cru pelo desenvolvedor usando RUN, não engatilhe se for só um Import no ambiente web"
+# Gatilho Primário Padrão Python
+# Interlock para evitar a ativação da sub-rotina bruta ao se "Importar" o pacote para outras areas no App. 
+# Garante controle via linha de terminal explícita: "python extrator_features_ela.py".
 if __name__ == "__main__":
     criar_dataset_pacientes()
