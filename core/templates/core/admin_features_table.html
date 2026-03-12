@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block breadcrumb %}
+<div style="margin-bottom: 1.5rem; color: var(--text-secondary); font-size: 0.9rem;">
+    <a href="{% url 'dashboard' %}" style="color: var(--primary-color); text-decoration: none;" title="Início"><i class="fa-solid fa-house"></i></a>
+    <span style="margin: 0 0.5rem;">/</span>
+    <span style="color: var(--text-primary); font-weight: 500;">Tabela de Features Acústicas (Batch)</span>
+</div>
+{% endblock %}
+
+{% block content %}
+
+<!-- Header Hero Glass -->
+<div class="glass-panel" style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; border-left: 4px solid #f59e0b;">
+    <div>
+        <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.25rem;">
+            <div style="background: rgba(245, 158, 11, 0.1); padding: 0.5rem; border-radius: 8px; color: #f59e0b;">
+                <i class="fa-solid fa-file-csv" style="font-size: 1.2rem;"></i>
+            </div>
+            <h2 style="color: var(--text-primary); margin: 0; font-size: 1.5rem; font-weight: 700;">Dataset Acústico de Lote</h2>
+        </div>
+        <p style="color: var(--text-secondary); margin: 0; font-size: 0.95rem;">Todas as medições extraídas e mapeadas a partir da Tabela Offline.</p>
+    </div>
+    <div style="display: flex; gap: 0.75rem;">
+        <a href="{% url 'admin_generate_dataset_view' %}" class="btn-primary" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.6rem 1.2rem; font-weight: 600; background-color: #10b981; border: none; color: white;" onclick="return confirm('ATENÇÃO: Este processo usa Inteligência Artificial pesada e varrerá o áudio de todos os pacientes do zero. A tela pode travar ou carregar por SEGUNDOS a MINUTOS dependendo do tamanho do banco.\n\nDeseja mesmo gerar a planilha agora?');">
+            <i class="fa-solid fa-rotate"></i> Processar/Recriar Dados
+        </a>
+        <a href="{% url 'dashboard' %}" class="btn-secondary" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.6rem 1.2rem; font-weight: 600;">
+            <i class="fa-solid fa-arrow-left"></i> Voltar
+        </a>
+    </div>
+</div>
+
+<div class="glass-panel" style="padding: 1.5rem;">
+    {% if has_dataset %}
+        <div style="overflow-x: auto; width: 100%; border-radius: 8px; border: 1px solid rgba(0,0,0,0.08);">
+            <table class="data-table" style="min-width: 1500px; font-size: 0.85rem; border-collapse: collapse;">
+                <thead>
+                    <tr>
+                        <th style="min-width: 50px;">ID</th>
+                        <th style="min-width: 250px;">Paciente</th>
+                        <th style="min-width: 80px;">Idade</th>
+                        <th style="min-width: 100px;">Sexo</th>
+                        <th style="min-width: 150px;">Diagnóstico</th>
+                        
+                        <!-- Instabilidade Fonatória -->
+                        <th style="background: rgba(239, 68, 68, 0.05); color: #dc2626;">Jitter (Local)</th>
+                        <th style="background: rgba(245, 158, 11, 0.05); color: #d97706;">Shimmer (Local)</th>
+                        <th style="background: rgba(16, 185, 129, 0.05); color: #059669;">HNR (dB)</th>
+                        
+                        <!-- Articulação -->
+                        <th style="background: rgba(59, 130, 246, 0.05); color: #2563eb;">Vowel Space (VSA)</th>
+                        <th style="background: rgba(168, 85, 247, 0.05); color: #7e22ce;">F0 Mean (Hz)</th>
+                        <th style="background: rgba(168, 85, 247, 0.05); color: #7e22ce;">F0 Std (Hz)</th>
+                        
+                        <!-- Lentidão Respiratória/Articulatória -->
+                        <th style="background: rgba(99, 102, 241, 0.05); color: #4338ca;">Speech Rate (Syl/min)</th>
+                        <th style="background: rgba(244, 63, 94, 0.05); color: #e11d48;">Pausas de Respiração</th>
+                        <th style="background: rgba(99, 102, 241, 0.05); color: #4338ca;">Speaking Dur.</th>
+                        
+                        <!-- DDK -->
+                        <th style="background: rgba(234, 179, 8, 0.05); color: #ca8a04;">DDK Count</th>
+                        <th style="background: rgba(234, 179, 8, 0.05); color: #ca8a04;">DDK Regularity (Std)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in dataset_rows %}
+                    <tr>
+                        <td style="font-weight: bold; color: var(--text-secondary); border-bottom: 1px solid rgba(0,0,0,0.05);">{{ row.paciente_id }}</td>
+                        <td style="font-weight: 600; color: var(--text-primary); border-bottom: 1px solid rgba(0,0,0,0.05);">
+                            <a href="{% url 'patient_features' row.paciente_id %}" style="color: var(--primary-color); text-decoration: none;" title="Ver Painel Clinico do Paciente">
+                                {{ row.nome }} <i class="fa-solid fa-up-right-from-square" style="font-size: 0.7rem; opacity: 0.7;"></i>
+                            </a>
+                        </td>
+                        <td style="border-bottom: 1px solid rgba(0,0,0,0.05);">{{ row.idade }}</td>
+                        <td style="border-bottom: 1px solid rgba(0,0,0,0.05);">{{ row.sexo }}</td>
+                        <td style="border-bottom: 1px solid rgba(0,0,0,0.05);">
+                            <span style="background: rgba(99,179,237,0.15); color: #63b3ed; font-size: 0.75rem; padding: 3px 8px; border-radius: 12px; font-weight: 600;">
+                                {{ row.diagnostico }}
+                            </span>
+                        </td>
+                        
+                        <!-- Valores Tabela de Medição (Tons alternados para as colunas) -->
+                        <td style="background: rgba(239, 68, 68, 0.02); border-bottom: 1px solid rgba(239, 68, 68, 0.05);">{{ row.jitter_local|default:"-"|slice:":6" }}</td>
+                        <td style="background: rgba(245, 158, 11, 0.02); border-bottom: 1px solid rgba(245, 158, 11, 0.05);">{{ row.shimmer_local|default:"-"|slice:":6" }}</td>
+                        <td style="background: rgba(16, 185, 129, 0.02); font-weight: 600; border-bottom: 1px solid rgba(16, 185, 129, 0.05); color: #059669;">{{ row.hnr|default:"-"|slice:":5" }}</td>
+                        
+                        <td style="background: rgba(59, 130, 246, 0.02); font-weight: 600; border-bottom: 1px solid rgba(59, 130, 246, 0.05); color: #2563eb;">{{ row.vsa|default:"-"|slice:":7" }}</td>
+                        <td style="background: rgba(168, 85, 247, 0.02); border-bottom: 1px solid rgba(168, 85, 247, 0.05);">{{ row.f0_mean|default:"-"|slice:":6" }}</td>
+                        <td style="background: rgba(168, 85, 247, 0.02); border-bottom: 1px solid rgba(168, 85, 247, 0.05);">{{ row.f0_std|default:"-"|slice:":6" }}</td>
+                        
+                        <td style="background: rgba(99, 102, 241, 0.02); font-weight: 600; border-bottom: 1px solid rgba(99, 102, 241, 0.05); color: #4338ca;">{{ row.speech_rate|default:"-"|slice:":5" }}</td>
+                        <td style="background: rgba(244, 63, 94, 0.02); border-bottom: 1px solid rgba(244, 63, 94, 0.05);">{{ row.pauses_count|default:"-" }}</td>
+                        <td style="background: rgba(99, 102, 241, 0.02); border-bottom: 1px solid rgba(99, 102, 241, 0.05);">{{ row.speaking_duration|default:"-"|slice:":5" }}s</td>
+                        
+                        <td style="background: rgba(234, 179, 8, 0.02); border-bottom: 1px solid rgba(234, 179, 8, 0.05);">{{ row.ddk_syllables_count|default:"-" }}</td>
+                        <td style="background: rgba(234, 179, 8, 0.02); font-weight: 600; border-bottom: 1px solid rgba(234, 179, 8, 0.05); color: #ca8a04;">{{ row.ddk_regularity_std|default:"-"|slice:":6" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="16" style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+                            O arquivo CSV foi lido, mas parece não conter registros numéricos válidos (vazio).
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <!-- Caso o CSV não exista -->
+        <div style="text-align: center; padding: 3rem; background: rgba(239, 68, 68, 0.05); border-radius: 12px; border: 1px dashed rgba(239, 68, 68, 0.3);">
+            <i class="fa-solid fa-database" style="font-size: 3rem; color: #ef4444; margin-bottom: 1rem; opacity: 0.8;"></i>
+            <h3 style="color: var(--text-primary); margin: 0 0 0.5rem 0;">Arquivo de Lote Não Encontrado</h3>
+            <p style="color: var(--text-secondary); max-width: 500px; margin: 0 auto; line-height: 1.5;">
+                O arquivo numérico <strong>dataset_features_ela.csv</strong> não foi localizado na raiz do projeto.<br><br>
+                Para popular esta tabela instantaneamente e sem onerar os servidores do aplicativo, o script principal de inteligência computacional <code>extrator_features_ela.py</code> precisa ter sido processado fisicamente antes.
+            </p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

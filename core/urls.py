@@ -13,6 +13,8 @@ urlpatterns = [
     path('patients/<int:pk>/edit/', views.patient_edit, name='patient_edit'),
     path('patients/<int:pk>/features/', views.patient_features_view, name='patient_features'),
     path('patients/<int:pk>/delete/', views.patient_delete, name='patient_delete'),
+    path('dataset/', views.admin_features_dataset_view, name='admin_features_dataset_view'),
+    path('dataset/generate/', views.admin_generate_dataset_view, name='admin_generate_dataset_view'),
     
     # Usuários (restrito a superusuários)
     path('users/', views.user_list, name='user_list'),

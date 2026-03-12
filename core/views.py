@@ -10,6 +10,8 @@ from .models import Patient, PatientRecording
 from .forms import PatientForm, UserCreateForm, UserEditForm
 import sys
 import os
+import csv
+from django.conf import settings
 
 
 def login_view(request):
@@ -260,6 +262,51 @@ def patient_features_view(request, pk):
     }
     
     return render(request, 'core/patient_features.html', context)
+
+
+@_superuser_required
+def admin_features_dataset_view(request):
+    """View administrativa que lê o dataset_features_ela.csv de forma hiper-otimizada"""
+    
+    # O arquivo extrator salva na raiz estrutural onde o manage.py é rodado
+    csv_path = os.path.join(settings.BASE_DIR, 'dataset_features_ela.csv')
+    dataset_rows = []
+    has_dataset = False
+    
+    if os.path.exists(csv_path):
+        has_dataset = True
+        try:
+            with open(csv_path, mode='r', encoding='utf-8') as f:
+                reader = csv.DictReader(f)
+                for row in reader:
+                    dataset_rows.append(row)
+        except Exception as e:
+            print(f"Erro lendo CSV: {e}")
+            
+    context = {
+        'has_dataset': has_dataset,
+        'dataset_rows': dataset_rows
+    }
+    return render(request, 'core/admin_features_table.html', context)
+
+
+@_superuser_required
+def admin_generate_dataset_view(request):
+    """Executa o script avulso de Machine Learning que varre os perfis e regera o CSV offline."""
+    try:
+        # Importamos a função mestra do arquivo extrator raiz.
+        sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        from extrator_features_ela import criar_dataset_pacientes
+        
+        # Chama de forma síncrona o loop pesado (cálculos do parselmouth/librosa)
+        criar_dataset_pacientes()
+        
+        messages.success(request, 'Sucesso Absoluto! A base de dados Acústica (CSV) foi integralmente recriada baseada nas últimas gravações.')
+    except Exception as e:
+        messages.error(request, f'Houve uma desestabilização computacional ao recriar o Dataset: {str(e)}')
+        
+    # Quando acabar todo o loading do Python pesado, ele estourará e devolverá o HTML relido:
+    return redirect('admin_features_dataset_view')
 
 
 def _get_user_papel(user):
