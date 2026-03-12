@@ -15,26 +15,40 @@
         position: relative;
         overflow: hidden;
     }
-    
+
     .glass-metrics:hover {
         transform: translateY(-4px);
-        box-shadow: 0 15px 30px rgba(0,0,0,0.12);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.12);
         border: 1px solid rgba(255, 255, 255, 0.2);
     }
-    
+
     .glass-metrics::before {
         content: '';
         position: absolute;
-        top: 0; left: 0; right: 0; height: 4px;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
         background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
         opacity: 0.8;
     }
-    
+
     /* Variações Dinâmicas de Highlight Color para cada Card Baseado no Risco */
-    .glass-metrics.card-danger::before { background: linear-gradient(90deg, #ef4444, #f87171); }
-    .glass-metrics.card-warning::before { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
-    .glass-metrics.card-success::before { background: linear-gradient(90deg, #10b981, #34d399); }
-    .glass-metrics.card-info::before { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
+    .glass-metrics.card-danger::before {
+        background: linear-gradient(90deg, #ef4444, #f87171);
+    }
+
+    .glass-metrics.card-warning::before {
+        background: linear-gradient(90deg, #f59e0b, #fbbf24);
+    }
+
+    .glass-metrics.card-success::before {
+        background: linear-gradient(90deg, #10b981, #34d399);
+    }
+
+    .glass-metrics.card-info::before {
+        background: linear-gradient(90deg, #3b82f6, #60a5fa);
+    }
 
     .feature-icon {
         width: 48px;
@@ -47,7 +61,7 @@
         margin-bottom: 1rem;
         background: rgba(255, 255, 255, 0.1);
         color: var(--text-primary);
-        box-shadow: inset 0 2px 4px rgba(255,255,255,0.05);
+        box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.05);
     }
 
     .metric-value {
@@ -63,10 +77,29 @@
     }
 
     /* Cores de Alerta Lúdicas Customizadas */
-    .text-val-danger { background: linear-gradient(135deg, #ef4444, #dc2626) !important; -webkit-background-clip: text !important; -webkit-text-fill-color: transparent !important; }
-    .text-val-warning { background: linear-gradient(135deg, #f59e0b, #d97706) !important; -webkit-background-clip: text !important; -webkit-text-fill-color: transparent !important; }
-    .text-val-success { background: linear-gradient(135deg, #10b981, #059669) !important; -webkit-background-clip: text !important; -webkit-text-fill-color: transparent !important; }
-    .text-val-info { background: linear-gradient(135deg, #3b82f6, #2563eb) !important; -webkit-background-clip: text !important; -webkit-text-fill-color: transparent !important; }
+    .text-val-danger {
+        background: linear-gradient(135deg, #ef4444, #dc2626) !important;
+        -webkit-background-clip: text !important;
+        -webkit-text-fill-color: transparent !important;
+    }
+
+    .text-val-warning {
+        background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+        -webkit-background-clip: text !important;
+        -webkit-text-fill-color: transparent !important;
+    }
+
+    .text-val-success {
+        background: linear-gradient(135deg, #10b981, #059669) !important;
+        -webkit-background-clip: text !important;
+        -webkit-text-fill-color: transparent !important;
+    }
+
+    .text-val-info {
+        background: linear-gradient(135deg, #3b82f6, #2563eb) !important;
+        -webkit-background-clip: text !important;
+        -webkit-text-fill-color: transparent !important;
+    }
 
     .metric-label {
         font-size: 0.85rem;
@@ -84,19 +117,19 @@
         opacity: 0.8;
         margin-top: 1rem;
         padding-top: 1rem;
-        border-top: 1px solid rgba(0,0,0,0.05);
+        border-top: 1px solid rgba(0, 0, 0, 0.05);
     }
 
     .section-title {
         color: var(--text-primary);
         font-size: 1.2rem;
         font-weight: 700;
-        margin:  0 0 1.2rem 0;
+        margin: 0 0 1.2rem 0;
         display: flex;
         align-items: center;
         gap: 0.5rem;
     }
-    
+
     .section-title i {
         color: var(--primary-color);
     }
@@ -117,7 +150,10 @@
     /* Vanilla JS Modal Styles */
     .custom-modal-backdrop {
         position: fixed;
-        top: 0; left: 0; right: 0; bottom: 0;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
         background: rgba(0, 0, 0, 0.5);
         backdrop-filter: blur(5px);
         -webkit-backdrop-filter: blur(5px);
@@ -126,13 +162,16 @@
         opacity: 0;
         transition: opacity 0.3s ease;
     }
+
     .custom-modal-backdrop.show {
         display: block;
         opacity: 1;
     }
+
     .custom-modal {
         position: fixed;
-        top: 50%; left: 50%;
+        top: 50%;
+        left: 50%;
         transform: translate(-50%, -50%) scale(0.95);
         z-index: 1050;
         background: white;
@@ -145,12 +184,14 @@
         transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
         overflow: hidden;
     }
+
     .custom-modal.show {
         display: flex;
         flex-direction: column;
         opacity: 1;
         transform: translate(-50%, -50%) scale(1);
     }
+
     .custom-modal-header {
         background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
         padding: 1.5rem;
@@ -159,6 +200,7 @@
         justify-content: space-between;
         align-items: center;
     }
+
     .custom-modal-title {
         font-size: 1.25rem;
         font-weight: 700;
@@ -167,6 +209,7 @@
         align-items: center;
         gap: 0.5rem;
     }
+
     .custom-modal-close {
         background: none;
         border: none;
@@ -177,20 +220,26 @@
         padding: 0;
         line-height: 1;
     }
-    .custom-modal-close:hover { opacity: 1; }
+
+    .custom-modal-close:hover {
+        opacity: 1;
+    }
+
     .custom-modal-body {
         padding: 2rem 1.5rem;
         font-size: 1.05rem;
         color: var(--text-secondary);
         line-height: 1.6;
     }
+
     .custom-modal-footer {
         padding: 1rem 1.5rem 1.5rem;
         display: flex;
         justify-content: flex-end;
     }
+
     .btn-close-modal {
-        background: rgba(0,0,0,0.05);
+        background: rgba(0, 0, 0, 0.05);
         border: none;
         padding: 0.6rem 1.5rem;
         border-radius: 50px;
@@ -199,18 +248,22 @@
         cursor: pointer;
         transition: background 0.2s;
     }
-    .btn-close-modal:hover { background: rgba(0,0,0,0.1); }
+
+    .btn-close-modal:hover {
+        background: rgba(0, 0, 0, 0.1);
+    }
 
     /* --- RESPONSIVIDADE MOBILE --- */
     @media (max-width: 768px) {
         .glass-metrics {
             padding: 1.2rem;
         }
-        
+
         .metric-value {
-            font-size: 2rem !important; /* Valores um pouco menores */
+            font-size: 2rem !important;
+            /* Valores um pouco menores */
         }
-        
+
         .section-title {
             font-size: 1.1rem;
             margin-top: 2.5rem !important;
@@ -220,7 +273,7 @@
         .responsive-grid {
             grid-template-columns: 1fr !important;
         }
-        
+
         /* Ajuste pro card VSA/F0 que tem um layout Flex Row especial */
         .flex-row-to-col {
             flex-direction: column !important;
@@ -233,25 +286,27 @@
             align-items: flex-start !important;
             gap: 1.5rem !important;
         }
-        
-        .hero-header-responsive > div:last-child {
+
+        .hero-header-responsive>div:last-child {
             width: 100%;
         }
-        
+
         .hero-header-responsive .btn-secondary {
             display: flex;
             width: 100%;
             justify-content: center;
         }
-        
+
         /* Modais um pouco menores laterais */
         .custom-modal {
             width: 95%;
             padding: 0;
         }
+
         .custom-modal-header {
             padding: 1rem;
         }
+
         .custom-modal-body {
             padding: 1.5rem 1rem;
         }
@@ -271,7 +326,9 @@
             gap: 0.25rem;
             line-height: 1.5;
         }
-        .breadcrumb-responsive a, .breadcrumb-responsive span {
+
+        .breadcrumb-responsive a,
+        .breadcrumb-responsive span {
             word-break: break-word;
         }
     }
@@ -279,12 +336,16 @@
 {% endblock %}
 
 {% block breadcrumb %}
-<div class="breadcrumb-responsive" style="margin-bottom: 1.5rem; color: var(--text-secondary); font-size: 0.9rem; align-items: center; width: 100%;">
-    <a href="{% url 'dashboard' %}" style="color: var(--primary-color); text-decoration: none; white-space: nowrap;" title="Início"><i class="fa-solid fa-house"></i></a>
+<div class="breadcrumb-responsive"
+    style="margin-bottom: 1.5rem; color: var(--text-secondary); font-size: 0.9rem; align-items: center; width: 100%;">
+    <a href="{% url 'dashboard' %}" style="color: var(--primary-color); text-decoration: none; white-space: nowrap;"
+        title="Início"><i class="fa-solid fa-house"></i></a>
     <span style="color: var(--text-secondary); opacity: 0.5;">/</span>
-    <a href="{% url 'dashboard' %}" style="color: var(--primary-color); text-decoration: none; white-space: nowrap;">Pacientes</a>
+    <a href="{% url 'dashboard' %}"
+        style="color: var(--primary-color); text-decoration: none; white-space: nowrap;">Pacientes</a>
     <span style="color: var(--text-secondary); opacity: 0.5;">/</span>
-    <a href="{% url 'patient_detail' patient.id %}" style="color: var(--primary-color); text-decoration: none; word-break: break-word;">{{ patient.name }}</a>
+    <a href="{% url 'patient_detail' patient.id %}"
+        style="color: var(--primary-color); text-decoration: none; word-break: break-word;">{{ patient.name }}</a>
     <span style="color: var(--text-secondary); opacity: 0.5;">/</span>
     <span style="color: var(--text-primary); font-weight: 500;">Relatório Acústico</span>
 </div>
@@ -294,323 +355,427 @@
 
 <div class="content-container-responsive">
 
-<!-- Header Hero Glass -->
-<div class="glass-panel hero-header-responsive" style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; border-left: 4px solid var(--primary-color);">
-    <div>
-        <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.25rem;">
-            <div style="background: rgba(11, 111, 184, 0.1); padding: 0.5rem; border-radius: 8px; color: var(--primary-color);">
-                <i class="fa-solid fa-microscope" style="font-size: 1.2rem;"></i>
+    <!-- Header Hero Glass -->
+    <div class="glass-panel hero-header-responsive"
+        style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; border-left: 4px solid var(--primary-color);">
+        <div>
+            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.25rem;">
+                <div
+                    style="background: rgba(11, 111, 184, 0.1); padding: 0.5rem; border-radius: 8px; color: var(--primary-color);">
+                    <i class="fa-solid fa-microscope" style="font-size: 1.2rem;"></i>
+                </div>
+                <h2 style="color: var(--text-primary); margin: 0; font-size: 1.5rem; font-weight: 700;">Inteligência
+                    Acústica</h2>
             </div>
-            <h2 style="color: var(--text-primary); margin: 0; font-size: 1.5rem; font-weight: 700;">Inteligência Acústica</h2>
+            <p style="color: var(--text-secondary); margin: 0; font-size: 0.95rem;">Painel Administrativo Analítico de
+                <strong>{{ patient.name }}</strong></p>
         </div>
-        <p style="color: var(--text-secondary); margin: 0; font-size: 0.95rem;">Painel Administrativo Analítico de <strong>{{ patient.name }}</strong></p>
+        <div>
+            <a href="{% url 'patient_detail' patient.id %}" class="btn-secondary"
+                style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.6rem 1.2rem; font-weight: 600;">
+                <i class="fa-solid fa-arrow-left"></i> Voltar ao Perfil
+            </a>
+        </div>
     </div>
-    <div>
-        <a href="{% url 'patient_detail' patient.id %}" class="btn-secondary" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.6rem 1.2rem; font-weight: 600;">
-            <i class="fa-solid fa-arrow-left"></i> Voltar ao Perfil
-        </a>
-    </div>
-</div>
 
-<div class="glass-panel">
-    
-    <!-- ========================================== -->
-    <!-- 1. Instabilidade Fonatória (Jitter/Shimmer)-->
-    <!-- ========================================== -->
-    <div class="section-title">
-        <i class="fa-solid fa-wave-square"></i> Instabilidade Fonatória e Ruído Glótico
-    </div>
-    
-    <div class="responsive-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 1rem;">
-        
-        <!-- JITTER -->
-        <div class="glass-metrics {% if features.jitter != None %}{% if features.jitter > 0.04 %}card-danger{% else %}card-success{% endif %}{% endif %}">
-            <div class="feature-icon" style="color: #ef4444; background: rgba(239,68,68,0.1);">
-                <i class="fa-solid fa-heart-pulse"></i>
-            </div>
-            <div class="metric-label" style="display: flex; justify-content: space-between; align-items: center;">
-                <span>Jitter <span style="text-transform: none; font-weight: normal; opacity: 0.7;">(Variação F0)</span></span>
-                <button type="button" class="btn-info-modal" data-title="Fonte do Jitter" data-desc="O Jitter foi calculado unicamente a partir da fonação sustentada do paciente.<br><br><b>Tarefa 1. Fonação Sustentada (Vogal A)</b>: &quot;Diga 'AAAAA' o mais longo que conseguir&quot;." style="background:none; border:none; color:var(--text-secondary); cursor:pointer; padding:0; transition:color 0.2s;" onmouseover="this.style.color='var(--primary-color)'" onmouseout="this.style.color='var(--text-secondary)'">
-                    <i class="fa-solid fa-circle-info fs-6"></i>
-                </button>
-            </div>
-            
-            {% if features.jitter != None %}
-                <div class="metric-value {% if features.jitter > 0.04 %}text-val-danger{% else %}text-val-success{% endif %}">
+    <div class="glass-panel">
+
+        <!-- ========================================== -->
+        <!-- 1. Instabilidade Fonatória (Jitter/Shimmer)-->
+        <!-- ========================================== -->
+        <div class="section-title">
+            <i class="fa-solid fa-wave-square"></i> Instabilidade Fonatória e Ruído Glótico
+        </div>
+
+        <div class="responsive-grid"
+            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 1rem;">
+
+            <!-- JITTER -->
+            <div
+                class="glass-metrics {% if features.jitter != None %}{% if features.jitter > 0.04 %}card-danger{% else %}card-success{% endif %}{% endif %}">
+                <div class="feature-icon" style="color: #ef4444; background: rgba(239,68,68,0.1);">
+                    <i class="fa-solid fa-heart-pulse"></i>
+                </div>
+                <div class="metric-label" style="display: flex; justify-content: space-between; align-items: center;">
+                    <span>Jitter <span style="text-transform: none; font-weight: normal; opacity: 0.7;">(Variação
+                            F0)</span></span>
+                    <button type="button" class="btn-info-modal" data-title="Fonte do Jitter"
+                        data-desc="O Jitter foi calculado unicamente a partir da fonação sustentada do paciente.<br><br><b>Tarefa 1. Fonação Sustentada (Vogal A)</b>: &quot;Diga 'AAAAA' o mais longo que conseguir&quot;."
+                        style="background:none; border:none; color:var(--text-secondary); cursor:pointer; padding:0; transition:color 0.2s;"
+                        onmouseover="this.style.color='var(--primary-color)'"
+                        onmouseout="this.style.color='var(--text-secondary)'">
+                        <i class="fa-solid fa-circle-info fs-6"></i>
+                    </button>
+                </div>
+
+                {% if features.jitter != None %}
+                <div
+                    class="metric-value {% if features.jitter > 0.04 %}text-val-danger{% else %}text-val-success{% endif %}">
                     {{ features.jitter|floatformat:4 }} <span style="font-size: 1rem; font-weight: 600;">%</span>
                 </div>
                 <div class="metric-desc">
-                    O Jitter acusa <b>irregularidade no tom</b>. Valores altos (> 0.04) denunciam vibração glótica instável, reflexo crônico de aspereza vocal e fraqueza laríngea da ELA bulbar.
+                    O Jitter acusa <b>irregularidade no tom</b>. Valores altos (> 0.04) denunciam vibração glótica
+                    instável, reflexo crônico de aspereza vocal e fraqueza laríngea da ELA bulbar.
                 </div>
-            {% else %}
-                <div class="metric-value" style="color: var(--text-secondary); background: none; -webkit-text-fill-color: initial;">-</div>
-                <div class="empty-state"><i class="fa-solid fa-circle-exclamation"></i> Aguardando Fonação Vogal 'A'</div>
-            {% endif %}
-        </div>
+                {% else %}
+                <div class="metric-value"
+                    style="color: var(--text-secondary); background: none; -webkit-text-fill-color: initial;">-</div>
+                <div class="empty-state"><i class="fa-solid fa-circle-exclamation"></i> Aguardando Fonação Vogal 'A'
+                </div>
+                {% endif %}
+            </div>
 
-        <!-- SHIMMER -->
-        <div class="glass-metrics {% if features.shimmer != None %}{% if features.shimmer > 0.08 %}card-warning{% else %}card-info{% endif %}{% endif %}">
-            <div class="feature-icon" style="color: #f59e0b; background: rgba(245,158,11,0.1);">
-                <i class="fa-solid fa-volume-high"></i>
-            </div>
-            <div class="metric-label" style="display: flex; justify-content: space-between; align-items: center;">
-                <span>Shimmer <span style="text-transform: none; font-weight: normal; opacity: 0.7;">(Variação Volume)</span></span>
-                <button type="button" class="btn-info-modal" data-title="Fonte do Shimmer" data-desc="O Shimmer foi calculado unicamente a partir do áudio gravado em fonação sustentada.<br><br><b>Tarefa 1. Fonação Sustentada (Vogal A)</b>: &quot;Diga 'AAAAA' o mais longo que conseguir&quot;." style="background:none; border:none; color:var(--text-secondary); cursor:pointer; padding:0; transition:color 0.2s;" onmouseover="this.style.color='var(--primary-color)'" onmouseout="this.style.color='var(--text-secondary)'">
-                    <i class="fa-solid fa-circle-info fs-6"></i>
-                </button>
-            </div>
-            
-            {% if features.shimmer != None %}
-                <div class="metric-value {% if features.shimmer > 0.08 %}text-val-warning{% else %}text-val-info{% endif %}">
+            <!-- SHIMMER -->
+            <div
+                class="glass-metrics {% if features.shimmer != None %}{% if features.shimmer > 0.08 %}card-warning{% else %}card-info{% endif %}{% endif %}">
+                <div class="feature-icon" style="color: #f59e0b; background: rgba(245,158,11,0.1);">
+                    <i class="fa-solid fa-volume-high"></i>
+                </div>
+                <div class="metric-label" style="display: flex; justify-content: space-between; align-items: center;">
+                    <span>Shimmer <span style="text-transform: none; font-weight: normal; opacity: 0.7;">(Variação
+                            Volume)</span></span>
+                    <button type="button" class="btn-info-modal" data-title="Fonte do Shimmer"
+                        data-desc="O Shimmer foi calculado unicamente a partir do áudio gravado em fonação sustentada.<br><br><b>Tarefa 1. Fonação Sustentada (Vogal A)</b>: &quot;Diga 'AAAAA' o mais longo que conseguir&quot;."
+                        style="background:none; border:none; color:var(--text-secondary); cursor:pointer; padding:0; transition:color 0.2s;"
+                        onmouseover="this.style.color='var(--primary-color)'"
+                        onmouseout="this.style.color='var(--text-secondary)'">
+                        <i class="fa-solid fa-circle-info fs-6"></i>
+                    </button>
+                </div>
+
+                {% if features.shimmer != None %}
+                <div
+                    class="metric-value {% if features.shimmer > 0.08 %}text-val-warning{% else %}text-val-info{% endif %}">
                     {{ features.shimmer|floatformat:4 }} <span style="font-size: 1rem; font-weight: 600;">%</span>
                 </div>
                 <div class="metric-desc">
-                    Mede oscilação não-intencional de Amplitude. Valores inflados (> 0.08) traduzem <b>voz soprosa e áspera</b>, causada pelo escape aéreo exacerbado devido ao fechamento glótico incompleto.
+                    Mede oscilação não-intencional de Amplitude. Valores inflados (> 0.08) traduzem <b>voz soprosa e
+                        áspera</b>, causada pelo escape aéreo exacerbado devido ao fechamento glótico incompleto.
                 </div>
-            {% else %}
-                <div class="metric-value" style="color: var(--text-secondary); background: none; -webkit-text-fill-color: initial;">-</div>
-                <div class="empty-state"><i class="fa-solid fa-circle-exclamation"></i> Aguardando Fonação Vogal 'A'</div>
-            {% endif %}
-        </div>
+                {% else %}
+                <div class="metric-value"
+                    style="color: var(--text-secondary); background: none; -webkit-text-fill-color: initial;">-</div>
+                <div class="empty-state"><i class="fa-solid fa-circle-exclamation"></i> Aguardando Fonação Vogal 'A'
+                </div>
+                {% endif %}
+            </div>
 
-        <!-- HNR -->
-        <div class="glass-metrics {% if features.hnr != None %}{% if features.hnr < 15 %}card-danger{% else %}card-success{% endif %}{% endif %}">
-            <div class="feature-icon" style="color: #10b981; background: rgba(16,185,129,0.1);">
-                <i class="fa-solid fa-music"></i>
-            </div>
-            <div class="metric-label" style="display: flex; justify-content: space-between; align-items: center;">
-                <span>Proporção HNR <span style="text-transform: none; font-weight: normal; opacity: 0.7;">(Disfonia)</span></span>
-                <button type="button" class="btn-info-modal" data-title="Fonte do HNR" data-desc="A proporção de Ruído/Sujeira versus Som Harmônico foi calculada em cima da fita de áudio de fonação sustentada.<br><br><b>Tarefa 1. Fonação Sustentada (Vogal A)</b>: &quot;Diga 'AAAAA' o mais longo que conseguir&quot;." style="background:none; border:none; color:var(--text-secondary); cursor:pointer; padding:0; transition:color 0.2s;" onmouseover="this.style.color='var(--primary-color)'" onmouseout="this.style.color='var(--text-secondary)'">
-                    <i class="fa-solid fa-circle-info fs-6"></i>
-                </button>
-            </div>
-            
-            {% if features.hnr != None %}
-                <div class="metric-value {% if features.hnr < 15 %}text-val-danger{% else %}text-val-success{% endif %}">
+            <!-- HNR -->
+            <div
+                class="glass-metrics {% if features.hnr != None %}{% if features.hnr < 15 %}card-danger{% else %}card-success{% endif %}{% endif %}">
+                <div class="feature-icon" style="color: #10b981; background: rgba(16,185,129,0.1);">
+                    <i class="fa-solid fa-music"></i>
+                </div>
+                <div class="metric-label" style="display: flex; justify-content: space-between; align-items: center;">
+                    <span>Proporção HNR <span
+                            style="text-transform: none; font-weight: normal; opacity: 0.7;">(Disfonia)</span></span>
+                    <button type="button" class="btn-info-modal" data-title="Fonte do HNR"
+                        data-desc="A proporção de Ruído/Sujeira versus Som Harmônico foi calculada em cima da fita de áudio de fonação sustentada.<br><br><b>Tarefa 1. Fonação Sustentada (Vogal A)</b>: &quot;Diga 'AAAAA' o mais longo que conseguir&quot;."
+                        style="background:none; border:none; color:var(--text-secondary); cursor:pointer; padding:0; transition:color 0.2s;"
+                        onmouseover="this.style.color='var(--primary-color)'"
+                        onmouseout="this.style.color='var(--text-secondary)'">
+                        <i class="fa-solid fa-circle-info fs-6"></i>
+                    </button>
+                </div>
+
+                {% if features.hnr != None %}
+                <div
+                    class="metric-value {% if features.hnr < 15 %}text-val-danger{% else %}text-val-success{% endif %}">
                     {{ features.hnr|floatformat:1 }} <span style="font-size: 1.25rem; font-weight: 600;">dB</span>
                 </div>
                 <div class="metric-desc">
-                    Mede o som limpo (Harmônico) contra o chiado aéreo (Ruído). <b>Quanto menor o número (abaixo de 15), pior</b>; indica que a fenda glótica está vazando ar sujo em vez de vibrar som limpo.
+                    Mede o som limpo (Harmônico) contra o chiado aéreo (Ruído). <b>Quanto menor o número (abaixo de 15),
+                        pior</b>; indica que a fenda glótica está vazando ar sujo em vez de vibrar som limpo.
                 </div>
-            {% else %}
-                <div class="metric-value" style="color: var(--text-secondary); background: none; -webkit-text-fill-color: initial;">-</div>
-                <div class="empty-state"><i class="fa-solid fa-circle-exclamation"></i> Aguardando Fonação Vogal 'A'</div>
-            {% endif %}
+                {% else %}
+                <div class="metric-value"
+                    style="color: var(--text-secondary); background: none; -webkit-text-fill-color: initial;">-</div>
+                <div class="empty-state"><i class="fa-solid fa-circle-exclamation"></i> Aguardando Fonação Vogal 'A'
+                </div>
+                {% endif %}
+            </div>
         </div>
-    </div>
 
 
-    <!-- ========================================== -->
-    <!-- 2. Articulação e Ressonância (VSA e F0) -->
-    <!-- ========================================== -->
-    <div class="section-title" style="margin-top: 3.5rem;">
-        <i class="fa-solid fa-head-side-cough"></i> Biomecânica Orofamibular do Trato Vocal
-    </div>
-    
-    <div class="responsive-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-bottom: 1rem;">
-        
-        <!-- VSA -->
-        <div class="glass-metrics card-info">
-            <div style="display: flex; gap: 1.5rem;">
-                <div class="feature-icon" style="color: #63b3ed; background: rgba(99,179,237,0.1); flex-shrink: 0;">
-                    <i class="fa-solid fa-draw-polygon"></i>
-                </div>
-                <div>
-                    <div class="metric-label" style="display: flex; justify-content: space-between; align-items: center; max-width: 100%;">
-                        <span>Vowel Space Area (VSA)</span>
-                        <button type="button" class="btn-info-modal" data-title="Fonte Geográfica do VSA" data-desc="O VSA desenha um triângulo isósceles espacial geográfico unindo os vértices originados de três gravações independentes.<br><br><b>Tarefa 1. Fonação Sustentada (Vogal A)</b>: &quot;Diga 'AAAAA' o mais longo que conseguir&quot;.<br><b>Tarefa 2. Fonação Sustentada (Vogal I)</b>: &quot;Diga 'IIIII' o mais longo que conseguir&quot;.<br><b>Tarefa 3. Fonação Sustentada (Vogal U)</b>: &quot;Diga 'UUUUU' o mais longo que conseguir&quot;." style="background:none; border:none; color:var(--text-secondary); cursor:pointer; padding:0; transition:color 0.2s;" onmouseover="this.style.color='var(--primary-color)'" onmouseout="this.style.color='var(--text-secondary)'">
-                            <i class="fa-solid fa-circle-info fs-5"></i>
-                        </button>
+        <!-- ========================================== -->
+        <!-- 2. Articulação e Ressonância (VSA e F0) -->
+        <!-- ========================================== -->
+        <div class="section-title" style="margin-top: 3.5rem;">
+            <i class="fa-solid fa-head-side-cough"></i> Biomecânica Orofamibular do Trato Vocal
+        </div>
+
+        <div class="responsive-grid"
+            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-bottom: 1rem;">
+
+            <!-- VSA -->
+            <div class="glass-metrics card-info">
+                <div style="display: flex; gap: 1.5rem;">
+                    <div class="feature-icon" style="color: #63b3ed; background: rgba(99,179,237,0.1); flex-shrink: 0;">
+                        <i class="fa-solid fa-draw-polygon"></i>
                     </div>
-                    {% if features.vsa != None %}
+                    <div>
+                        <div class="metric-label"
+                            style="display: flex; justify-content: space-between; align-items: center; max-width: 100%;">
+                            <span>Vowel Space Area (VSA)</span>
+                            <button type="button" class="btn-info-modal" data-title="Fonte Geográfica do VSA"
+                                data-desc="O VSA desenha um triângulo isósceles espacial geográfico unindo os vértices originados de três gravações independentes.<br><br><b>Tarefa 1. Fonação Sustentada (Vogal A)</b>: &quot;Diga 'AAAAA' o mais longo que conseguir&quot;.<br><b>Tarefa 2. Fonação Sustentada (Vogal I)</b>: &quot;Diga 'IIIII' o mais longo que conseguir&quot;.<br><b>Tarefa 3. Fonação Sustentada (Vogal U)</b>: &quot;Diga 'UUUUU' o mais longo que conseguir&quot;."
+                                style="background:none; border:none; color:var(--text-secondary); cursor:pointer; padding:0; transition:color 0.2s;"
+                                onmouseover="this.style.color='var(--primary-color)'"
+                                onmouseout="this.style.color='var(--text-secondary)'">
+                                <i class="fa-solid fa-circle-info fs-5"></i>
+                            </button>
+                        </div>
+                        {% if features.vsa != None %}
                         <div class="metric-value text-val-info" style="font-size: 3rem;">
                             {{ features.vsa|floatformat:0 }}
                         </div>
-                    {% else %}
-                        <div class="metric-value" style="color: var(--text-secondary); background: none; -webkit-text-fill-color: initial;">-</div>
-                        <div class="empty-state" style="margin-bottom: 0.5rem;"><i class="fa-solid fa-circle-exclamation"></i> Requer Vogais /A/, /I/, /U/</div>
-                    {% endif %}
-                    <div class="metric-desc">
-                        A Área geométrica espacial entre as frequências Formantes extremas. Quando há atrofia da base da língua (hipocinesia de ELA), o triângulo articulatório encolhe drasticamente resultando em números pequenos e voz de "boca fechada".
+                        {% else %}
+                        <div class="metric-value"
+                            style="color: var(--text-secondary); background: none; -webkit-text-fill-color: initial;">-
+                        </div>
+                        <div class="empty-state" style="margin-bottom: 0.5rem;"><i
+                                class="fa-solid fa-circle-exclamation"></i> Requer Vogais /A/, /I/, /U/</div>
+                        {% endif %}
+                        <div class="metric-desc">
+                            A Área geométrica espacial entre as frequências Formantes extremas. Quando há atrofia da
+                            base da língua (hipocinesia de ELA), o triângulo articulatório encolhe drasticamente
+                            resultando em números pequenos e voz de "boca fechada".
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- F0 -->
-        <div class="glass-metrics" style="border-top: 4px solid var(--secondary-color);">
-            <div class="flex-row-to-col" style="display: flex; gap: 1.5rem;">
-                <div class="feature-icon" style="color: #a855f7; background: rgba(168,85,247,0.1); flex-shrink: 0;">
-                    <i class="fa-solid fa-podcast"></i>
-                </div>
-                <div style="width: 100%;">
-                    <div class="metric-label" style="display: flex; justify-content: space-between; align-items: center; max-width: 100%; margin-bottom: 0.5rem;">
-                        <span>Frequência da Voz (F0)</span>
-                        <button type="button" class="btn-info-modal" data-title="Fonte do Mapa Melódico F0" data-desc="O rastreamento de Oscilação de Pitch foi computado a partir da gravação longa e contínua do texto de apoio.<br><br><b>Tarefa 5. Leitura Padronizada</b>: &quot;Leia em voz alta: 'O Vento Norte e o Sol discutiam...'&quot;." style="background:none; border:none; color:var(--text-secondary); cursor:pointer; padding:0; transition:color 0.2s;" onmouseover="this.style.color='var(--primary-color)'" onmouseout="this.style.color='var(--text-secondary)'">
-                            <i class="fa-solid fa-circle-info fs-5"></i>
-                        </button>
+            <!-- F0 -->
+            <div class="glass-metrics" style="border-top: 4px solid var(--secondary-color);">
+                <div class="flex-row-to-col" style="display: flex; gap: 1.5rem;">
+                    <div class="feature-icon" style="color: #a855f7; background: rgba(168,85,247,0.1); flex-shrink: 0;">
+                        <i class="fa-solid fa-podcast"></i>
                     </div>
-                    
-                    {% if features.f0_mean != None %}
-                        <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
+                    <div style="width: 100%;">
+                        <div class="metric-label"
+                            style="display: flex; justify-content: space-between; align-items: center; max-width: 100%; margin-bottom: 0.5rem;">
+                            <span>Frequência da Voz (F0)</span>
+                            <button type="button" class="btn-info-modal" data-title="Fonte do Mapa Melódico F0"
+                                data-desc="O rastreamento de Oscilação de Pitch foi computado a partir da gravação longa e contínua do texto de apoio.<br><br><b>Tarefa 5. Leitura Padronizada</b>: &quot;Leia em voz alta: 'O Vento Norte e o Sol discutiam...'&quot;."
+                                style="background:none; border:none; color:var(--text-secondary); cursor:pointer; padding:0; transition:color 0.2s;"
+                                onmouseover="this.style.color='var(--primary-color)'"
+                                onmouseout="this.style.color='var(--text-secondary)'">
+                                <i class="fa-solid fa-circle-info fs-5"></i>
+                            </button>
+                        </div>
+
+                        {% if features.f0_mean != None %}
+                        <div
+                            style="display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
                             <div class="metric-value text-val-info" style="font-size: 2.2rem; margin-bottom: 0;">
-                                {{ features.f0_mean|floatformat:1 }} <span style="font-size: 1rem; font-weight: 600;">Hz (Pico)</span>
+                                {{ features.f0_mean|floatformat:1 }} <span style="font-size: 1rem; font-weight: 600;">Hz
+                                    (Pico)</span>
                             </div>
-                            <div style="background: rgba(0,0,0,0.03); padding: 0.4rem 0.8rem; border-radius: 8px; border: 1px solid rgba(0,0,0,0.05); font-size: 0.85rem; font-weight: 600;">
-                                Oscilação (STD): <span style="color: #a855f7;">{{ features.f0_std|floatformat:2 }} Hz</span>
+                            <div
+                                style="background: rgba(0,0,0,0.03); padding: 0.4rem 0.8rem; border-radius: 8px; border: 1px solid rgba(0,0,0,0.05); font-size: 0.85rem; font-weight: 600;">
+                                Oscilação (STD): <span style="color: #a855f7;">{{ features.f0_std|floatformat:2 }}
+                                    Hz</span>
                             </div>
                         </div>
-                    {% else %}
-                        <div class="metric-value" style="color: var(--text-secondary); background: none; -webkit-text-fill-color: initial;">-</div>
-                        <div class="empty-state" style="margin-bottom: 0.5rem;"><i class="fa-solid fa-circle-exclamation"></i> Requer Áudio de Leitura do Paciente</div>
-                    {% endif %}
-                    
-                    <div class="metric-desc">
-                        Traça o mapa de tons. O Desvio Padrão (STD) acusa a presença de <b>Monotonismo Cortical</b>. Falta de sobes-e-desces entonacionais traduz a incapacidade neurológica da "fala emotiva" gerando voz robótica.
+                        {% else %}
+                        <div class="metric-value"
+                            style="color: var(--text-secondary); background: none; -webkit-text-fill-color: initial;">-
+                        </div>
+                        <div class="empty-state" style="margin-bottom: 0.5rem;"><i
+                                class="fa-solid fa-circle-exclamation"></i> Requer Áudio de Leitura do Paciente</div>
+                        {% endif %}
+
+                        <div class="metric-desc">
+                            Traça o mapa de tons. O Desvio Padrão (STD) acusa a presença de <b>Monotonismo Cortical</b>.
+                            Falta de sobes-e-desces entonacionais traduz a incapacidade neurológica da "fala emotiva"
+                            gerando voz robótica.
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
 
-    <!-- ========================================== -->
-    <!-- 3. Velocidade Pulmonar e Ritmo -->
-    <!-- ========================================== -->
-    <div class="section-title" style="margin-top: 3.5rem;">
-        <i class="fa-solid fa-lungs-virus"></i> Controle Respiratório e Bradicinesia
-    </div>
+        <!-- ========================================== -->
+        <!-- 3. Velocidade Pulmonar e Ritmo -->
+        <!-- ========================================== -->
+        <div class="section-title" style="margin-top: 3.5rem;">
+            <i class="fa-solid fa-lungs-virus"></i> Controle Respiratório e Bradicinesia
+        </div>
 
-    <div class="responsive-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem;">
-        
-        <!-- Speech Rate -->
-        <div class="glass-metrics" style="background: rgba(255, 255, 255, 0.08); border-left: 4px solid #6366f1;">
-            <div class="metric-label" style="text-transform: none; display: flex; justify-content: space-between; align-items: center;">
-                <span style="font-weight: 600; text-transform: uppercase;">Taxa de Elocução Corrente</span>
-                <button type="button" class="btn-info-modal" data-title="Fonte da Velocidade" data-desc="A contagem de sílabas faladas por minuto sem manipulação foi medida a partir das entrelinhas de áudio.<br><br><b>Tarefa 5. Leitura Padronizada</b>: &quot;Leia em voz alta: 'O Vento Norte e o Sol discutiam...'&quot;." style="background:none; border:none; color:var(--text-secondary); cursor:pointer; padding:0; transition:color 0.2s;" onmouseover="this.style.color='var(--primary-color)'" onmouseout="this.style.color='var(--text-secondary)'">
-                    <i class="fa-solid fa-circle-info fs-6"></i>
-                </button>
-            </div>
-            {% if features.speech_rate != None %}
-                <div class="metric-value" style="font-size: 2.2rem; background: linear-gradient(135deg, #4f46e5, #6366f1); -webkit-background-clip: text;">
+        <div class="responsive-grid"
+            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem;">
+
+            <!-- Speech Rate -->
+            <div class="glass-metrics" style="background: rgba(255, 255, 255, 0.08); border-left: 4px solid #6366f1;">
+                <div class="metric-label"
+                    style="text-transform: none; display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-weight: 600; text-transform: uppercase;">Taxa de Elocução Corrente</span>
+                    <button type="button" class="btn-info-modal" data-title="Fonte da Velocidade"
+                        data-desc="A contagem de sílabas faladas por minuto sem manipulação foi medida a partir das entrelinhas de áudio.<br><br><b>Tarefa 5. Leitura Padronizada</b>: &quot;Leia em voz alta: 'O Vento Norte e o Sol discutiam...'&quot;."
+                        style="background:none; border:none; color:var(--text-secondary); cursor:pointer; padding:0; transition:color 0.2s;"
+                        onmouseover="this.style.color='var(--primary-color)'"
+                        onmouseout="this.style.color='var(--text-secondary)'">
+                        <i class="fa-solid fa-circle-info fs-6"></i>
+                    </button>
+                </div>
+                {% if features.speech_rate != None %}
+                <div class="metric-value"
+                    style="font-size: 2.2rem; background: linear-gradient(135deg, #4f46e5, #6366f1); -webkit-background-clip: text;">
                     {{ features.speech_rate|floatformat:1 }} <span style="font-size: 1rem;">sílabas/min</span>
                 </div>
                 <div class="metric-desc" style="padding-top: 0.5rem; border-top: none;">
-                    Detecta a velocidade e "arrasto" contínuo da fala durante a tarefa de leitura do parágrafo, sinalizando lentidão espástica aguda.
+                    Detecta a velocidade e "arrasto" contínuo da fala durante a tarefa de leitura do parágrafo,
+                    sinalizando lentidão espástica aguda.
                 </div>
-            {% else %}
-                <div class="empty-state" style="background: rgba(100,100,100,0.1); color: var(--text-secondary);"><i class="fa-solid fa-exclamation-triangle"></i> Sem Leitura</div>
-            {% endif %}
-        </div>
-
-        <!-- Pauses -->
-        <div class="glass-metrics {% if features.pauses_count != None %}{% if features.pauses_count > 10 %}card-danger{% endif %}{% endif %}" style="background: rgba(255, 255, 255, 0.08); border-left: 4px solid #f43f5e;">
-            <div class="metric-label" style="text-transform: none; display: flex; justify-content: space-between; align-items: center;">
-                <span style="font-weight: 600; text-transform: uppercase;">Fadiga Pulmonar (Pausas)</span>
-                <button type="button" class="btn-info-modal" data-title="Mapeamento de Pausas" data-desc="A rede detectou o volume de espaços vazios (pausas para respirar) inseridas no meio da emissão contínua do texto lido.<br><br><b>Tarefa 5. Leitura Padronizada</b>: &quot;Leia em voz alta: 'O Vento Norte e o Sol discutiam...'&quot;." style="background:none; border:none; color:var(--text-secondary); cursor:pointer; padding:0; transition:color 0.2s;" onmouseover="this.style.color='var(--primary-color)'" onmouseout="this.style.color='var(--text-secondary)'">
-                    <i class="fa-solid fa-circle-info fs-6"></i>
-                </button>
+                {% else %}
+                <div class="empty-state" style="background: rgba(100,100,100,0.1); color: var(--text-secondary);"><i
+                        class="fa-solid fa-exclamation-triangle"></i> Sem Leitura</div>
+                {% endif %}
             </div>
-            {% if features.pauses_count != None %}
-                <div class="metric-value {% if features.pauses_count > 10 %}text-val-danger{% else %}text-val-info{% endif %}" style="font-size: 2.2rem;">
+
+            <!-- Pauses -->
+            <div class="glass-metrics {% if features.pauses_count != None %}{% if features.pauses_count > 10 %}card-danger{% endif %}{% endif %}"
+                style="background: rgba(255, 255, 255, 0.08); border-left: 4px solid #f43f5e;">
+                <div class="metric-label"
+                    style="text-transform: none; display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-weight: 600; text-transform: uppercase;">Fadiga Pulmonar (Pausas)</span>
+                    <button type="button" class="btn-info-modal" data-title="Mapeamento de Pausas"
+                        data-desc="A rede detectou o volume de espaços vazios (pausas para respirar) inseridas no meio da emissão contínua do texto lido.<br><br><b>Tarefa 5. Leitura Padronizada</b>: &quot;Leia em voz alta: 'O Vento Norte e o Sol discutiam...'&quot;."
+                        style="background:none; border:none; color:var(--text-secondary); cursor:pointer; padding:0; transition:color 0.2s;"
+                        onmouseover="this.style.color='var(--primary-color)'"
+                        onmouseout="this.style.color='var(--text-secondary)'">
+                        <i class="fa-solid fa-circle-info fs-6"></i>
+                    </button>
+                </div>
+                {% if features.pauses_count != None %}
+                <div class="metric-value {% if features.pauses_count > 10 %}text-val-danger{% else %}text-val-info{% endif %}"
+                    style="font-size: 2.2rem;">
                     {{ features.pauses_count }} <span style="font-size: 1rem;">quebras silentes</span>
                 </div>
                 <div class="metric-desc" style="padding-top: 0.5rem; border-top: none;">
-                    Conta vezes exclusivas que o paciente rompeu a fala pra tentar captar ar. Altos indíces escancararam Insuficência Ventilatória.
+                    Conta vezes exclusivas que o paciente rompeu a fala pra tentar captar ar. Altos indíces escancararam
+                    Insuficência Ventilatória.
                 </div>
-            {% else %}
-                <div class="empty-state" style="background: rgba(100,100,100,0.1); color: var(--text-secondary);"><i class="fa-solid fa-exclamation-triangle"></i> Sem Leitura</div>
-            {% endif %}
-        </div>
-
-        <!-- DDK -->
-        <div class="glass-metrics" style="background: rgba(255, 255, 255, 0.08); border-left: 4px solid #eab308;">
-            <div class="metric-label" style="text-transform: none; display: flex; justify-content: space-between; align-items: center;">
-                <span style="font-weight: 600; text-transform: uppercase;">Arritmia Diadococinética</span>
-                <button type="button" class="btn-info-modal" data-title="Como o DDK é medido?" data-desc="O Desvio Padrão (STD) milimétrico dos espaços silabares exigiu testar o cérebro com alternância veloz de sílabas.<br><br><b>Tarefa 4. Diadococinesia</b>: &quot;Repita 'PA-TA-KA' rápido por 10 segundos&quot;." style="background:none; border:none; color:var(--text-secondary); cursor:pointer; padding:0; transition:color 0.2s;" onmouseover="this.style.color='var(--primary-color)'" onmouseout="this.style.color='var(--text-secondary)'">
-                    <i class="fa-solid fa-circle-info fs-6"></i>
-                </button>
+                {% else %}
+                <div class="empty-state" style="background: rgba(100,100,100,0.1); color: var(--text-secondary);"><i
+                        class="fa-solid fa-exclamation-triangle"></i> Sem Leitura</div>
+                {% endif %}
             </div>
-            {% if features.ddk_regularity != None %}
+
+            <!-- DDK -->
+            <div class="glass-metrics" style="background: rgba(255, 255, 255, 0.08); border-left: 4px solid #eab308;">
+                <div class="metric-label"
+                    style="text-transform: none; display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-weight: 600; text-transform: uppercase;">Arritmia Diadococinética</span>
+                    <button type="button" class="btn-info-modal" data-title="Como o DDK é medido?"
+                        data-desc="O Desvio Padrão (STD) milimétrico dos espaços silabares exigiu testar o cérebro com alternância veloz de sílabas.<br><br><b>Tarefa 4. Diadococinesia</b>: &quot;Repita 'PA-TA-KA' rápido por 10 segundos&quot;."
+                        style="background:none; border:none; color:var(--text-secondary); cursor:pointer; padding:0; transition:color 0.2s;"
+                        onmouseover="this.style.color='var(--primary-color)'"
+                        onmouseout="this.style.color='var(--text-secondary)'">
+                        <i class="fa-solid fa-circle-info fs-6"></i>
+                    </button>
+                </div>
+                {% if features.ddk_regularity != None %}
                 <div class="metric-value text-val-warning" style="font-size: 2.2rem;">
                     {{ features.ddk_regularity|floatformat:4 }} <span style="font-size: 1rem;">STD Rítmico</span>
                 </div>
                 <div class="metric-desc" style="padding-top: 0.5rem; border-top: none;">
-                    Testa a capacidade do cérebro de automatizar movimentos musculares alternados em alta velocidade mantendo como se fosse um metrônomo regular.
+                    Testa a capacidade do cérebro de automatizar movimentos musculares alternados em alta velocidade
+                    mantendo como se fosse um metrônomo regular.
                 </div>
-            {% else %}
-                <div class="empty-state" style="background: rgba(100,100,100,0.1); color: var(--text-secondary);"><i class="fa-solid fa-exclamation-triangle"></i> Requer Exercício 'PA-TA-KA'</div>
-            {% endif %}
-        </div>
-    </div>
-
-    <!-- ========================================== -->
-    <!-- 4. Cinemática Articulatória e Espectral -->
-    <!-- ========================================== -->
-    <div class="section-title" style="margin-top: 3.5rem;">
-        <i class="fa-solid fa-language"></i> Inteligência Espectral
-    </div>
-
-    <div class="responsive-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem;">
-        
-        <!-- ZCR -->
-        <div class="glass-metrics" style="background: rgba(255, 255, 255, 0.08); border-left: 4px solid #14b8a6;">
-            <div class="metric-label" style="text-transform: none; display: flex; justify-content: space-between; align-items: center;">
-                <span style="font-weight: 600; text-transform: uppercase;">Cinemática (Zero-Crossing)</span>
-                <button type="button" class="btn-info-modal" data-title="Taxa de Fricção Articulatória (ZCR)" data-desc="Mede a constante de atrito e fricção das consoantes plosivas. A taxa de cruzamento por zero reflete ruído fonético.<br><br><b>Tarefa 5. Leitura Padronizada</b>: O texto livre flutuante." style="background:none; border:none; color:var(--text-secondary); cursor:pointer; padding:0; transition:color 0.2s;" onmouseover="this.style.color='var(--primary-color)'" onmouseout="this.style.color='var(--text-secondary)'">
-                    <i class="fa-solid fa-circle-info fs-6"></i>
-                </button>
+                {% else %}
+                <div class="empty-state" style="background: rgba(100,100,100,0.1); color: var(--text-secondary);"><i
+                        class="fa-solid fa-exclamation-triangle"></i> Requer Exercício 'PA-TA-KA'</div>
+                {% endif %}
             </div>
-            {% if features.zcr_mean != None %}
-                <div class="metric-value" style="font-size: 2.2rem; background: linear-gradient(135deg, #0d9488, #14b8a6); -webkit-background-clip: text;">
+        </div>
+
+        <!-- ========================================== -->
+        <!-- 4. Cinemática Articulatória e Espectral -->
+        <!-- ========================================== -->
+        <div class="section-title" style="margin-top: 3.5rem;">
+            <i class="fa-solid fa-language"></i> Inteligência Espectral
+        </div>
+
+        <div class="responsive-grid"
+            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem;">
+
+            <!-- ZCR -->
+            <div class="glass-metrics" style="background: rgba(255, 255, 255, 0.08); border-left: 4px solid #14b8a6;">
+                <div class="metric-label"
+                    style="text-transform: none; display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-weight: 600; text-transform: uppercase;">Cinemática (Zero-Crossing)</span>
+                    <button type="button" class="btn-info-modal" data-title="Taxa de Fricção Articulatória (ZCR)"
+                        data-desc="Mede a constante de atrito e fricção das consoantes plosivas. A taxa de cruzamento por zero reflete ruído fonético.<br><br><b>Tarefa 5. Leitura Padronizada</b>: &quot;Leia em voz alta: 'O Vento Norte e o Sol discutiam...'&quot;."
+                        style="background:none; border:none; color:var(--text-secondary); cursor:pointer; padding:0; transition:color 0.2s;"
+                        onmouseover="this.style.color='var(--primary-color)'"
+                        onmouseout="this.style.color='var(--text-secondary)'">
+                        <i class="fa-solid fa-circle-info fs-6"></i>
+                    </button>
+                </div>
+                {% if features.zcr_mean != None %}
+                <div class="metric-value"
+                    style="font-size: 2.2rem; background: linear-gradient(135deg, #0d9488, #14b8a6); -webkit-background-clip: text;">
                     {{ features.zcr_mean|floatformat:4 }} <span style="font-size: 1rem;">taxa acústica</span>
                 </div>
                 <div class="metric-desc" style="padding-top: 0.5rem; border-top: none;">
-                    Avalia a nitidez do atrito consonantal. Valores discrepantes indicam imprecisão articulatória generalizada e fraqueza da língua (slurring).
+                    Avalia a nitidez do atrito consonantal. Valores discrepantes indicam imprecisão articulatória
+                    generalizada e fraqueza da língua (slurring).
                 </div>
-            {% else %}
-                <div class="empty-state" style="background: rgba(100,100,100,0.1); color: var(--text-secondary);"><i class="fa-solid fa-exclamation-triangle"></i> Sem Leitura de Texto</div>
-            {% endif %}
-        </div>
-
-        <!-- MFCC Vetor -->
-        <div class="glass-metrics" style="background: rgba(255, 255, 255, 0.08); border-left: 4px solid #8b5cf6;">
-            <div class="metric-label" style="text-transform: none; display: flex; justify-content: space-between; align-items: center;">
-                <span style="font-weight: 600; text-transform: uppercase;">Cinemática Espectral (MFCC)</span>
-                <button type="button" class="btn-info-modal" data-title="Espectro Dinâmico de Mel" data-desc="A Transformada em Escala Mel capta o formato tridimensional de todo o trato vocal, enquanto os Deltas medem a física (Velocidade e Aceleração) muscular da transição sílaba a sílaba." style="background:none; border:none; color:var(--text-secondary); cursor:pointer; padding:0; transition:color 0.2s;" onmouseover="this.style.color='var(--primary-color)'" onmouseout="this.style.color='var(--text-secondary)'">
-                    <i class="fa-solid fa-circle-info fs-6"></i>
-                </button>
+                {% else %}
+                <div class="empty-state" style="background: rgba(100,100,100,0.1); color: var(--text-secondary);"><i
+                        class="fa-solid fa-exclamation-triangle"></i> Sem Leitura de Texto</div>
+                {% endif %}
             </div>
-            {% if features.has_mfcc %}
-                <div class="metric-value" style="font-size: 2.2rem; background: linear-gradient(135deg, #7c3aed, #8b5cf6); -webkit-background-clip: text;">
+
+            <!-- MFCC Vetor -->
+            <div class="glass-metrics" style="background: rgba(255, 255, 255, 0.08); border-left: 4px solid #8b5cf6;">
+                <div class="metric-label"
+                    style="text-transform: none; display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-weight: 600; text-transform: uppercase;">Cinemática Espectral (MFCC)</span>
+                    <button type="button" class="btn-info-modal" data-title="Espectro Dinâmico de Mel"
+                        data-desc="A Transformada em Escala Mel capta o formato tridimensional de todo o trato vocal, enquanto os Deltas medem a física (Velocidade e Aceleração) muscular da transição sílaba a sílaba.<br><br><b>Tarefa 5. Leitura Padronizada</b>: &quot;Leia em voz alta: 'O Vento Norte e o Sol discutiam...'&quot;."
+                        style="background:none; border:none; color:var(--text-secondary); cursor:pointer; padding:0; transition:color 0.2s;"
+                        onmouseover="this.style.color='var(--primary-color)'"
+                        onmouseout="this.style.color='var(--text-secondary)'">
+                        <i class="fa-solid fa-circle-info fs-6"></i>
+                    </button>
+                </div>
+                {% if features.has_mfcc %}
+                <div class="metric-value"
+                    style="font-size: 2.2rem; background: linear-gradient(135deg, #7c3aed, #8b5cf6); -webkit-background-clip: text;">
                     39 <span style="font-size: 1rem;">Canais Dinâmicos Mapeados</span>
                 </div>
                 <div class="metric-desc" style="padding-top: 0.5rem; border-top: none;">
-                    O vetor acústico multi-dimensional <b>(13 Estáticos + 13 Velocidades + 13 Acelerações Delta)</b> foi processado perfeitamente no background dessa tela para esse paciente.
+                    O vetor acústico multi-dimensional <b>(13 Estáticos + 13 Velocidades + 13 Acelerações Delta)</b> foi
+                    processado perfeitamente no background dessa tela para esse paciente.
                 </div>
-            {% else %}
-                <div class="empty-state" style="background: rgba(100,100,100,0.1); color: var(--text-secondary);"><i class="fa-solid fa-exclamation-triangle"></i> Falha ou Ausência de Áudio</div>
-            {% endif %}
+                {% else %}
+                <div class="empty-state" style="background: rgba(100,100,100,0.1); color: var(--text-secondary);"><i
+                        class="fa-solid fa-exclamation-triangle"></i> Falha ou Ausência de Áudio</div>
+                {% endif %}
+            </div>
+
         </div>
-        
+
     </div>
 
-</div>
-
-<!-- Vanilla JS Modal Base -->
-<div class="custom-modal-backdrop" id="customModalBackdrop"></div>
-<div class="custom-modal" id="customModal">
-    <div class="custom-modal-header">
-        <h5 class="custom-modal-title" id="customModalTitle"><i class="fa-solid fa-lightbulb text-warning"></i> <span>Informativo</span></h5>
-        <button class="custom-modal-close" id="customModalClose">&times;</button>
+    <!-- Vanilla JS Modal Base -->
+    <div class="custom-modal-backdrop" id="customModalBackdrop"></div>
+    <div class="custom-modal" id="customModal">
+        <div class="custom-modal-header">
+            <h5 class="custom-modal-title" id="customModalTitle"><i class="fa-solid fa-lightbulb text-warning"></i>
+                <span>Informativo</span></h5>
+            <button class="custom-modal-close" id="customModalClose">&times;</button>
+        </div>
+        <div class="custom-modal-body">
+            <p id="customModalDesc" style="margin: 0;"></p>
+        </div>
+        <div class="custom-modal-footer">
+            <button class="btn-close-modal" id="customModalBtnClose">Entendi</button>
+        </div>
     </div>
-    <div class="custom-modal-body">
-        <p id="customModalDesc" style="margin: 0;"></p>
-    </div>
-    <div class="custom-modal-footer">
-        <button class="btn-close-modal" id="customModalBtnClose">Entendi</button>
-    </div>
-</div>
 
 </div> <!-- Fechamento da div content-container-responsive -->
 

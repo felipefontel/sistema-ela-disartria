@@ -415,35 +415,35 @@ RECORDING_TASKS = [
     {
         'id': 'FONACAO_A',
         'title': '1. Fonação Sustentada (Vogal A)',
-        'instruction': "Diga 'AAAAA' o mais longo que conseguir.",
+        'instruction': "Respire fundo e diga 'AAAAA' de forma firme e constante por cerca de 5 segundos.",
         'example_audio': 'core/audios/Tarefa AAAA.wav',
         'next_step': 2
     },
     {
         'id': 'FONACAO_I',
         'title': '2. Fonação Sustentada (Vogal I)',
-        'instruction': "Diga 'IIIII' o mais longo que conseguir.",
+        'instruction': "Respire fundo e diga 'IIIII' de forma firme e constante por cerca de 5 segundos.",
         'example_audio': 'core/audios/Tarefa IIII.wav',
         'next_step': 3
     },
     {
         'id': 'FONACAO_U',
         'title': '3. Fonação Sustentada (Vogal U)',
-        'instruction': "Diga 'UUUUU' o mais longo que conseguir.",
+        'instruction': "Respire fundo e diga 'UUUUU' de forma firme e constante por cerca de 5 segundos.",
         'example_audio': 'core/audios/Tarefa UUUU.wav',
         'next_step': 4
     },
     {
         'id': 'DIADOCOCINESIA',
         'title': '4. Diadococinesia',
-        'instruction': "Repita 'PA-TA-KA' rápido por 10 segundos.",
+        "instruction": "Respire fundo e repita 'PA-TA-KA' o mais rápido e nítido que conseguir, sem pausas, durante 10 segundos.",
         'example_audio': 'core/audios/Tarefa PATAKA.wav',
         'next_step': 5
     },
     {
         'id': 'LEITURA',
         'title': '5. Leitura Padronizada',
-        'instruction': "Leia em voz alta em ritmo natural. Vá até o final:\n\n'O Vento Norte e o Sol discutiam qual dos dois era o mais forte, quando surgiu um viajante envolto em uma capa. Eles concordaram que aquele que fizesse o viajante tirar a capa primeiro seria considerado o mais forte.'",
+        'instruction': "Respire fundo e leia o texto abaixo em voz alta no seu ritmo natural. Vá até o final sem interromper:\n\n« O Vento Norte e o Sol discutiam qual dos dois era o mais forte, quando surgiu um viajante envolto em uma capa. Eles concordaram que aquele que fizesse o viajante tirar a capa primeiro seria considerado o mais forte. »",
         'example_audio': 'core/audios/Tarefa O Rato Roeu a Roupa do Rei de Roma.wav',
         'next_step': None
     }
