@@ -30,6 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Timer vars
     let recordingTimerInterval;
     let recordingSeconds = 0;
+    let autoStopTimeout;
     const timerDisplay = document.getElementById('recordingTimer');
     const audioPlaybackContainer = document.getElementById('audioPlaybackContainer');
     const audioPlayback = document.getElementById('audioPlayback');
@@ -57,6 +58,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     stopBtn.addEventListener('click', () => {
+        if (autoStopTimeout) {
+            clearTimeout(autoStopTimeout);
+            autoStopTimeout = null;
+        }
+
         if (mediaRecorder && mediaRecorder.state === 'recording') {
             mediaRecorder.stop();
             // Para as tracks do microfone para liberar o hardware
@@ -117,6 +123,18 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             recordBtn.style.display = 'flex';
+
+            // ── Reset total dos estilos customizados do modo PATAKA ──
+            recordBtn.style.pointerEvents = 'auto';
+            recordBtn.style.background = '';
+            recordBtn.style.color = '';
+            recordBtn.style.borderColor = '';
+            recordBtn.innerHTML = '<i class="fa-solid fa-microphone"></i>';
+            recordBtn.classList.remove('recording');
+
+            // Remove o painel de countdown caso ainda esteja presente
+            const dkkPanel = document.getElementById('dkkCountdownPanel');
+            if (dkkPanel) dkkPanel.remove();
         } catch (error) {
             console.error(error);
             uploadStatus.innerHTML = '<span style="color:red;"><i class="fa-solid fa-triangle-exclamation"></i> Erro ao excluir áudio. Tente novamente ou atualize.</span>';
@@ -265,18 +283,155 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // UI Updates
         recordBtn.classList.add('recording');
-        recordBtn.innerHTML = '<i class="fa-solid fa-microphone"></i>';
 
-        recordBtn.style.display = 'none';
-        stopBtn.style.display = 'flex';
+        if (taskType === 'DIADOCOCINESIA') {
+            const DDK_DURATION = 7; // segundos
 
-        if (recordLabel) {
-            recordLabel.style.display = 'block';
-            recordLabel.textContent = 'Parar';
-            recordLabel.style.color = '#e74c3c';
+            // Ocultar btn de stop para forçar automação
+            recordBtn.style.display = 'flex';
+            recordBtn.style.pointerEvents = 'none';
+            recordBtn.style.background = 'rgba(234, 179, 8, 0.1)';
+            recordBtn.style.color = '#eab308';
+            recordBtn.style.borderColor = '#eab308';
+            recordBtn.innerHTML = '<i class="fa-solid fa-ear-listen fa-fade"></i>';
+            stopBtn.style.display = 'none';
+
+            if (recordLabel) {
+                recordLabel.style.display = 'block';
+                recordLabel.textContent = 'Ouvindo...';
+                recordLabel.style.color = '#eab308';
+            }
+
+            // ── Cria o painel de contagem regressiva e barra de progresso ──
+            const dkkPanel = document.createElement('div');
+            dkkPanel.id = 'dkkCountdownPanel';
+            dkkPanel.style.cssText = `
+                margin: 1.2rem auto 0;
+                max-width: 380px;
+                background: rgba(234, 179, 8, 0.08);
+                border: 1px solid rgba(234, 179, 8, 0.25);
+                border-radius: 16px;
+                padding: 1rem 1.4rem;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 0.7rem;
+            `;
+
+            // Número grande countdown
+            const countdownNum = document.createElement('div');
+            countdownNum.style.cssText = `
+                font-size: 3.5rem;
+                font-weight: 800;
+                font-family: monospace;
+                color: #eab308;
+                line-height: 1;
+                letter-spacing: -2px;
+                transition: color 0.5s;
+            `;
+            countdownNum.textContent = DDK_DURATION;
+
+            const countdownLabel = document.createElement('div');
+            countdownLabel.style.cssText = `
+                font-size: 0.75rem;
+                font-weight: 600;
+                letter-spacing: 1.5px;
+                text-transform: uppercase;
+                color: #a16207;
+                opacity: 0.8;
+            `;
+            countdownLabel.textContent = 'segundos restantes';
+
+            // ── Barra de progresso estilo WhatsApp ──
+            const barOuter = document.createElement('div');
+            barOuter.style.cssText = `
+                width: 100%;
+                height: 6px;
+                background: rgba(234, 179, 8, 0.15);
+                border-radius: 99px;
+                overflow: hidden;
+                margin-top: 0.3rem;
+            `;
+            const barInner = document.createElement('div');
+            barInner.id = 'dkkProgressBar';
+            barInner.style.cssText = `
+                height: 100%;
+                width: 0%;
+                background: linear-gradient(90deg, #eab308, #f59e0b);
+                border-radius: 99px;
+                transition: width ${DDK_DURATION}s linear;
+            `;
+            barOuter.appendChild(barInner);
+
+            // Marcadores de tempo (tipo WhatsApp) – 0s … 7s
+            const tickRow = document.createElement('div');
+            tickRow.style.cssText = `
+                width: 100%;
+                display: flex;
+                justify-content: space-between;
+                font-size: 0.65rem;
+                color: #a16207;
+                font-weight: 600;
+                margin-top: -0.2rem;
+            `;
+            for (let t = 0; t <= DDK_DURATION; t++) {
+                const tick = document.createElement('span');
+                tick.textContent = t + 's';
+                tickRow.appendChild(tick);
+            }
+
+            dkkPanel.appendChild(countdownNum);
+            dkkPanel.appendChild(countdownLabel);
+            dkkPanel.appendChild(barOuter);
+            dkkPanel.appendChild(tickRow);
+
+            // Insere o painel logo após o uploadStatus
+            uploadStatus.parentNode.insertBefore(dkkPanel, uploadStatus.nextSibling);
+
+
+            // Kick-off da barra (força reflow antes de aplicar a transição)
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => { barInner.style.width = '100%'; });
+            });
+
+            // Contador regressivo a cada segundo
+            let remaining = DDK_DURATION;
+            const countInterval = setInterval(() => {
+                remaining--;
+                countdownNum.textContent = remaining;
+                // Vira vermelho nos últimos 2 segundos
+                if (remaining <= 2) {
+                    countdownNum.style.color = '#ef4444';
+                    barInner.style.background = 'linear-gradient(90deg, #ef4444, #f87171)';
+                }
+                if (remaining <= 0) clearInterval(countInterval);
+            }, 1000);
+
+            // Stop automático exatamente nos 7 segundos
+            autoStopTimeout = setTimeout(() => {
+                clearInterval(countInterval);
+                const panel = document.getElementById('dkkCountdownPanel');
+                if (panel) panel.remove();
+                if (mediaRecorder && mediaRecorder.state === 'recording') {
+                    stopBtn.click();
+                    uploadStatus.innerHTML = '<span style="color:var(--secondary-color);"><i class="fa-solid fa-check-circle fa-beat"></i> Captura concluída! Processando áudio perfeito...</span>';
+                }
+            }, DDK_DURATION * 1000);
+
+        } else {
+            // Executa comportamento original de gravação aberta
+            recordBtn.innerHTML = '<i class="fa-solid fa-microphone"></i>';
+            recordBtn.style.display = 'none';
+            stopBtn.style.display = 'flex';
+
+            if (recordLabel) {
+                recordLabel.style.display = 'block';
+                recordLabel.textContent = 'Parar';
+                recordLabel.style.color = '#e74c3c';
+            }
+
+            uploadStatus.innerHTML = '<span style="color:var(--secondary-color);"><i class="fa-solid fa-circle-dot fa-fade"></i> Gravando modo RAW...</span>';
         }
-
-        uploadStatus.innerHTML = '<span style="color:var(--secondary-color);"><i class="fa-solid fa-circle-dot fa-fade"></i> Gravando modo RAW...</span>';
     }
 
     async function uploadRecording() {
