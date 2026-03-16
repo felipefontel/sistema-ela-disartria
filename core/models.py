@@ -5,13 +5,13 @@ class Patient(models.Model):
     GENDER_CHOICES = [
         ('M', 'Masculino'),
         ('F', 'Feminino'),
-        ('O', 'Outro'),
     ]
 
     DIAGNOSIS_CHOICES = [
         ('SAUDAVEL', 'Saudável'),
-        ('ELA_ESPINHAL', 'ELA espinhal'),
-        ('ELA_BULBAR', 'ELA bulbar'),
+        ('ELA_INICIO_BULBAR', 'ELA início bulbar'),
+        ('ELA_INICIO_ESPINHAL', 'ELA início espinhal'),
+        ('ELA_ESPINHAL_BULBAR', 'ELA espinhal e bulbar'),
         ('OUTRO', 'Outro'),
     ]
 
