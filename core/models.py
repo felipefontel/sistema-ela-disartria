@@ -20,6 +20,7 @@ class Patient(models.Model):
     gender = models.CharField("Sexo Biológico", max_length=1, choices=GENDER_CHOICES)
     diagnosis = models.CharField("Diagnóstico", max_length=20, choices=DIAGNOSIS_CHOICES)
     diagnosis_other = models.CharField("Outro Diagnóstico", max_length=255, blank=True, null=True, help_text="Preencher apenas se o diagnóstico for 'Outro'")
+    alsfrs_bulbar = models.IntegerField("Escore Bulbar ALSFRS-R (0 a 12)", null=True, blank=True, help_text="Soma das perguntas 1 a 3 (0 a 12)")
     phone = models.CharField("Telefone", max_length=20, blank=True, null=True)
     city = models.CharField("Cidade", max_length=100, blank=True, null=True)
     state = models.CharField("Estado (UF)", max_length=2, blank=True, null=True)

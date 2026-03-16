@@ -96,6 +96,13 @@
             {{ form.diagnosis_other.errors }}
         </div>
 
+        <div class="form-group">
+            <label for="{{ form.alsfrs_bulbar.id_for_label }}">Escore Bulbar ALSFRS-R (0 a 12)</label>
+            {{ form.alsfrs_bulbar }}
+            {{ form.alsfrs_bulbar.errors }}
+            <small style="color: var(--text-secondary); display: block; margin-top: 0.25rem;">Soma das perguntas 1 a 3 da escala funcional (0 a 12).</small>
+        </div>
+
         <div class="form-group" style="display: flex; align-items: center; gap: 0.5rem; margin-top: 1.5rem; background: rgba(11, 111, 184, 0.05); padding: 1rem; border-radius: 8px; border: 1px solid rgba(11, 111, 184, 0.2);">
             {{ form.consent_signed }}
             <label for="{{ form.consent_signed.id_for_label }}" style="margin: 0; font-weight: 600; color: var(--text-primary);">
