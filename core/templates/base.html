@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}App Disartria{% endblock %}</title>
+    <title>{% block title %}Bulbaris AI{% endblock %}</title>
     <link rel="icon" type="image/png" href="{% static 'core/images/favicon.png' %}">
     
     <!-- Google Fonts: Inter -->
@@ -25,7 +25,7 @@
     {% if user.is_authenticated %}
     <nav class="navbar">
         <a href="{% url 'dashboard' %}" class="brand" style="display: flex; align-items: center; text-decoration: none;">
-            <img src="{% static 'core/images/APP DISARTRIA.png' %}" alt="App ELA Logo" style="height: 48px; width: auto; object-fit: contain;">
+            <img src="{% static 'core/images/BULBARIS_AI_horizontal.png' %}" alt="Bulbaris AI Logo" style="height: 35px; width: auto; object-fit: contain;">
         </a>
         <div class="nav-links">
             <div class="user-dropdown" id="userDropdown">
@@ -73,7 +73,7 @@
     </main>
 
     <footer style="margin-top: auto; padding: 1.5rem; text-align: center; color: var(--text-secondary); font-size: 0.85rem; border-top: var(--glass-border); background: rgba(255,255,255,0.4);">
-        <p style="margin: 0;">&copy; {% now "Y" %} App Disartria. Todos os direitos reservados.</p>
+        <p style="margin: 0;">&copy; {% now "Y" %} Bulbaris AI. Todos os direitos reservados.</p>
         <!-- <p style="margin: 0.3rem 0 0 0;">Desenvolvido por Felipe Fontenele.</p> -->
     </footer>
 

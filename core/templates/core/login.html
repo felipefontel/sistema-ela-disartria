@@ -5,8 +5,8 @@
 
 {% block content %}
 <div class="glass-panel login-card">
-    <img src="{% static 'core/images/APP DISARTRIA.png' %}" alt="App ELA Logo" style="max-height: 130px; max-width: 100%; height: auto; width: auto; object-fit: contain; margin-bottom: 0rem;">
-    <h2 style="font-size: 1.20rem; padding-top: 30px;">Bem-vindo(a)</h2>
+    <img src="{% static 'core/images/BULBARIS_AI.png' %}" alt="Bulbaris AI Logo" style="max-height: 160px; max-width: 100%; height: auto; width: auto; object-fit: contain; margin-bottom: 0rem;">
+    <h2 style="font-size: 1.20rem; padding-top: 20px;">Bem-vindo(a)</h2>
     <p>Entre com seu Usuário e Senha</p>
 
     {% if form.errors %}
@@ -19,15 +19,69 @@
         {% csrf_token %}
         <div class="form-group">
             <label for="username">Usuário</label>
-            <input type="text" name="username" id="username" class="form-control" required autofocus>
+            <input type="text" name="username" id="username" class="form-control" placeholder="Digite seu usuário" required autofocus>
         </div>
         <div class="form-group">
             <label for="password">Senha</label>
-            <input type="password" name="password" id="password" class="form-control" required>
+            <div style="position: relative;">
+                <input type="password" name="password" id="password" class="form-control" placeholder="Digite sua senha" required style="padding-right: 2.5rem;">
+                <button type="button" id="togglePassword" style="position: absolute; right: 0.8rem; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text-secondary); cursor: pointer; padding: 0;">
+                    <i class="fa-regular fa-eye" id="eyeIcon"></i>
+                </button>
+            </div>
+        </div>
+        <div class="form-group" style="display: flex; align-items: center; gap: 0.5rem; margin-top: -0.5rem; margin-bottom: 1.5rem;">
+            <input type="checkbox" name="remember_me" id="remember_me" style="width: auto; margin: 0; cursor: pointer;">
+            <label for="remember_me" style="margin: 0; font-weight: 500; font-size: 0.9rem; color: var(--text-secondary); cursor: pointer;">Lembrar de mim</label>
         </div>
         <button type="submit" class="btn-primary">
             Entrar <i class="fa-solid fa-arrow-right ml-2"></i>
         </button>
     </form>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const togglePassword = document.getElementById('togglePassword');
+        const passwordInput = document.getElementById('password');
+        const eyeIcon = document.getElementById('eyeIcon');
+
+        togglePassword.addEventListener('click', function() {
+            // Alterna o atributo type do input
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            
+            // Alterna o ícone (olho aberto / olho cortado)
+            if (type === 'text') {
+                eyeIcon.classList.remove('fa-eye');
+                eyeIcon.classList.add('fa-eye-slash');
+            } else {
+                eyeIcon.classList.remove('fa-eye-slash');
+                eyeIcon.classList.add('fa-eye');
+            }
+        });
+
+        // --- Lógica de Lembrar Usuário no LocalStorage ---
+        const usernameInput = document.getElementById('username');
+        const rememberCheckbox = document.getElementById('remember_me');
+        const form = document.querySelector('form');
+
+        // 1. Ao carregar a página, verificar se há um usuário salvo
+        const savedUsername = localStorage.getItem('remembered_user_ela');
+        if (savedUsername) {
+            usernameInput.value = savedUsername;
+            rememberCheckbox.checked = true;
+            passwordInput.focus(); // Foca na senha, pois o usuário já está preenchido
+        }
+
+        // 2. Ao submeter o formulário, salva ou limpa do LocalStorage
+        form.addEventListener('submit', function() {
+            if (rememberCheckbox.checked) {
+                localStorage.setItem('remembered_user_ela', usernameInput.value);
+            } else {
+                localStorage.removeItem('remembered_user_ela');
+            }
+        });
+    });
+</script>
 {% endblock %}

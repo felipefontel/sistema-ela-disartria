@@ -23,6 +23,18 @@ def login_view(request):
         if form.is_valid():
             user = form.get_user()
             login(request, user)
+            
+            # Lógica de "Lembrar de Mim"
+            remember_me = request.POST.get('remember_me')
+            if not remember_me:
+                # Navegadores modernos (Chrome/Safari) costumam reter cookies de sessão infinitamente
+                # se a opção "Continuar de onde parei" estiver ativa.
+                # Para garantir que caia, forçamos a expiração em 1 hora de inatividade.
+                request.session.set_expiry(3600)
+            else:
+                # 2 semanas (padrão de 1209600s)
+                request.session.set_expiry(1209600)
+                
             return redirect('dashboard')
     else:
         form = AuthenticationForm()
