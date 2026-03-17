@@ -119,8 +119,14 @@ else:
             conn_health_checks=True,
         )
 
-# CORS Config
-CORS_ALLOW_ALL_ORIGINS = True # Ajustar em prod
+# # CORS Config
+# CORS_ALLOW_ALL_ORIGINS = True # Ajustar em prod
+
+CORS_ALLOWED_ORIGINS = [
+    "https://bulbaris-ai.vercel.app",
+    "https://sistema-ela-disartria.vercel.app",
+    # ...
+]
 
 
 
