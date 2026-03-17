@@ -5,7 +5,7 @@ from .models import Patient
 class PatientForm(forms.ModelForm):
     class Meta:
         model = Patient
-        fields = ['name', 'birth_date', 'gender', 'phone', 'city', 'state', 'has_escort', 'escort_name', 'diagnosis', 'diagnosis_other', 'alsfrs_bulbar', 'consent_signed']
+        fields = ['name', 'birth_date', 'gender', 'phone', 'city', 'state', 'has_escort', 'escort_name', 'diagnosis', 'diagnosis_other', 'alsfrs_bulbar', 'alsfrs_total', 'consent_signed']
         widgets = {
             'birth_date': forms.DateInput(format='%Y-%m-%d', attrs={'type': 'date', 'class': 'form-control'}),
             'name': forms.TextInput(attrs={'class': 'form-control'}),
@@ -18,6 +18,7 @@ class PatientForm(forms.ModelForm):
             'diagnosis': forms.Select(attrs={'class': 'form-control', 'id': 'id_diagnosis'}),
             'diagnosis_other': forms.TextInput(attrs={'class': 'form-control', 'id': 'id_diagnosis_other', 'style': 'display:none;'}),
             'alsfrs_bulbar': forms.NumberInput(attrs={'class': 'form-control', 'min': '0', 'max': '12'}),
+            'alsfrs_total': forms.NumberInput(attrs={'class': 'form-control', 'min': '0', 'max': '48'}),
         }
 
     def clean(self):
