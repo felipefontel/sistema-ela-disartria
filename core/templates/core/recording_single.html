@@ -24,12 +24,9 @@
         <!-- <p style="color: var(--text-secondary); margin-bottom: 0.5rem;">Paciente: <strong>{{ patient.name }}</strong></p> -->
         <h3 style="font-size: 1.8rem; margin-bottom: 1rem;">{{ task.title }}</h3>
 
-        <div class="task-instruction">
-            <i class="fa-solid fa-circle-info" style="color: var(--secondary-color);"></i>
-            {{ task.instruction }}
-            {% if task.example_audio %}
+        {% if task.example_audio %}
         <div id="exampleAudioContainer"
-            style="margin-top: 1.5rem; color: var(--text-secondary); font-size: 0.95rem; text-align: left; background: rgba(11, 111, 184, 0.05); padding: 1rem; border-radius: 12px; border: 1px dashed rgba(11, 111, 184, 0.2); max-width: 500px; margin-left: auto; margin-right: auto;">
+            style="margin-top: 1rem; margin-bottom: 1.5rem; color: var(--text-secondary); font-size: 0.95rem; text-align: left; background: rgba(11, 111, 184, 0.05); padding: 1rem; border-radius: 12px; border: 1px dashed rgba(11, 111, 184, 0.2);">
             <div
                 style="margin-bottom: 0.5rem; font-weight: 500; display: flex; align-items: center; gap: 0.5rem; color: var(--primary-color);">
                 <i class="fa-solid fa-volume-high"></i> Instruções:
@@ -40,10 +37,45 @@
             </audio>
         </div>
         {% endif %}
+
+        <div class="task-instruction">
+            <i class="fa-solid fa-circle-info" style="color: var(--secondary-color);"></i>
+            {{ task.instruction }}
         </div>
 
         
     </div>
+
+    <style>
+        .fable-highlight {
+            display: block;
+            background: linear-gradient(135deg, rgba(11,111,184,0.07), rgba(11,111,184,0.12));
+            border: 2px solid rgba(11,111,184,0.25);
+            border-radius: 14px;
+            padding: 1.4rem 1.8rem;
+            margin-top: 1.2rem;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            line-height: 1.7;
+            font-style: italic;
+            text-align: center;
+        }
+    </style>
+    <script>
+        (function() {
+            var el = document.querySelector('.task-instruction');
+            if (!el) return;
+            var html = el.innerHTML;
+            var start = html.indexOf('“');
+            var end   = html.lastIndexOf('”');
+            if (start === -1 || end === -1) return;
+            var before = html.slice(0, start);
+            var quote  = html.slice(start, end + 1);
+            var after  = html.slice(end + 1);
+            el.innerHTML = before + '<span class="fable-highlight">' + quote + '</span>' + after;
+        })();
+    </script>
 
     <!-- Hidden config bridge for Javascript -->
     <div id="audioConfig" data-patient="{{ patient.id }}" data-task="{{ task.id }}"
@@ -98,7 +130,7 @@
                 <i class="fa-solid fa-trash-can"></i> Descartar e Regravar
             </button>
 
-            <a id="nextBtn" href="{{ return_url }}" class="btn-primary"
+            <a id="nextBtn" href="{% url 'recording_single_complete' patient.id %}" class="btn-primary"
                 style="display: none; background: var(--secondary-color); text-decoration: none; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.8rem 1.5rem; font-size: 1rem; font-weight: 600; min-width: 180px;">
                 Concluir <i class="fa-solid fa-check"></i>
             </a>

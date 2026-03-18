@@ -192,6 +192,13 @@ def recording_single_view(request, patient_id, task_type):
 
 
 @login_required
+def recording_single_complete_view(request, patient_id):
+    """Chamada ao finalizar uma regravação individual."""
+    messages.success(request, '✅ Regravação concluída com sucesso!')
+    return redirect('patient_edit', pk=patient_id)
+
+
+@login_required
 def patient_delete(request, pk):
     patient = get_object_or_404(Patient, pk=pk)
     if request.method == 'POST':
@@ -200,6 +207,17 @@ def patient_delete(request, pk):
         messages.success(request, f'Paciente "{name}" excluído com sucesso!')
         return redirect('dashboard')
     return redirect('patient_detail', pk=pk)
+
+
+@login_required
+def recording_complete_view(request, patient_id):
+    """Chamada ao finalizar a última tarefa. Adiciona mensagem de sucesso e redireciona para patient_detail."""
+    patient = get_object_or_404(Patient, id=patient_id)
+    messages.success(
+        request,
+        f'✅ Sessão de gravação de <strong>{patient.name}</strong> concluída com sucesso!'
+    )
+    return redirect('patient_detail', pk=patient_id)
 
 
 
@@ -455,7 +473,7 @@ RECORDING_TASKS = [
     {
         'id': 'LEITURA',
         'title': '5. Leitura Padronizada',
-        'instruction': "Respire fundo e leia o texto abaixo em voz alta no seu ritmo natural. Vá até o final sem interromper:\n\n« O Vento Norte e o Sol discutiam qual dos dois era o mais forte, quando surgiu um viajante envolto em uma capa. Eles concordaram que aquele que fizesse o viajante tirar a capa primeiro seria considerado o mais forte. »",
+        'instruction': "Respire fundo e leia o texto abaixo em voz alta no seu ritmo natural. Vá até o final sem interromper:\n\n\u201cO Vento Norte e o Sol discutiam qual dos dois era o mais forte, quando surgiu um viajante envolto em uma capa. Eles concordaram que aquele que fizesse o viajante tirar a capa primeiro seria considerado o mais forte.\u201d",
         'example_audio': 'core/audios/Tarefa 5.wav',
         'next_step': None
     }

@@ -26,6 +26,8 @@ urlpatterns = [
     path('record/<int:patient_id>/instructions/', views.recording_instructions_view, name='recording_instructions'),
     path('record/<int:patient_id>/step/<int:step>/', views.recording_task_view, name='recording_task'),
     path('record/<int:patient_id>/single/<str:task_type>/', views.recording_single_view, name='recording_single'),
+    path('record/<int:patient_id>/complete/', views.recording_complete_view, name='recording_complete'),
+    path('record/<int:patient_id>/single-complete/', views.recording_single_complete_view, name='recording_single_complete'),
     path('api/upload-audio/', views.upload_audio_api, name='upload_audio_api'),
     path('api/delete-audio/', views.delete_audio_api, name='delete_audio_api'),
 ]
