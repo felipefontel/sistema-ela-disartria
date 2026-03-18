@@ -324,7 +324,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Coluna Esquerda: Botão/Dot
         const leftCol = document.createElement('div');
         leftCol.style.cssText = 'flex-shrink:0; position:relative;';
-        
+
         const dot = document.createElement('div');
         dot.style.cssText = `
             width: 40px; height: 40px; border-radius: 50%;
@@ -578,11 +578,11 @@ document.addEventListener('DOMContentLoaded', () => {
                             else pbCtx.rect(i * (barW + gap), centerY - h / 2, barW, h);
                             pbCtx.fill();
                         }
-                    } catch(e) { console.warn('Waveform decode:', e); }
+                    } catch (e) { console.warn('Waveform decode:', e); }
                 })();
 
                 // ── Helpers de formatação ──
-                const fmt = s => `${Math.floor(s/60)}:${String(Math.floor(s%60)).padStart(2,'0')}`;
+                const fmt = s => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
 
                 // ── Progresso durante reprodução ──
                 hiddenAudio.addEventListener('timeupdate', () => {
@@ -615,7 +615,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         src.connect(pbAnalyser);
                         pbAnalyser.connect(pbAudioCtx.destination);
                         pbContextReady = true;
-                    } catch(e) { console.warn('PB AudioContext:', e); }
+                    } catch (e) { console.warn('PB AudioContext:', e); }
                 }
 
                 function drawPbWave() {
@@ -679,7 +679,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (canvas) canvas.style.display = 'none';
 
                 // ── Status de revisão (não "salvo" ainda, usuário deve confirmar) ──
-                uploadStatus.innerHTML = '<span style="color:var(--text-secondary); font-size:0.85rem; margin-top:0.8rem; display:block;"><i class="fa-solid fa-headphones"></i> Revise o áudio — clique em <b>Concluir</b> para confirmar.</span>';
+                uploadStatus.innerHTML = '<span style="color:var(--text-secondary); font-size:0.85rem;  display:block;"><i class="fa-solid fa-headphones"></i> Revise o áudio — clique em <b>Concluir</b> para confirmar.</span>';
                 nextBtn.style.display = 'inline-flex';
                 discardBtn.style.display = 'inline-flex';
 

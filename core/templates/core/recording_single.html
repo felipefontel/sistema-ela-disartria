@@ -24,12 +24,15 @@
         <!-- <p style="color: var(--text-secondary); margin-bottom: 0.5rem;">Paciente: <strong>{{ patient.name }}</strong></p> -->
         <h3 style="font-size: 1.8rem; margin-bottom: 1rem;">{{ task.title }}</h3>
 
-        {% if task.example_audio %}
+        
+
+        <div class="task-instruction">
+            {% if task.example_audio %}
         <div id="exampleAudioContainer"
-            style="margin-top: 1rem; margin-bottom: 1.5rem; color: var(--text-secondary); font-size: 0.95rem; text-align: left; background: rgba(11, 111, 184, 0.05); padding: 1rem; border-radius: 12px; border: 1px dashed rgba(11, 111, 184, 0.2);">
+            style=" margin-bottom: 1.5rem; color: var(--text-secondary); font-size: 0.95rem; text-align: left; background: rgba(11, 111, 184, 0.05); padding: 1rem; border-radius: 12px; border: 1px dashed rgba(11, 111, 184, 0.2);">
             <div
                 style="margin-bottom: 0.5rem; font-weight: 500; display: flex; align-items: center; gap: 0.5rem; color: var(--primary-color);">
-                <i class="fa-solid fa-volume-high"></i> Instruções:
+                <i class="fa-solid fa-volume-high"></i> Ouvir instruções:
             </div>
             <audio controls style="height: 40px; max-width: 100%; width: 100%; box-sizing: border-box;">
                 <source src="{% static task.example_audio %}" type="audio/wav">
@@ -37,8 +40,6 @@
             </audio>
         </div>
         {% endif %}
-
-        <div class="task-instruction">
             <i class="fa-solid fa-circle-info" style="color: var(--secondary-color);"></i>
             {{ task.instruction }}
         </div>
