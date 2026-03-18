@@ -58,8 +58,9 @@
         {% if messages %}
             <div class="messages">
                 {% for message in messages %}
-                    <div class="glass-panel" style="background: var(--primary-color); color: white; margin-bottom: 1rem; padding: 1rem;">
-                        {{ message }}
+                    <div class="glass-panel" style="background: var(--secondary-color); color: white; margin-bottom: 1.5rem; padding: 1rem 1.5rem; border-radius: 12px; display: flex; align-items: center; gap: 0.8rem; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                        <i class="fa-solid fa-circle-check" style="font-size: 1.2rem;"></i>
+                        <span style="flex-grow: 1;">{{ message|safe }}</span>
                     </div>
                 {% endfor %}
             </div>

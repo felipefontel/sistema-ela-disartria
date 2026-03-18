@@ -143,8 +143,8 @@ def patient_edit(request, pk):
         form = PatientForm(request.POST, instance=patient)
         if form.is_valid():
             form.save()
-            messages.success(request, 'Dados do paciente atualizados com sucesso!')
-            return redirect('patient_edit', pk=patient.pk)
+            messages.success(request, f'Dados de <strong>{patient.name}</strong> atualizados com sucesso!')
+            return redirect('dashboard')
     else:
         form = PatientForm(instance=patient)
 
@@ -215,7 +215,7 @@ def recording_complete_view(request, patient_id):
     patient = get_object_or_404(Patient, id=patient_id)
     messages.success(
         request,
-        f'✅ Sessão de gravação de <strong>{patient.name}</strong> concluída com sucesso!'
+        f'Sessão de gravação de <strong>{patient.name}</strong> concluída com sucesso!'
     )
     return redirect('patient_detail', pk=patient_id)
 
