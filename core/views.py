@@ -54,7 +54,7 @@ def dashboard_view(request):
     diagnosis_filter = request.GET.get('diagnosis', '')
     gender_filter = request.GET.get('gender', '')
 
-    patients_qs = Patient.objects.all().order_by('-created_at')
+    patients_qs = Patient.objects.filter(is_active=True).order_by('-created_at')
     
     if query:
         patients_qs = patients_qs.filter(name__icontains=query)
@@ -78,7 +78,7 @@ def dashboard_view(request):
         'diagnosis_filter': diagnosis_filter,
         'gender_filter': gender_filter,
         'per_page': per_page,
-        'total_patients': Patient.objects.count(),
+        'total_patients': Patient.objects.filter(is_active=True).count(),
         'diagnosis_choices': Patient.DIAGNOSIS_CHOICES,
         'gender_choices': Patient.GENDER_CHOICES,
     }
@@ -89,7 +89,7 @@ def dashboard_view(request):
 
 @login_required
 def patient_list(request):
-    patients = Patient.objects.all().order_by('-created_at')
+    patients = Patient.objects.filter(is_active=True).order_by('-created_at')
     return render(request, 'core/patient_list.html', {'patients': patients})
 
 @login_required
@@ -108,7 +108,7 @@ def patient_create(request):
 
 @login_required
 def patient_detail(request, pk):
-    patient = get_object_or_404(Patient, pk=pk)
+    patient = get_object_or_404(Patient, pk=pk, is_active=True)
     recordings = patient.recordings.all().order_by('task_type', '-created_at')
     
     # Agrupa gravações por tipo de tarefa
@@ -138,7 +138,7 @@ def patient_detail(request, pk):
 
 @login_required
 def patient_edit(request, pk):
-    patient = get_object_or_404(Patient, pk=pk)
+    patient = get_object_or_404(Patient, pk=pk, is_active=True)
     if request.method == 'POST':
         form = PatientForm(request.POST, instance=patient)
         if form.is_valid():
@@ -177,7 +177,7 @@ def patient_edit(request, pk):
 @login_required
 def recording_single_view(request, patient_id, task_type):
     """Gravar apenas uma tarefa avulsa, retornando para patient_edit ao finalizar."""
-    patient = get_object_or_404(Patient, id=patient_id)
+    patient = get_object_or_404(Patient, id=patient_id, is_active=True)
     TASK_MAP = {task['id']: task for task in RECORDING_TASKS}
     if task_type not in TASK_MAP:
         return redirect('patient_edit', pk=patient_id)
@@ -194,17 +194,19 @@ def recording_single_view(request, patient_id, task_type):
 @login_required
 def recording_single_complete_view(request, patient_id):
     """Chamada ao finalizar uma regravação individual."""
+    get_object_or_404(Patient, id=patient_id, is_active=True)
     messages.success(request, '✅ Regravação concluída com sucesso!')
     return redirect('patient_edit', pk=patient_id)
 
 
 @login_required
 def patient_delete(request, pk):
-    patient = get_object_or_404(Patient, pk=pk)
+    patient = get_object_or_404(Patient, pk=pk, is_active=True)
     if request.method == 'POST':
         name = patient.name
-        patient.delete()
-        messages.success(request, f'Paciente "{name}" excluído com sucesso!')
+        patient.is_active = False
+        patient.save()
+        messages.success(request, f'Paciente "{name}" inativado com sucesso!')
         return redirect('dashboard')
     return redirect('patient_detail', pk=pk)
 
@@ -212,7 +214,7 @@ def patient_delete(request, pk):
 @login_required
 def recording_complete_view(request, patient_id):
     """Chamada ao finalizar a última tarefa. Adiciona mensagem de sucesso e redireciona para patient_detail."""
-    patient = get_object_or_404(Patient, id=patient_id)
+    patient = get_object_or_404(Patient, id=patient_id, is_active=True)
     messages.success(
         request,
         f'Sessão de gravação de <strong>{patient.name}</strong> concluída com sucesso!'
@@ -237,7 +239,7 @@ def _superuser_required(view_func):
 @_superuser_required
 def patient_features_view(request, pk):
     """View administrativa para visualizar features de áudio geradas sob-demanda"""
-    patient = get_object_or_404(Patient, pk=pk)
+    patient = get_object_or_404(Patient, pk=pk, is_active=True)
     
     # Adicionamos dinamicamente de volta ao path para importar as funções que fizemos avulso no arquivo de extração do projeto
     sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -481,14 +483,14 @@ RECORDING_TASKS = [
 
 @login_required
 def recording_instructions_view(request, patient_id):
-    patient = get_object_or_404(Patient, id=patient_id)
+    patient = get_object_or_404(Patient, id=patient_id, is_active=True)
     return render(request, 'core/recording_instructions.html', {
         'patient': patient,
     })
 
 @login_required
 def recording_task_view(request, patient_id, step):
-    patient = get_object_or_404(Patient, id=patient_id)
+    patient = get_object_or_404(Patient, id=patient_id, is_active=True)
     
     if step < 1 or step > len(RECORDING_TASKS):
         return redirect('dashboard')

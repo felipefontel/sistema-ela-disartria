@@ -29,6 +29,7 @@ class Patient(models.Model):
     escort_name = models.CharField("Nome do Acompanhante", max_length=255, blank=True, null=True, help_text="Preencher apenas se estiver com acompanhante")
 
     consent_signed = models.BooleanField("Concordou com o TCLE", default=False)
+    is_active = models.BooleanField("Ativo", default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name="patients")
