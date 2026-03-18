@@ -21,7 +21,7 @@
     </div>
 
     <div style="text-align: center; margin-bottom: 2rem;">
-        <p style="color: var(--text-secondary); margin-bottom: 0.5rem;">Paciente: <strong>{{ patient.name }}</strong></p>
+        <!-- <p style="color: var(--text-secondary); margin-bottom: 0.5rem;">Paciente: <strong>{{ patient.name }}</strong></p> -->
         <h3 style="font-size: 1.8rem; margin-bottom: 1rem;">{{ task.title }}</h3>
 
         <div class="task-instruction">
@@ -32,7 +32,7 @@
             style="margin-top: 1.5rem; color: var(--text-secondary); font-size: 0.95rem; text-align: left; background: rgba(11, 111, 184, 0.05); padding: 1rem; border-radius: 12px; border: 1px dashed rgba(11, 111, 184, 0.2); max-width: 500px; margin-left: auto; margin-right: auto;">
             <div
                 style="margin-bottom: 0.5rem; font-weight: 500; display: flex; align-items: center; gap: 0.5rem; color: var(--primary-color);">
-                <i class="fa-solid fa-volume-high"></i> Ouça um exemplo de como fazer:
+                <i class="fa-solid fa-volume-high"></i> Instruções:
             </div>
             <audio controls style="height: 40px; max-width: 100%; width: 100%; box-sizing: border-box;">
                 <source src="{% static task.example_audio %}" type="audio/wav">

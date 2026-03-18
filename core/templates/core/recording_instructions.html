@@ -14,7 +14,16 @@
 {% endblock %}
 
 {% block content %}
-<div class="glass-panel" style="max-width: 660px; margin: 0 auto; padding: 3rem 2.5rem; text-align: center;">
+<style>
+    .instr-panel { max-width: 660px; margin: 0 auto; padding: 3rem 2.5rem; text-align: center; }
+    .instr-cards { display: flex; gap: 1rem; margin-bottom: 2.5rem; text-align: left; }
+    .instr-card { flex: 1; background: rgba(255,255,255,0.7); border: 1px solid rgba(11,111,184,0.1); padding: 1rem; border-radius: 14px; display: flex; gap: 0.8rem; align-items: flex-start; box-shadow: 0 4px 8px rgba(0,0,0,0.03); }
+    @media (max-width: 520px) {
+        .instr-panel { padding: 2rem 1.25rem; }
+        .instr-cards { flex-direction: column; }
+    }
+</style>
+<div class="glass-panel instr-panel">
 
     <div style="display: inline-flex; align-items: center; justify-content: center; width: 64px; height: 64px; border-radius: 20px; background: linear-gradient(135deg, rgba(11,111,184,0.1), rgba(43,108,176,0.2)); color: var(--primary-color); font-size: 1.8rem; margin-bottom: 1.5rem; box-shadow: 0 8px 24px rgba(11,111,184,0.15); border: 1px solid rgba(255,255,255,0.6);">
         <i class="fa-solid fa-microphone-lines"></i>
@@ -36,8 +45,8 @@
     </div>
 
     <!-- Cards de Instrução -->
-    <div style="display: flex; gap: 1rem; margin-bottom: 2.5rem; text-align: left;">
-        <div style="flex: 1; background: rgba(255,255,255,0.7); border: 1px solid rgba(11,111,184,0.1); padding: 1rem; border-radius: 14px; display: flex; gap: 0.8rem; align-items: flex-start; box-shadow: 0 4px 8px rgba(0,0,0,0.03);">
+    <div class="instr-cards">
+        <div class="instr-card">
             <div style="color: var(--primary-color); background: #e0f2fe; min-width: 34px; height: 34px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 0.95rem; flex-shrink: 0;">
                 <i class="fa-solid fa-arrows-left-right"></i>
             </div>
@@ -46,7 +55,7 @@
                 <span style="color: var(--text-secondary); font-size: 0.85rem; line-height: 1.4; display: block; margin-top: 0.2rem;">Mantenha o dispositivo a aproximadamente <strong>15 cm</strong> do rosto do paciente.</span>
             </div>
         </div>
-        <div style="flex: 1; background: rgba(255,255,255,0.7); border: 1px solid rgba(11,111,184,0.1); padding: 1rem; border-radius: 14px; display: flex; gap: 0.8rem; align-items: flex-start; box-shadow: 0 4px 8px rgba(0,0,0,0.03);">
+        <div class="instr-card">
             <div style="color: var(--primary-color); background: #e0f2fe; min-width: 34px; height: 34px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 0.95rem; flex-shrink: 0;">
                 <i class="fa-solid fa-mobile-screen-button"></i>
             </div>
