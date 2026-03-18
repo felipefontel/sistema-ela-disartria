@@ -86,7 +86,7 @@
             </a>
 
             <!-- Nova Sessão de Gravação (CTA principal) -->
-            <a href="{% url 'recording_task' patient.id 1 %}" class="btn-session"
+            <a href="{% url 'recording_instructions' patient.id %}" class="btn-session"
                style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1.2rem; border-radius: 8px; font-size: 0.85rem; font-weight: 700; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); color: #fff; text-decoration: none; box-shadow: 0 2px 12px rgba(11,111,184,0.35); transition: all 0.2s; white-space: nowrap;"
                onmouseover="this.style.opacity='0.88'; this.style.transform='translateY(-1px)'"
                onmouseout="this.style.opacity='1'; this.style.transform='translateY(0)'">

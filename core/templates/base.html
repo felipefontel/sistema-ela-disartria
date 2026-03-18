@@ -31,7 +31,7 @@
             <div class="user-dropdown" id="userDropdown">
                 <button class="avatar-btn" id="userMenuBtn" onclick="toggleUserMenu(event)">
                     <span style="background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); color: white; display: inline-flex; align-items: center; justify-content: center; font-weight: 600; font-size: 0.9rem; padding: 0.4rem 1.2rem; border-radius: 20px;">
-                        <i class="fa-solid fa-user-doctor" style="margin-right: 0.5rem; font-size: 0.85rem;"></i>
+                        
                         {{ user.get_full_name|default:user.username }}
                     </span>
                     <i class="fa-solid fa-chevron-down avatar-icon"></i>

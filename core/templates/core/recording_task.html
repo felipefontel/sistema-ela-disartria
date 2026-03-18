@@ -42,9 +42,7 @@
         <div class="task-instruction">
             <i class="fa-solid fa-circle-info" style="color: var(--secondary-color);"></i>
             {{ task.instruction }}
-        </div>
-
-        {% if task.example_audio %}
+              {% if task.example_audio %}
         <div id="exampleAudioContainer"
             style="margin-top: 1.5rem; color: var(--text-secondary); font-size: 0.95rem; text-align: left; background: rgba(11, 111, 184, 0.05); padding: 1rem; border-radius: 12px; border: 1px dashed rgba(11, 111, 184, 0.2);">
             <div
@@ -57,6 +55,9 @@
             </audio>
         </div>
         {% endif %}
+        </div>
+
+      
     </div>
 
     <!-- Hidden config bridge for Javascript -->

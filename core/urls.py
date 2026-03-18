@@ -23,6 +23,7 @@ urlpatterns = [
     path('users/<int:pk>/delete/', views.user_delete, name='user_delete'),
 
     # Gravação
+    path('record/<int:patient_id>/instructions/', views.recording_instructions_view, name='recording_instructions'),
     path('record/<int:patient_id>/step/<int:step>/', views.recording_task_view, name='recording_task'),
     path('record/<int:patient_id>/single/<str:task_type>/', views.recording_single_view, name='recording_single'),
     path('api/upload-audio/', views.upload_audio_api, name='upload_audio_api'),

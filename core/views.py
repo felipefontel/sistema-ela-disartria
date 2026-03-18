@@ -462,6 +462,13 @@ RECORDING_TASKS = [
 ]
 
 @login_required
+def recording_instructions_view(request, patient_id):
+    patient = get_object_or_404(Patient, id=patient_id)
+    return render(request, 'core/recording_instructions.html', {
+        'patient': patient,
+    })
+
+@login_required
 def recording_task_view(request, patient_id, step):
     patient = get_object_or_404(Patient, id=patient_id)
     
