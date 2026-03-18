@@ -3,8 +3,10 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 
+import os
+
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path(os.getenv('ADMIN_URL', 'admin/'), admin.site.urls),
     path('', include('core.urls')),
 ]
 
