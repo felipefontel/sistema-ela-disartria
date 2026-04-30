@@ -112,6 +112,7 @@
         <table class="data-table">
             <thead>
                 <tr>
+                    <th>ID</th>
                     <th>Nome</th>
                     <th>Diagnóstico</th>
                     <th>Sexo</th>
@@ -122,6 +123,7 @@
             <tbody>
                 {% for patient in page_obj %}
                 <tr>
+                    <td style="color: var(--text-secondary); font-weight: 400; font-size: 0.75rem; opacity: 0.7;">#{{ patient.id }}</td>
                     <td style="font-weight: 500;">
                         <a href="{% url 'patient_detail' patient.pk %}" style="color: var(--primary-color); text-decoration: none; transition: opacity 0.2s;"
                            onmouseover="this.style.opacity='0.75'" onmouseout="this.style.opacity='1'">
@@ -130,7 +132,11 @@
                     </td>
                     <td>
                         <span style="font-size: 0.8rem; padding: 3px 8px; border-radius: 20px; background: rgba(99,179,237,0.15); color: #63b3ed;">
-                            {{ patient.get_diagnosis_display }}
+                            {% if patient.diagnosis == 'OUTRO' and patient.diagnosis_other %}
+                                {{ patient.diagnosis_other }}
+                            {% else %}
+                                {{ patient.get_diagnosis_display }}
+                            {% endif %}
                         </span>
                     </td>
                     <td style="color: var(--text-secondary);">{{ patient.get_gender_display }}</td>
@@ -160,7 +166,7 @@
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="5" style="text-align: center; padding: 3rem; color: var(--text-secondary);">
+                    <td colspan="6" style="text-align: center; padding: 3rem; color: var(--text-secondary);">
                         {% if query or diagnosis_filter or gender_filter %}
                             <i class="fa-solid fa-magnifying-glass" style="font-size: 1.5rem; margin-bottom: 0.5rem; display: block; opacity: 0.4;"></i>
                             Nenhum paciente encontrado para os filtros selecionados.

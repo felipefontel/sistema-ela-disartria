@@ -13,6 +13,7 @@
         <table class="data-table">
             <thead>
                 <tr>
+                    <th>ID</th>
                     <th>Nome</th>
                     <th>Data Nascimento</th>
                     <th>Diagnóstico</th>
@@ -23,9 +24,16 @@
             <tbody>
                 {% for patient in patients %}
                 <tr>
+                    <td style="color: var(--text-secondary); font-weight: 400; font-size: 0.75rem; opacity: 0.7;">#{{ patient.id }}</td>
                     <td>{{ patient.name }}</td>
                     <td>{{ patient.birth_date|date:"d/m/Y" }}</td>
-                    <td>{{ patient.get_diagnosis_display }}</td>
+                    <td>
+                        {% if patient.diagnosis == 'OUTRO' and patient.diagnosis_other %}
+                            {{ patient.diagnosis_other }}
+                        {% else %}
+                            {{ patient.get_diagnosis_display }}
+                        {% endif %}
+                    </td>
                     <td>{{ patient.created_at|date:"d/m/Y" }}</td>
                     <td>
                         <a href="#" class="btn-secondary" style="padding: 0.3rem 0.6rem; font-size: 0.85rem; text-decoration:none;"><i class="fa-solid fa-microphone"></i> Iniciar Coleta</a>
@@ -34,7 +42,7 @@
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="5" style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+                    <td colspan="6" style="text-align: center; padding: 2rem; color: var(--text-secondary);">
                         Nenhum paciente cadastrado ainda.
                     </td>
                 </tr>

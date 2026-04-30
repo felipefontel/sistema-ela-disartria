@@ -38,7 +38,7 @@
     <span style="margin: 0 0.5rem;">/</span>
     <a href="{% url 'dashboard' %}" style="color: var(--primary-color); text-decoration: none;">Pacientes</a>
     <span style="margin: 0 0.5rem;">/</span>
-    <span style="color: var(--text-primary); font-weight: 500;">{{ patient.name }}</span>
+    <span style="color: var(--text-primary); font-weight: 500;"><small style="color: var(--text-secondary); font-weight: 400; font-size: 0.75rem; opacity: 0.7;">#{{ patient.id }}</small> {{ patient.name }}</span>
 </div>
 {% endblock %}
 
@@ -58,8 +58,9 @@
                 <i class="fa-solid fa-arrow-left" style="font-size: 0.85rem;"></i>
             </a>
             <div>
-                
-                <h2 style="color: var(--text-primary); margin: 0; font-size: 1.4rem; font-weight: 700;">{{ patient.name }}</h2>
+                <h2 style="color: var(--text-primary); margin: 0; font-size: 1.4rem; font-weight: 700;">
+                    <span style="color: var(--text-secondary); font-size: 0.85rem; opacity: 0.6; margin-right: 0.4rem; font-weight: 400;">#{{ patient.id }}</span>{{ patient.name }}
+                </h2>
             </div>
         </div>
 
@@ -115,7 +116,13 @@
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 2.5rem;">
         <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 1rem;">
             <p style="color: var(--text-secondary); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; margin: 0 0 0.3rem 0;">Diagnóstico</p>
-            <p style="margin: 0; font-weight: 600; color: #63b3ed;">{{ patient.get_diagnosis_display }}</p>
+            <p style="margin: 0; font-weight: 600; color: #63b3ed;">
+                {% if patient.diagnosis == 'OUTRO' and patient.diagnosis_other %}
+                    {{ patient.diagnosis_other }}
+                {% else %}
+                    {{ patient.get_diagnosis_display }}
+                {% endif %}
+            </p>
         </div>
         <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 1rem;">
             <p style="color: var(--text-secondary); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; margin: 0 0 0.3rem 0;">Sexo Biológico</p>
@@ -167,12 +174,7 @@
                 {% endif %}
             </p>
         </div>
-        {% if patient.diagnosis_other %}
-        <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 1rem;">
-            <p style="color: var(--text-secondary); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; margin: 0 0 0.3rem 0;">Outro Diagnóstico</p>
-            <p style="margin: 0; font-weight: 600;">{{ patient.diagnosis_other }}</p>
-        </div>
-        {% endif %}
+
     </div>
 
     <!-- Gravações por Tarefa -->

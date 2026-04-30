@@ -386,7 +386,7 @@ def criar_dataset_pacientes():
             'nome': patient.name,
             'idade': idade,
             'sexo': patient.get_gender_display(),
-            'diagnostico': patient.get_diagnosis_display(),            
+            'diagnostico': patient.diagnosis_other if patient.diagnosis == 'OUTRO' and patient.diagnosis_other else patient.get_diagnosis_display(),            
             
             'inteligibilidade_wer_percent': intelligibility,
             
