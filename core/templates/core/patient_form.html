@@ -240,6 +240,19 @@
 
         escortCheckbox.addEventListener('change', toggleEscortField);
         toggleEscortField();
+
+        // Evitar múltiplos envios de formulário
+        const patientForm = document.getElementById('patient-form');
+        const submitBtn = document.querySelector('button[form="patient-form"]');
+
+        if (patientForm && submitBtn) {
+            patientForm.addEventListener('submit', function() {
+                submitBtn.disabled = true;
+                submitBtn.style.opacity = '0.7';
+                submitBtn.style.cursor = 'not-allowed';
+                submitBtn.innerHTML = 'Aguarde... <i class="fa-solid fa-spinner fa-spin ml-2"></i>';
+            });
+        }
     });
 </script>
 {% endblock %}
