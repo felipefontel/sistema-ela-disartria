@@ -271,7 +271,7 @@ def patient_features_view(request, pk):
     speech_rate, pauses_count, speaking_duration = extract_speech_rate(audio_leitura)
     ddk_count, ddk_regularity = extract_temporal_rhythm(audio_ddk)
     mfccs_dyn = extract_mfcc_and_dynamics(audio_leitura)
-    zcr_mean = mfccs_dyn[39] if mfccs_dyn and len(mfccs_dyn) == 40 else None
+    zcr_mean = mfccs_dyn[78] if mfccs_dyn and len(mfccs_dyn) == 80 else (mfccs_dyn[39] if mfccs_dyn and len(mfccs_dyn) == 40 else None)
 
     # Limpeza Limpador RAM
     cleanup_temp_files([audio_a, audio_i, audio_u, audio_leitura, audio_ddk])

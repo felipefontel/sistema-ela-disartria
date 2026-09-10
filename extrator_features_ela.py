@@ -161,6 +161,14 @@ def extract_perturbation_noise(audio_path):
         print(f"Erro ao calcular Perturbação Acústica: {e}")
         return [None] * 5
 
+def extract_jitter_shimmer_hnr(audio_path):
+    """
+    Função de compatibilidade para a tela de visualização individual do paciente (patient_features_view).
+    Retorna a trinca básica: (jitter_local, shimmer_local, hnr).
+    """
+    perturbacao = extract_perturbation_noise(audio_path)
+    return perturbacao[0], perturbacao[2], perturbacao[4]
+
 def extract_cepstral_cpp(audio_path):
     """Calcula o CPPS (Cepstral Peak Prominence Smoothed) médio e seu desvio padrão.
     
