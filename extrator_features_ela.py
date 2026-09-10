@@ -339,8 +339,8 @@ def criar_dataset_pacientes():
         return
 
     data = [] 
-    patients = Patient.objects.all()
-    print(f"Total de pacientes identificados no Banco ORM Principal: {patients.count()}")
+    patients = Patient.objects.filter(is_active=True)
+    print(f"Total de pacientes ATIVOS identificados no Banco ORM Principal: {patients.count()}")
     
     for patient in patients:
         print(f"-> Processando áudio do paciente: {patient.name}")
