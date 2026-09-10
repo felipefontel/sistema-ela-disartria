@@ -162,22 +162,47 @@ def extract_perturbation_noise(audio_path):
         return [None] * 5
 
 def extract_cepstral_cpp(audio_path):
+    """Calcula o CPPS (Cepstral Peak Prominence Smoothed) médio e seu desvio padrão.
+    
+    Usa 'Get CPPS' que retorna a média sobre todos os frames em uma única chamada,
+    compatível com parselmouth >= 0.4.x. A versão frame-a-frame ('Get peak prominence')
+    não está disponível nesta API.
+    """
     if not audio_path:
         return None, None
     try:
         snd = parselmouth.Sound(audio_path)
         cepstrogram = parselmouth.praat.call(snd, "To PowerCepstrogram", 60.0, 0.002, 5000.0, 50.0)
         
-        num_frames = parselmouth.praat.call(cepstrogram, "Get number of frames")
-        cpp_values = []
+        # 'Get CPPS' retorna a média ponderada de CPP sobre todos os frames (smoothed).
+        # Parâmetros: subtract_tilt, time_averaging_window, time_step,
+        #             quefrency_averaging_window, peak_search_pitch_range (min, max),
+        #             tolerance, interpolation, trend_type, fit_method
+        cpps_mean = parselmouth.praat.call(
+            cepstrogram, "Get CPPS",
+            "yes", 0.02, 0.0005,
+            60.0, 330.0, 0.05,
+            "Parabolic", 0.001, 0.05,
+            "Straight", "Robust"
+        )
         
-        for i in range(1, num_frames + 1):
-            val = parselmouth.praat.call(cepstrogram, "Get peak prominence", i, 60.0, 330.0, "Parabolic", 0.001, 0.05, "Straight", "Robust")
-            if not np.isnan(val):
-                cpp_values.append(val)
-                
-        if cpp_values:
-            return np.mean(cpp_values), np.std(cpp_values)
+        if cpps_mean is not None and not np.isnan(cpps_mean):
+            # Calcula desvio padrão frame a frame via slice
+            num_frames = parselmouth.praat.call(cepstrogram, "Get number of frames")
+            cpp_values = []
+            for i in range(1, num_frames + 1):
+                try:
+                    frame = parselmouth.praat.call(cepstrogram, "To PowerCepstrum (slice)...", i)
+                    val = parselmouth.praat.call(
+                        frame, "Get peak prominence...",
+                        60.0, 330.0, "Parabolic", 0.001, 0.05, "Straight", "Robust"
+                    )
+                    if val is not None and not np.isnan(val):
+                        cpp_values.append(val)
+                except Exception:
+                    pass
+            cpp_std = np.std(cpp_values) if len(cpp_values) > 1 else 0.0
+            return cpps_mean, cpp_std
         return None, None
     except Exception as e:
         print(f"Erro ao calcular CPP/CPP SD: {e}")
@@ -304,11 +329,21 @@ def extract_temporal_rhythm(audio_path):
         return None, None
 
 def extract_intelligibility_wer(audio_path, whisper_model, texto_referencia):
+    """Calcula o WER (Word Error Rate) usando Whisper para transcrever o áudio.
+    
+    O áudio é carregado via librosa e passado como array numpy (float32, 16kHz)
+    diretamente ao Whisper, evitando a dependência do FFmpeg no Windows.
+    """
     if not audio_path:
         return None
         
     try:
-        result = whisper_model.transcribe(audio_path, language="pt")
+        # Carrega com librosa (já dependência do projeto) resampleando para 16kHz mono,
+        # que é o formato nativo esperado pelo Whisper — sem chamar FFmpeg.
+        audio_array, _ = librosa.load(audio_path, sr=16000, mono=True)
+        audio_array = audio_array.astype(np.float32)
+        
+        result = whisper_model.transcribe(audio_array, language="pt")
         texto_transcrito = result["text"]
         
         referencia_clean = texto_referencia.lower().strip()
@@ -339,8 +374,8 @@ def criar_dataset_pacientes():
         return
 
     data = [] 
-    patients = Patient.objects.filter(is_active=True)
-    print(f"Total de pacientes ATIVOS identificados no Banco ORM Principal: {patients.count()}")
+    patients = Patient.objects.filter(is_active=True).exclude(diagnosis='OUTRO')
+    print(f"Total de pacientes ATIVOS (excluindo diagnóstico 'Outro'): {patients.count()}")
     
     for patient in patients:
         print(f"-> Processando áudio do paciente: {patient.name}")
