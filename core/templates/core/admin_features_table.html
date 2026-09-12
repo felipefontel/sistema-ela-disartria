@@ -22,7 +22,15 @@
         </div>
         <p style="color: var(--text-secondary); margin: 0; font-size: 0.95rem;">Todas as medições extraídas e mapeadas a partir da Tabela Offline.</p>
     </div>
-    <div style="display: flex; gap: 0.75rem;">
+    <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center;">
+        <a href="{% url 'admin_backup_export_view' %}" class="btn-primary" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.6rem 1.2rem; font-weight: 600; background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); border: none; color: white; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);" title="Baixa um arquivo .ZIP contendo o banco de dados completo, todos os áudios gravados e a planilha CSV">
+            <i class="fa-solid fa-box-archive"></i> Fazer Backup Completo (ZIP)
+        </a>
+        {% if has_dataset %}
+        <a href="{% url 'admin_download_dataset_csv_view' %}" class="btn-secondary" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.6rem 1.2rem; font-weight: 600; background: rgba(59, 130, 246, 0.1); color: #2563eb; border: 1px solid rgba(59, 130, 246, 0.25);" title="Baixa diretamente a planilha dataset_features_ela.csv com as 103 medições">
+            <i class="fa-solid fa-file-arrow-down"></i> Baixar CSV
+        </a>
+        {% endif %}
         <a href="{% url 'admin_generate_dataset_view' %}" class="btn-primary" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.6rem 1.2rem; font-weight: 600; background-color: #10b981; border: none; color: white;" onclick="return confirm('ATENÇÃO: Este processo usa Inteligência Artificial pesada e varrerá o áudio de todos os pacientes do zero. A tela pode travar ou carregar por SEGUNDOS a MINUTOS dependendo do tamanho do banco.\n\nDeseja mesmo gerar a planilha agora?');">
             <i class="fa-solid fa-rotate"></i> Processar/Recriar Dados
         </a>

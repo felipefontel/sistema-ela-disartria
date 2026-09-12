@@ -15,6 +15,8 @@ urlpatterns = [
     path('patients/<int:pk>/delete/', views.patient_delete, name='patient_delete'),
     path('dataset/', views.admin_features_dataset_view, name='admin_features_dataset_view'),
     path('dataset/generate/', views.admin_generate_dataset_view, name='admin_generate_dataset_view'),
+    path('dataset/download-csv/', views.admin_download_dataset_csv_view, name='admin_download_dataset_csv_view'),
+    path('dataset/backup/', views.admin_backup_export_view, name='admin_backup_export_view'),
     
     # Usuários (restrito a superusuários)
     path('users/', views.user_list, name='user_list'),

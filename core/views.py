@@ -4,13 +4,19 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.models import User, Group
 from django.contrib import messages
-from django.http import JsonResponse
+from django.http import JsonResponse, FileResponse, Http404
 from django.views.decorators.csrf import csrf_protect
 from .models import Patient, PatientRecording
 from .forms import PatientForm, UserCreateForm, UserEditForm
 import sys
 import os
 import csv
+import zipfile
+import tempfile
+import io
+import json
+from datetime import datetime
+from django.core.management import call_command
 from django.conf import settings
 
 
@@ -340,6 +346,163 @@ def admin_generate_dataset_view(request):
         
     # Quando acabar todo o loading do Python pesado, ele estourará e devolverá o HTML relido:
     return redirect('admin_features_dataset_view')
+
+
+@_superuser_required
+def admin_download_dataset_csv_view(request):
+    """Permite baixar diretamente o arquivo dataset_features_ela.csv gerado."""
+    csv_path = os.path.join(settings.BASE_DIR, 'dataset_features_ela.csv')
+    if not os.path.exists(csv_path):
+        messages.error(request, 'O arquivo CSV do dataset ainda não foi gerado. Clique em "Processar/Recriar Dados" primeiro.')
+        return redirect('admin_features_dataset_view')
+        
+    return FileResponse(
+        open(csv_path, 'rb'), 
+        as_attachment=True, 
+        filename=f"dataset_features_ela_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
+    )
+
+
+@_superuser_required
+def admin_backup_export_view(request):
+    """
+    Gera e exporta um arquivo .ZIP completo contendo:
+    1. Banco de dados (dump JSON do Django para máxima portabilidade + db.sqlite3 se existente)
+    2. Todos os áudios gravados dos pacientes
+    3. O arquivo CSV do dataset acústico gerado
+    4. Manifesto detalhado com estatísticas e instruções de restauração
+    """
+    temp_zip = tempfile.NamedTemporaryFile(delete=False, suffix='.zip')
+    temp_zip_path = temp_zip.name
+    temp_zip.close()
+    
+    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+    total_audios = 0
+    erros_audios = []
+    
+    try:
+        with zipfile.ZipFile(temp_zip_path, 'w', compression=zipfile.ZIP_DEFLATED) as zip_file:
+            # 1. DUMP DO BANCO DE DADOS (JSON via Django dumpdata)
+            try:
+                buf = io.StringIO()
+                call_command('dumpdata', 'core', 'auth', indent=2, stdout=buf)
+                zip_file.writestr('banco_de_dados/dump_dados_django.json', buf.getvalue().encode('utf-8'))
+            except Exception as e:
+                zip_file.writestr('banco_de_dados/erro_dump.txt', f'Erro ao gerar dump: {str(e)}')
+            
+            # Se houver arquivo SQLite físico local
+            sqlite_path = os.path.join(settings.BASE_DIR, 'db.sqlite3')
+            if os.path.exists(sqlite_path):
+                zip_file.write(sqlite_path, arcname='banco_de_dados/db.sqlite3')
+            
+            # 2. DATASET ACÚSTICO (CSV)
+            csv_path = os.path.join(settings.BASE_DIR, 'dataset_features_ela.csv')
+            has_dataset_file = os.path.exists(csv_path)
+            if has_dataset_file:
+                zip_file.write(csv_path, arcname='dataset/dataset_features_ela.csv')
+            
+            # 3. ÁUDIOS GRAVADOS DOS PACIENTES
+            # A) Se houver arquivos locais na pasta media/
+            media_folder = os.path.join(settings.BASE_DIR, 'media')
+            if os.path.exists(media_folder):
+                for root, dirs, files in os.walk(media_folder):
+                    for file in files:
+                        local_path = os.path.join(root, file)
+                        rel_path = os.path.relpath(local_path, media_folder)
+                        arc_name = f"audios_gravados/local_media/{rel_path.replace(os.sep, '/')}"
+                        zip_file.write(local_path, arcname=arc_name)
+                        total_audios += 1
+
+            # B) Gravações vinculadas aos pacientes ativos
+            recordings = PatientRecording.objects.filter(patient__is_active=True).select_related('patient')
+            for rec in recordings:
+                if rec.audio_file:
+                    try:
+                        rec_name = os.path.basename(rec.audio_file.name)
+                        safe_patient_name = "".join(c for c in rec.patient.name if c.isalnum() or c in (' ', '_', '-')).rstrip()
+                        patient_slug = f"paciente_{rec.patient_id}_{safe_patient_name.replace(' ', '_')[:25]}"
+                        arc_name = f"audios_gravados/{patient_slug}/{rec.task_type}_{rec_name}"
+                        
+                        if arc_name in zip_file.namelist():
+                            continue
+                            
+                        file_written = False
+                        try:
+                            if hasattr(rec.audio_file, 'path') and os.path.exists(rec.audio_file.path):
+                                zip_file.write(rec.audio_file.path, arcname=arc_name)
+                                file_written = True
+                                total_audios += 1
+                        except Exception:
+                            file_written = False
+                            
+                        if not file_written:
+                            try:
+                                with rec.audio_file.open('rb') as f:
+                                    zip_file.writestr(arc_name, f.read())
+                                    total_audios += 1
+                            except Exception:
+                                pass
+                    except Exception as err_file:
+                        erros_audios.append(f"Gravação ID {rec.id} (Paciente: {rec.patient.name}): {str(err_file)}")
+            
+            # 4. MANIFESTO & INSTRUÇÕES DE RESTAURAÇÃO
+            manifesto = {
+                "gerado_em": datetime.now().strftime('%d/%m/%Y %H:%M:%S'),
+                "total_pacientes": Patient.objects.count(),
+                "total_pacientes_ativos": Patient.objects.filter(is_active=True).count(),
+                "total_audios_gravados": total_audios,
+                "dataset_csv_incluido": has_dataset_file,
+                "erros_audios": erros_audios
+            }
+            zip_file.writestr('manifesto_backup.json', json.dumps(manifesto, indent=2, ensure_ascii=False))
+            
+            readme = f"""===================================================================
+BACKUP COMPLETO DO SISTEMA ELA DISARTRIA
+Data e Hora de Geração: {datetime.now().strftime('%d/%m/%Y às %H:%M:%S')}
+===================================================================
+
+CONTEÚDO DO PACOTE DE BACKUP:
+
+1. /banco_de_dados/
+   - dump_dados_django.json : Backup canônico em JSON com todas as tabelas
+     (Pacientes, Gravações, Usuários do Sistema, Grupos).
+     Compatível com migração entre SQLite, PostgreSQL ou outros SGBDs.
+   - db.sqlite3 : Cópia do arquivo SQLite local (quando utilizado).
+
+2. /audios_gravados/
+   - Todos os arquivos de áudio gravados para cada paciente,
+     organizados por pasta de paciente e nome da tarefa
+     (Vogais A/I/U, Diadococinesia e Leitura Padronizada).
+   - Total de áudios arquivados: {total_audios}
+
+3. /dataset/
+   - dataset_features_ela.csv : Planilha de extração acústica
+     com todas as features computadas para Machine Learning.
+
+INSTRUÇÕES PARA RESTAURAÇÃO:
+-------------------------------------------------------------------
+A) Restaurar o Banco de Dados:
+   1. Certifique-se de aplicar as migrações:
+      python manage.py migrate
+   2. Carregue os dados do arquivo JSON:
+      python manage.py loaddata banco_de_dados/dump_dados_django.json
+
+B) Restaurar os Áudios:
+   Copie o conteúdo da pasta 'audios_gravados/' para a sua pasta
+   'media/recordings/' (ou envie para o container correspondente de storage).
+===================================================================
+"""
+            zip_file.writestr('README_INSTRUCOES.txt', readme)
+
+        response = FileResponse(
+            open(temp_zip_path, 'rb'),
+            as_attachment=True,
+            filename=f"backup_sistema_ela_{timestamp}.zip"
+        )
+        return response
+    except Exception as e:
+        messages.error(request, f'Erro ao processar backup: {str(e)}')
+        return redirect('admin_features_dataset_view')
 
 
 def _get_user_papel(user):
